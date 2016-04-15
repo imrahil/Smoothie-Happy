@@ -7,15 +7,18 @@ sh.network.scanner.store();
 //------------------------------------------------------------------------------
 
 // UI elements
-var $ipInput           = $('#ipInput');
-var $timeoutInput      = $('#timeoutInput');
-var $stopButton        = $('#stopButton');
-var $scanButton        = $('#scanButton');
-var $scanButtonIcon    = $scanButton.find('.icon');
-var $scanButtonText    = $scanButton.find('.text');
-var $scannedLabel      = $('#scannedLabel');
-var $totalLabel        = $('#totalLabel');
-var $foundLabel        = $('#foundLabel');
+var $ipInput        = $('#ipInput');
+var $timeoutInput   = $('#timeoutInput');
+var $stopButton     = $('#stopButton');
+var $scanButton     = $('#scanButton');
+var $scanButtonIcon = $scanButton.find('.icon');
+var $scanButtonText = $scanButton.find('.text');
+var $scannedLabel   = $('#scannedLabel');
+var $totalLabel     = $('#totalLabel');
+var $foundLabel     = $('#foundLabel');
+var $noBoards       = $('#noBoards');
+var $boards         = $('#boards');
+var $boardTemplate  = $('#boardTemplate');
 
 //------------------------------------------------------------------------------
 
@@ -46,6 +49,24 @@ function setProgression(scanned, total, found) {
     $scannedLabel.text(scanned);
     $totalLabel.text(total);
     $foundLabel.text(found);
+}
+
+// add a new board
+var boards = {};
+
+function addBoard(board) {
+    if (boards[board.ip]) {
+        return;
+    }
+    boards[board.ip] = board;
+    var template = $boardTemplate.html().toString();
+    template = template.replace(/{{ip}}/g, board.ip);
+    template = template.replace(/{{version}}/g, board.version);
+    template = template.replace(/{{date}}/g, board.date);
+    template = template.replace(/{{mcu}}/g, board.mcu);
+    template = template.replace(/{{clock}}/g, board.clock);
+    template = template.replace(/{{id}}/g, board.ip.replace(/\./g, '-'));
+    $boards.append(template);
 }
 
 //------------------------------------------------------------------------------
@@ -82,6 +103,10 @@ $stopButton.on('click', function() {
 // defaults inputs values
 $ipInput.val(sh.network.scanner.input);
 $timeoutInput.val(sh.network.scanner.timeout);
+
+// show/hide boards panel
+$noBoards.show();
+$boards.hide();
 
 // // on ip input change
 // $ipInput.on('change', function() {
@@ -127,8 +152,10 @@ sh.network.scanner.onProgress = function(ip, board, scanner) {
 };
 
 // on board found
-sh.network.scanner.onBoard = function(ip, board) {
-    console.log('smoothie:', ip, board);
+sh.network.scanner.onBoard = function(board) {
+    addBoard(board);
+    $noBoards.hide();
+    $boards.show();
 };
 
 // on scan aborted

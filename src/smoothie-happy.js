@@ -56,7 +56,7 @@
         storage   : true,
         input     : '192.168.1.*',
         onStart   : function(queue) {},
-        onBoard   : function(ip, board) {},
+        onBoard   : function(board) {},
         onProgress: function(ip, board, self) {},
         onAbort   : function(self) {},
         onResume  : function(self) {},
@@ -94,6 +94,7 @@
 
                 if (matches) {
                     board = {
+                        ip     : ip,
                         version: matches[1],
                         date   : matches[2],
                         mcu    : matches[3],
@@ -101,7 +102,7 @@
                     };
                     self.found++;
                     self.boards[ip] = board;
-                    self.onBoard(ip, self.boards[ip]);
+                    self.onBoard(board);
                 }
             }
 
