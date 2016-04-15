@@ -112,7 +112,6 @@ sh.network.scanner.onProgress = function(ip, board, scanner) {
 
     // set found label color
     if (scanner.found) {
-        console.log('pouet');
         $foundLabel.toggleClass('label-success', true);
         $foundLabel.toggleClass('label-danger', false);
     }

@@ -155,44 +155,63 @@
         // reset queue
         this.queue = [];
 
-        // To short or not defined
+        // too short or not defined
         if (!input || input.length < 3) {
             throw new Error('Invalid input.');
         }
 
-        // Wildcard | ex.: [192.168.1.*]
-        else if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.\*$/.test(input)) {
-            var inputParts = input.split('.');
-            inputParts.pop(); // remove last part (*)
-            var baseIp = inputParts.join('.');
-            for (var i = 0; i <= 255; i++) {
-                this.queue.push(baseIp + '.' + i);
+        // input array
+        var inputArray = input;
+
+        // split input on comma if not an array
+        if (typeof inputArray === 'string') {
+            inputArray = inputArray.split(',');
+        }
+
+        // trim input parts
+        inputArray = inputArray.map(function(part) {
+            return part.trim();
+        });
+
+        // for each parts
+        for (var y = 0, yl = inputArray.length; y < yl; y++) {
+            // current part
+            var currentInput = inputArray[y];
+
+            // Wildcard | ex.: [192.168.1.*]
+            if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.\*$/.test(currentInput)) {
+                var currentInputParts = currentInput.split('.');
+                currentInputParts.pop(); // remove last part (*)
+                var baseIp = currentInputParts.join('.');
+                for (var i = 0; i <= 255; i++) {
+                    this.queue.push(baseIp + '.' + i);
+                }
             }
-        }
 
-        // Single ip | ex.: [192.168.1.55]
-        else if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(input)) {
-            this.queue.push(input);
-        }
-
-        // Ip's range | ex.: [192.168.1.50-100]
-        else if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\-[0-9]{1,3}$/.test(input)) {
-            var inputParts = input.split('.');
-            var inputRange = inputParts.pop().split('-'); // last part (xxx-xxx)
-            var baseIp     = inputParts.join('.');
-            for (var i = inputRange[0]; i <= inputRange[1]; i++) {
-                this.queue.push(baseIp + '.' + i);
+            // Single ip | ex.: [192.168.1.55]
+            else if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(currentInput)) {
+                this.queue.push(currentInput);
             }
-        }
 
-        // Hostname | ex.: [www.host.name]
-        else if (/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/.test(input)) {
-            this.queue.push(input);
-        }
+            // Ip's range | ex.: [192.168.1.50-100]
+            else if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\-[0-9]{1,3}$/.test(currentInput)) {
+                var currentInputParts = currentInput.split('.');
+                var currentInputRange = currentInputParts.pop().split('-'); // last part (xxx-xxx)
+                var baseIp     = currentInputParts.join('.');
+                for (var i = currentInputRange[0], il = currentInputRange[1]; i <= il; i++) {
+                    this.queue.push(baseIp + '.' + i);
+                }
+            }
 
-        // Invalid...
-        else {
-            throw new Error('Invalid input.');
+            // Hostname | ex.: [www.host.name]
+            else if (/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/.test(currentInput)) {
+                this.queue.push(currentInput);
+            }
+
+            // Invalid...
+            else {
+                throw new Error('Invalid input.');
+            }
         }
 
         // set input
