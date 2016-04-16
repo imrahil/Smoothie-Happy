@@ -18,9 +18,9 @@
         timeout: 1000
     };
 
-    sh.network.post = function(uri, data, callback, timeout) {
-        var data = data || '';
-        var xhr  = new XMLHttpRequest();
+    // http request
+    sh.network.request = function(type, uri, data, callback, timeout) {
+        var xhr = new XMLHttpRequest();
 
         xhr.timeout = timeout || this.timeout;
 
@@ -34,11 +34,49 @@
             callback && callback('timeout', xhr);
         });
 
-        //uri += '?time=' + Date.now(); // no-cache
+        if (typeof data !== 'string' || !data.length) {
+            data = null;
+        }
 
-        xhr.open('POST', uri, true);
-        xhr.send(data);
+        if (type === 'GET' && data) {
+            uri += data;
+            data = null;
+        }
+
+        xhr.open(type, uri, true);
+        xhr.send(type === 'POST' && data);
     };
+
+    // get request
+    sh.network.get = function(uri, data, callback, timeout) {
+        sh.network.request('GET', uri, data, callback, timeout);
+    };
+
+    // post request
+    sh.network.post = function(uri, data, callback, timeout) {
+        sh.network.request('POST', uri, data, callback, timeout);
+    };
+
+    // get the last firmaware version
+    sh.network.getLastFirmewareVersion = function(refresh) {
+        var url  = 'https://api.github.com/repos/Smoothieware/Smoothieware/commits';
+        var data = '?sha=edge&path=FirmwareBin/firmware.bin';
+
+        this.get(url, data, function(type, xhr) {
+            if (type === 'load' && xhr.status === 200) {
+                var response = JSON.parse(xhr.response);
+                var i, il, commit, sha;
+                for (var i = 0, il = response.length; i < il; i++) {
+                    commit = response[i];
+                    sha    = commit.parents[0].sha;
+
+                    console.log(sha);
+                }
+            }
+        })
+    };
+
+    sh.network.getLastFirmewareVersion();
 
     // -------------------------------------------------------------------------
 
@@ -106,7 +144,7 @@
                     // Mar 20 2016 11:51:24 -> 2016-03-20T18:52:15Z
                     board.update = new Date(board.date).toISOString();
 
-                    console.log(board.update);
+                    //console.log(board.update);
 
                     self.found++;
                     self.boards[ip] = board;
