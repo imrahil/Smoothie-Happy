@@ -6,6 +6,9 @@ if ((Date.now() - sh.firmware.edge.update) > 86400000) {
     sh.firmware.updateEdgeFirmwareCommits();
 }
 
+// scan known ip's
+sh.network.scanner.scanKnownIps();
+
 //------------------------------------------------------------------------------
 
 // UI elements

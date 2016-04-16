@@ -5,8 +5,8 @@
         version    : '0.0.1-alpha',
         name       : 'Smoothie Happy',
         description: 'Smoothieware network communication API.',
-        storage    : true,
-        storageId  : 'sh'
+        storageId  : 'sh',
+        storage    : true
     };
 
     // locale storage shortcut
@@ -49,9 +49,9 @@
     // network namespace
     sh.network = {
         version  : '0.0.1-alpha',
-        timeout  : 1000,
+        storageId: 'sh.network',
         storage  : true,
-        storageId: 'sh.network'
+        timeout  : 1000
     };
 
     // locale storage shortcut
@@ -126,16 +126,17 @@
     // network scanner
     sh.network.scanner = {
         version   : '0.0.1-alpha',
+        storageId : 'sh.network.scanner',
+        storage   : true,
         timeout   : 1000,
         scanning  : false,
         scanned   : 0,
         total     : 0,
         found     : 0,
         queue     : [],
+        knownIps  : [],
         boards    : {},
         aborted   : false,
-        storage   : true,
-        storageId : 'sh.network.scanner',
         input     : '192.168.1.*',
         onStart   : function(queue) {},
         onBoard   : function(board) {},
@@ -189,9 +190,9 @@
                     var hash     = branch[1];
                         branch   = branch[0];
                     var upToDate = sh.firmware.getEdgeCommitPosition(hash);
+
                     board = {
                         ip      : ip,
-                        //version : version,
                         branch  : branch,
                         hash    : hash,
                         upToDate: upToDate,
@@ -200,14 +201,12 @@
                         clock   : matches[4]
                     };
 
-                    // ISO date for GitHub update notification
-                    // Mar 20 2016 11:51:24 -> 2016-03-20T18:52:15Z
-                    board.update = new Date(board.date).toISOString();
-
-                    //console.log(board.update);
-
                     self.found++;
                     self.boards[ip] = board;
+                    if (self.knownIps.indexOf(ip) === -1) {
+                        self.knownIps.push(ip);
+                        self.store('knownIps', self.knownIps);
+                    }
                     self.onBoard(board);
                 }
             }
@@ -320,6 +319,11 @@
         this.processQueue();
     };
 
+    // scan known ip's
+    sh.network.scanner.scanKnownIps = function() {
+        this.knownIps.length && this.scan(this.knownIps.join(','));
+    };
+
     // stop scanning
     sh.network.scanner.stop = function(silent) {
         if (this.scanning || this.aborted) {
@@ -359,8 +363,8 @@
     // firmware namspace
     sh.firmware = {
         version  : '0.0.1-alpha',
-        storage  : true,
         storageId: 'sh.firmware',
+        storage  : true,
         edge     : {
             update : 0,
             commits: {}
