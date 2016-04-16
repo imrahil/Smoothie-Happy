@@ -45,7 +45,7 @@
     // network scanner
     sh.network.scanner = {
         version   : '0.0.1-alpha',
-        timeout   : 500,
+        timeout   : 1000,
         scanning  : false,
         scanned   : 0,
         total     : 0,
@@ -82,7 +82,7 @@
         var board = null;
         var uri   = 'http://' + ip + '/command';
 
-        console.log('scan:', ip);
+        console.info('scan:', ip);
 
         sh.network.post(uri, 'version\n', function(type, xhr) {
 
@@ -93,6 +93,7 @@
                 var matches = text.match(/Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/);
 
                 if (matches) {
+                    // board info
                     board = {
                         ip     : ip,
                         version: matches[1],
@@ -100,6 +101,13 @@
                         mcu    : matches[3],
                         clock  : matches[4]
                     };
+
+                    // ISO date for GitHub update notification
+                    // Mar 20 2016 11:51:24 -> 2016-03-20T18:52:15Z
+                    board.update = new Date(board.date).toISOString();
+
+                    console.log(board.update);
+
                     self.found++;
                     self.boards[ip] = board;
                     self.onBoard(board);
