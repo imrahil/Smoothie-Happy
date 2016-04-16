@@ -4,19 +4,63 @@
     var sh = {
         version    : '0.0.1-alpha',
         name       : 'Smoothie Happy',
-        description: 'Smoothieware network communication API.'
+        description: 'Smoothieware network communication API.',
+        storage    : true,
+        storageId  : 'sh'
+    };
+
+    // locale storage shortcut
+    sh.store = function(index, value) {
+        // no locale storage
+        if (!this.storage) return;
+
+        // get the store
+        var store = JSON.parse(localStorage.getItem(this.storageId) || '{}');
+
+        // load stored values
+        if (! index) {
+            for (var index in store) {
+                this[index] = store[index];
+            }
+            return;
+        }
+
+        // get old value at index
+        var oldValue = store[index] || undefined;
+
+        // store the new value
+        if (arguments.length > 1) {
+            store[index] = value;
+            localStorage.setItem(this.storageId, JSON.stringify(store));
+        }
+
+        // return the old value
+        return oldValue;
     };
 
     // initialization message
     console.info(sh.name + ' - v' + sh.version);
 
+    // load local settings
+    sh.store();
+
     // -------------------------------------------------------------------------
 
     // network namespace
     sh.network = {
-        version: '0.0.1-alpha',
-        timeout: 1000
+        version  : '0.0.1-alpha',
+        timeout  : 1000,
+        storage  : true,
+        storageId: 'sh.network'
     };
+
+    // locale storage shortcut
+    sh.network.store = function(index, value) {
+        sh.store.call(this, index, value);
+    };
+
+    // load local settings
+    sh.network.store();
 
     // http request
     sh.network.request = function(type, uri, data, callback, timeout) {
@@ -57,26 +101,25 @@
         sh.network.request('POST', uri, data, callback, timeout);
     };
 
-    // get the last firmaware version
-    sh.network.getLastFirmewareVersion = function(refresh) {
+    // get firmaware versions
+    sh.network.getEdgeFirmwareCommits = function(callback) {
         var url  = 'https://api.github.com/repos/Smoothieware/Smoothieware/commits';
         var data = '?sha=edge&path=FirmwareBin/firmware.bin';
 
         this.get(url, data, function(type, xhr) {
             if (type === 'load' && xhr.status === 200) {
                 var response = JSON.parse(xhr.response);
-                var i, il, commit, sha;
-                for (var i = 0, il = response.length; i < il; i++) {
+                var i, il, commit, sha, commits = {};
+                for (i = 0, il = response.length; i < il; i++) {
                     commit = response[i];
                     sha    = commit.parents[0].sha;
-
-                    console.log(sha);
+                    hash   = sha.substr(0, 7);
+                    commits[hash] = i;
                 }
+                callback(commits);
             }
-        })
+        });
     };
-
-    sh.network.getLastFirmewareVersion();
 
     // -------------------------------------------------------------------------
 
@@ -92,6 +135,7 @@
         boards    : {},
         aborted   : false,
         storage   : true,
+        storageId : 'sh.network.scanner',
         input     : '192.168.1.*',
         onStart   : function(queue) {},
         onBoard   : function(board) {},
@@ -101,6 +145,14 @@
         onStop    : function(self) {},
         onEnd     : function(found) {}
     };
+
+    // locale storage shortcut
+    sh.network.scanner.store = function(index, value) {
+        sh.network.store.call(this, index, value);
+    };
+
+    // load local settings
+    sh.network.scanner.store();
 
     // scan an IP looking for a SmoothieBoard
     sh.network.scanner.processQueue = function() {
@@ -132,12 +184,20 @@
 
                 if (matches) {
                     // board info
+                    var version  = matches[1];
+                    var branch   = version.split('-');
+                    var hash     = branch[1];
+                        branch   = branch[0];
+                    var upToDate = sh.firmware.getEdgeCommitPosition(hash);
                     board = {
-                        ip     : ip,
-                        version: matches[1],
-                        date   : matches[2],
-                        mcu    : matches[3],
-                        clock  : matches[4]
+                        ip      : ip,
+                        //version : version,
+                        branch  : branch,
+                        hash    : hash,
+                        upToDate: upToDate,
+                        date    : matches[2],
+                        mcu     : matches[3],
+                        clock   : matches[4]
                     };
 
                     // ISO date for GitHub update notification
@@ -157,35 +217,6 @@
             self.processQueue();
 
         }, this.timeout);
-    };
-
-    // locale storage shortcut
-    sh.network.scanner.store = function(index, value) {
-        // no locale storage
-        if (!this.storage) return;
-
-        // get the store
-        var store = JSON.parse(localStorage.getItem('sh.network.scanner') || '{}');
-
-        // load stored values
-        if (! index) {
-            for (var index in store) {
-                this[index] = store[index];
-            }
-            return;
-        }
-
-        // get old value at index
-        var oldValue = store[index] || undefined;
-
-        // store the new value
-        if (arguments.length > 1) {
-            store[index] = value;
-            localStorage.setItem('sh.network.scanner', JSON.stringify(store));
-        }
-
-        // return the old value
-        return oldValue;
     };
 
     // set timeout
@@ -321,6 +352,45 @@
             return true;
         }
         return false;
+    };
+
+    // -------------------------------------------------------------------------
+
+    // firmware namspace
+    sh.firmware = {
+        version  : '0.0.1-alpha',
+        storage  : true,
+        storageId: 'sh.firmware',
+        edge     : {
+            update : 0,
+            commits: {}
+        }
+    };
+
+    // locale storage shortcut
+    sh.firmware.store = function(index, value) {
+        sh.store.call(this, index, value);
+    };
+
+    // load local settings
+    sh.firmware.store();
+
+    // update edge firmware commits from the git
+    sh.firmware.updateEdgeFirmwareCommits = function() {
+        var self = this;
+        sh.network.getEdgeFirmwareCommits(function(commits) {
+            self.edge.update  = Date.now();
+            self.edge.commits = commits;
+            self.store('edge', self.edge);
+        });
+    };
+
+    // return the version position
+    sh.firmware.getEdgeCommitPosition = function(hash) {
+        if (this.edge.commits[hash] === undefined) {
+            return -1;
+        }
+        return parseInt(this.edge.commits[hash]);
     };
 
     // -------------------------------------------------------------------------

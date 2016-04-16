@@ -1,8 +1,10 @@
 // smoothie-happy alias
 var sh = smoothieHappy;
 
-// load scanner local settings
-sh.network.scanner.store();
+// update edge firmware commits list from the git (86400000 = 24h)
+if ((Date.now() - sh.firmware.edge.update) > 86400000) {
+    sh.firmware.updateEdgeFirmwareCommits();
+}
 
 //------------------------------------------------------------------------------
 
@@ -58,15 +60,40 @@ function addBoard(board) {
     if (boards[board.ip]) {
         return;
     }
+
     boards[board.ip] = board;
+
+    var boardId  = board.ip.replace(/\./g, '-');
     var template = $boardTemplate.html().toString();
+
     template = template.replace(/{{ip}}/g, board.ip);
-    template = template.replace(/{{version}}/g, board.version);
+    template = template.replace(/{{branch}}/g, board.branch);
+    template = template.replace(/{{hash}}/g, board.hash);
+    template = template.replace(/{{upToDate}}/g, board.upToDate);
     template = template.replace(/{{date}}/g, board.date);
     template = template.replace(/{{mcu}}/g, board.mcu);
     template = template.replace(/{{clock}}/g, board.clock);
-    template = template.replace(/{{id}}/g, board.ip.replace(/\./g, '-'));
+    template = template.replace(/{{id}}/g, boardId);
+
+    if (board.upToDate < 0) {
+        template = template.replace(/{{outdated}}/g, '> 30 commits');
+    }
+    else {
+        template = template.replace(/{{outdated}}/g, board.upToDate + ' commits');
+    }
+
     $boards.append(template);
+
+    if (board.upToDate !== 0) {
+        var $hash          = $('#' + boardId + '-hash');
+        var $upToDate      = $('#' + boardId + '-upToDate');
+        var $updateMessage = $('#' + boardId + '-updateMessage');
+        $hash.toggleClass('label-warning', true);
+        $hash.toggleClass('label-info', false);
+        $upToDate.toggleClass('label-warning', true);
+        $upToDate.toggleClass('label-info', false);
+        $updateMessage.toggleClass('hidden', false);
+    }
 }
 
 //------------------------------------------------------------------------------

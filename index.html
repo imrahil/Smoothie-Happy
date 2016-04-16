@@ -104,14 +104,26 @@
                                 </div>
                                 <div id="{{id}}-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{id}}-heading">
                                     <div class="panel-body">
+                                        <div id="{{id}}-updateMessage" class="alert alert-warning hidden" role="alert">
+                                            <strong>Warning!</strong> this firmware [{{hash}}] is outdated ({{outdated}}).<br />
+                                            It is strongly recommended to update. <a href="https://github.com/Smoothieware/Smoothieware/blob/edge/FirmwareBin/firmware.bin?raw=true">Download the latest build</a>
+                                        </div>
                                         <ul class="list-group">
                                             <li class="list-group-item">
                                                 <span id="{{id}}-ip" class="label label-info pull-right">{{ip}}</span>
                                                 board.<strong>ip</strong>
                                             </li>
                                             <li class="list-group-item">
-                                                <span id="{{id}}-version" class="label label-info pull-right">{{version}}</span>
-                                                board.<strong>version</strong>
+                                                <span id="{{id}}-branch" class="label label-info pull-right">{{branch}}</span>
+                                                board.<strong>branch</strong>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <span id="{{id}}-hash" class="label label-info pull-right">{{hash}}</span>
+                                                board.<strong>hash</strong>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <span id="{{id}}-upToDate" class="label label-info pull-right">{{upToDate}}</span>
+                                                board.<strong>upToDate</strong>
                                             </li>
                                             <li class="list-group-item">
                                                 <span id="{{id}}-date" class="label label-info pull-right">{{date}}</span>
