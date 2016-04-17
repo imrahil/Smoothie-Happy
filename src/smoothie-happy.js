@@ -125,8 +125,7 @@
     // -------------------------------------------------------------------------
     sh.command = {};
 
-    // List the files in the current folder ( if no folder parameter is passed )
-    // or list them in the folder passed as a parameter ( can be absolute or relative ).
+    // list the files in the folder passed as a parameter ( can be absolute or relative ).
     sh.command.ls = function(ip, path, settings) {
         // defaults settings
         settings = settings || {};
@@ -169,6 +168,8 @@
         sh.network.command(ip, 'ls -s ' + path, settings);
     };
 
+    // get the content of the file given as a parameter to the standard output
+    // ( limited to number of limit lines if that parameter is passed ).
     sh.command.cat = function(ip, path, settings) {
         // defaults settings
         settings = settings || {};
@@ -181,11 +182,11 @@
 
         // internal onload callback
         settings.onload = function(event) {
-            // call user callbacks
-            onload.call(this, event);
-
             // response text
             var text = this.responseText;
+
+            // call user callbacks
+            onload.call(this, event);
 
             if (settings.ontext) {
                 settings.ontext.call(this, text);
@@ -201,7 +202,63 @@
 
         // send the comand
         sh.network.command(ip, 'cat ' + path + limit, settings);
-    }
+    };
+
+    // get the board/firmware version
+    sh.command.version = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        settings.onversion = settings.onversion || null;
+
+        // user on load callback
+        var onload = settings.onload || function() {};
+
+        // internal onload callback
+        settings.onload = function(event) {
+            // response text
+            var text = this.responseText;
+
+            // call user callbacks
+            onload.call(this, event);
+
+            if (!settings.onversion) {
+                return;
+            }
+
+            // version pattern
+            // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
+            var pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
+
+            // test the pattern
+            var matches = text.match(pattern);
+
+            if (matches) {
+                // board info
+                var version  = matches[1];
+                var branch   = version.split('-');
+                var hash     = branch[1];
+                    branch   = branch[0];
+                //var upToDate = sh.firmware.getEdgeCommitPosition(hash);
+
+                version = {
+                    ip      : ip,
+                    branch  : branch,
+                    hash    : hash,
+                    //upToDate: upToDate,
+                    date    : matches[2],
+                    mcu     : matches[3],
+                    clock   : matches[4],
+                    raw     : version
+                };
+
+                settings.onversion.call(this, version);
+            }
+        }
+
+        // send the comand
+        sh.network.command(ip, 'version', settings);
+    };
 
     // -------------------------------------------------------------------------
     // export global namespace

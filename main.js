@@ -4,9 +4,16 @@ var ip = '192.168.1.101';
 
 //------------------------------------------------------------------------------
 
-sh.network.command(ip, 'version', {
-    onload: function() {
-        console.info('version:', this.responseText);
+// sh.network.command(ip, 'version', {
+//     onload: function() {
+//         console.info('version:', this.responseText);
+//     }
+// });
+
+// get the board version
+sh.command.version(ip, {
+    onversion: function(version) {
+        console.log('version:', version);
     }
 });
 
