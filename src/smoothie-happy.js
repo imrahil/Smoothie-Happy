@@ -1,405 +1,185 @@
 +function (global) {
 
+    // -------------------------------------------------------------------------
     // global namespace
+    // -------------------------------------------------------------------------
     var sh = {
         version    : '0.0.1-alpha',
         name       : 'Smoothie Happy',
         description: 'Smoothieware network communication API.',
-        storageId  : 'sh',
-        storage    : true
+        link       : 'https://github.com/lautr3k/Smoothie-Happy'
     };
-
-    // locale storage shortcut
-    sh.store = function(index, value) {
-        // no locale storage
-        if (!this.storage) return;
-
-        // get the store
-        var store = JSON.parse(localStorage.getItem(this.storageId) || '{}');
-
-        // load stored values
-        if (! index) {
-            for (var index in store) {
-                this[index] = store[index];
-            }
-            return;
-        }
-
-        // get old value at index
-        var oldValue = store[index] || undefined;
-
-        // store the new value
-        if (arguments.length > 1) {
-            store[index] = value;
-            localStorage.setItem(this.storageId, JSON.stringify(store));
-        }
-
-        // return the old value
-        return oldValue;
-    };
-
-    // initialization message
-    console.info(sh.name + ' - v' + sh.version);
-
-    // load local settings
-    sh.store();
 
     // -------------------------------------------------------------------------
-
     // network namespace
+    // -------------------------------------------------------------------------
     sh.network = {
-        version  : '0.0.1-alpha',
-        storageId: 'sh.network',
-        storage  : true,
-        timeout  : 1000
+        timeout: 5000
     };
 
-    // locale storage shortcut
-    sh.network.store = function(index, value) {
-        sh.store.call(this, index, value);
-    };
+    // XMLHttpRequest wrapper
+    sh.network.request = function(type, uri, settings) {
+        // force type to uppercase
+        type = type.toUpperCase();
 
-    // load local settings
-    sh.network.store();
+        // defaults settings
+        settings = settings || {};
 
-    // http request
-    sh.network.request = function(type, uri, data, callback, timeout) {
+        var data     = settings.data     || null;
+        var headers  = settings.headers  || {};
+        var options  = settings.options  || settings;
+
+        // force some headers
+        headers['Cache-Control'] = 'no-cache';
+        headers['Pragma']        = 'no-cache';
+
+        // http request object
         var xhr = new XMLHttpRequest();
 
-        xhr.timeout = timeout || this.timeout;
+        // set default xhr properties
+        options.timeout = options.timeout || this.timeout;
 
-        xhr.addEventListener('load', function() {
-            callback && callback('load', xhr);
-        });
-        xhr.addEventListener('error', function() {
-            callback && callback('error', xhr);
-        });
-        xhr.addEventListener('timeout', function() {
-            callback && callback('timeout', xhr);
-        });
-
-        if (typeof data !== 'string' || !data.length) {
-            data = null;
+        // set user xhr properties
+        for (var key in options) {
+            if (key === 'upload') {
+                for (var event in options[key]) {
+                    xhr.upload[event] = options[key][event];
+                }
+            }
+            else if (xhr[key] !== undefined) {
+                xhr[key] = options[key];
+            }
         }
 
+        // append data to URI on GET request
         if (type === 'GET' && data) {
             uri += data;
             data = null;
         }
 
+        // open the request
         xhr.open(type, uri, true);
-        xhr.send(type === 'POST' && data);
+
+        // set custom headers
+        for (var key in headers) {
+            xhr.setRequestHeader(key, headers[key]);
+        }
+
+        // send the request
+        xhr.send(type === 'POST' ? data : null);
+
+        // return the request object
+        return xhr;
     };
 
     // get request
-    sh.network.get = function(uri, data, callback, timeout) {
-        sh.network.request('GET', uri, data, callback, timeout);
+    sh.network.get = function(uri, settings) {
+        return this.request('GET', uri, settings);
     };
 
     // post request
-    sh.network.post = function(uri, data, callback, timeout) {
-        sh.network.request('POST', uri, data, callback, timeout);
+    sh.network.post = function(uri, settings) {
+        return this.request('POST', uri, settings);
     };
 
-    // get firmaware versions
-    sh.network.getEdgeFirmwareCommits = function(callback) {
-        var url  = 'https://api.github.com/repos/Smoothieware/Smoothieware/commits';
-        var data = '?sha=edge&path=FirmwareBin/firmware.bin';
+    // post command to ip
+    sh.network.command = function(ip, command, settings) {
+        // defaults settings
+        settings = settings || {};
 
-        this.get(url, data, function(type, xhr) {
-            if (type === 'load' && xhr.status === 200) {
-                var response = JSON.parse(xhr.response);
-                var i, il, commit, sha, commits = {};
-                for (i = 0, il = response.length; i < il; i++) {
-                    commit = response[i];
-                    sha    = commit.parents[0].sha;
-                    hash   = sha.substr(0, 7);
-                    commits[hash] = i;
-                }
-                callback(commits);
+        // set the command as request data
+        settings.data = command.trim() + '\n';
+
+        // send the command as post request
+        return this.post('http://' + ip + '/command', settings);
+    };
+
+    // upload a file to ip
+    sh.network.upload = function(ip, file, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // file type
+        if (file instanceof File) {
+            file = {
+                name: file.name,
+                data: file
             }
-        });
+        }
+
+        // set file data
+        settings.data = file.data;
+
+        // set file name header
+        settings.headers = {'X-Filename': file.name};
+
+        // send the command as post request
+        return this.post('http://' + ip + '/upload', settings);
     };
 
     // -------------------------------------------------------------------------
+    // command namespace
+    // http://smoothieware.org/console-commands
+    // -------------------------------------------------------------------------
+    sh.command = {};
 
-    // network scanner
-    sh.network.scanner = {
-        version   : '0.0.1-alpha',
-        storageId : 'sh.network.scanner',
-        storage   : true,
-        timeout   : 1000,
-        scanning  : false,
-        scanned   : 0,
-        total     : 0,
-        found     : 0,
-        queue     : [],
-        knownIps  : [],
-        boards    : {},
-        aborted   : false,
-        input     : '192.168.1.*',
-        onStart   : function(queue) {},
-        onBoard   : function(board) {},
-        onProgress: function(ip, board, self) {},
-        onAbort   : function(self) {},
-        onResume  : function(self) {},
-        onStop    : function(self) {},
-        onEnd     : function(found) {}
-    };
+    // List the files in the current folder ( if no folder parameter is passed )
+    // or list them in the folder passed as a parameter ( can be absolute or relative ).
+    sh.command.ls = function(ip, path, settings) {
+        // defaults settings
+        settings = settings || {};
 
-    // locale storage shortcut
-    sh.network.scanner.store = function(index, value) {
-        sh.network.store.call(this, index, value);
-    };
+        settings.onfiles = settings.onfiles || null;
+        settings.filter  = settings.filter || null;
 
-    // load local settings
-    sh.network.scanner.store();
+        // user on load callback
+        var onload = settings.onload || function() {};
 
-    // scan an IP looking for a SmoothieBoard
-    sh.network.scanner.processQueue = function() {
-        if (!this.scanning) {
-            return false;
-        }
+        // internal onload callback
+        settings.onload = function(event) {
+            // split file on new line
+            var files = this.responseText.split('\n');
 
-        var ip = this.queue.shift();
+            // filter files
+            if (settings.filter) {
+                files = files.filter(settings.filter);
+            }
 
-        if (! ip) {
-            this.onEnd(this.found);
-            this.scanning = false;
-            return true;
-        }
-
-        var self  = this;
-        var board = null;
-        var uri   = 'http://' + ip + '/command';
-
-        console.info('scan:', ip);
-
-        sh.network.post(uri, 'version\n', function(type, xhr) {
-
-            if (type === 'load' && xhr.status === 200) {
-                var text = xhr.responseText;
-
-                // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
-                var matches = text.match(/Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/);
-
-                if (matches) {
-                    // board info
-                    var version  = matches[1];
-                    var branch   = version.split('-');
-                    var hash     = branch[1];
-                        branch   = branch[0];
-                    var upToDate = sh.firmware.getEdgeCommitPosition(hash);
-
-                    board = {
-                        ip      : ip,
-                        branch  : branch,
-                        hash    : hash,
-                        upToDate: upToDate,
-                        date    : matches[2],
-                        mcu     : matches[3],
-                        clock   : matches[4]
-                    };
-
-                    self.found++;
-                    self.boards[ip] = board;
-                    if (self.knownIps.indexOf(ip) === -1) {
-                        self.knownIps.push(ip);
-                        self.store('knownIps', self.knownIps);
-                    }
-                    self.onBoard(board);
+            // extract file name/size
+            files = files.map(function(value) {
+                value = value.split(' ');
+                return {
+                    path: path,
+                    name: value[0],
+                    size: value[1]
                 }
+            });
+
+            // call user callbacks
+            onload.call(this, event);
+
+            if (settings.onfiles) {
+                settings.onfiles.call(this, files);
             }
+        };
 
-            self.scanned++;
-            self.onProgress(ip, board, self);
-            self.processQueue();
-
-        }, this.timeout);
+        // send the command
+        sh.network.command(ip, 'ls -s ' + path, settings);
     };
 
-    // set timeout
-    sh.network.scanner.setTimeout = function(timeout) {
-        if (timeout < 100 || timeout > 2000) {
-            throw new Error('Timeout is out of range [100, 2000].');
-        }
-        this.timeout = timeout;
-        this.store('timeout', timeout);
-    };
-
-    // set the input and compute the scan queue
-    sh.network.scanner.setInput = function(input) {
-        // reset queue
-        this.queue = [];
-
-        // too short or not defined
-        if (!input || input.length < 3) {
-            throw new Error('Invalid input.');
-        }
-
-        // input array
-        var inputArray = input;
-
-        // split input on comma if not an array
-        if (typeof inputArray === 'string') {
-            inputArray = inputArray.split(',');
-        }
-
-        // trim input parts
-        inputArray = inputArray.map(function(part) {
-            return part.trim();
-        });
-
-        // for each parts
-        for (var y = 0, yl = inputArray.length; y < yl; y++) {
-            // current part
-            var currentInput = inputArray[y];
-
-            // Wildcard | ex.: [192.168.1.*]
-            if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.\*$/.test(currentInput)) {
-                var currentInputParts = currentInput.split('.');
-                currentInputParts.pop(); // remove last part (*)
-                var baseIp = currentInputParts.join('.');
-                for (var i = 0; i <= 255; i++) {
-                    this.queue.push(baseIp + '.' + i);
-                }
-            }
-
-            // Single ip | ex.: [192.168.1.55]
-            else if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(currentInput)) {
-                this.queue.push(currentInput);
-            }
-
-            // Ip's range | ex.: [192.168.1.50-100]
-            else if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\-[0-9]{1,3}$/.test(currentInput)) {
-                var currentInputParts = currentInput.split('.');
-                var currentInputRange = currentInputParts.pop().split('-'); // last part (xxx-xxx)
-                var baseIp     = currentInputParts.join('.');
-                for (var i = currentInputRange[0], il = currentInputRange[1]; i <= il; i++) {
-                    this.queue.push(baseIp + '.' + i);
-                }
-            }
-
-            // Hostname | ex.: [www.host.name]
-            else if (/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/.test(currentInput)) {
-                this.queue.push(currentInput);
-            }
-
-            // Invalid...
-            else {
-                throw new Error('Invalid input.');
-            }
-        }
-
-        // set input
-        this.input = input;
-        this.store('input', input);
-
-        // return the queue
-        return this.queue;
-    };
-
-    // scan the network looking for a SmoothieBoard
-    sh.network.scanner.scan = function(input, timeout) {
-        if (this.scanning) {
-            throw new Error('Already in scan mode.');
-        }
-
-        input && this.setInput(input);
-        timeout && this.setTimeout(timeout);
-
-        this.scanning = true;
-        this.aborted  = false;
-        this.total    = this.queue.length;
-        this.scanned  = 0;
-        this.boards   = {};
-        this.found    = 0;
-
-        this.onStart(this.queue);
-        this.processQueue();
-    };
-
-    // scan known ip's
-    sh.network.scanner.scanKnownIps = function() {
-        this.knownIps.length && this.scan(this.knownIps.join(','));
-    };
-
-    // stop scanning
-    sh.network.scanner.stop = function(silent) {
-        if (this.scanning || this.aborted) {
-            !silent && this.onStop(this);
-            this.scanning = false;
-            this.aborted  = false;
-            return true;
-        }
-        return false;
-    };
-
-    // abort scanning
-    sh.network.scanner.abort = function() {
-        if (this.stop(true)) {
-            this.aborted = true;
-            this.onAbort(this);
-            return true;
-        }
-        return false;
-    };
-
-    // resume aborted scanning
-    sh.network.scanner.resume = function(timeout) {
-        if (this.aborted) {
-            timeout && this.setTimeout(timeout);
-            this.scanning = true;
-            this.aborted = false;
-            this.onResume(this);
-            this.processQueue();
-            return true;
-        }
-        return false;
-    };
+    // function cat(file, limit) {
+    //     limit = limit ? (' ' + limit) : '';
+    //     console.log('cat sd/' + file + limit);
+    //     sh.network.command(ip, 'cat sd/' + file + limit, {
+    //         onload: function() {
+    //             console.log('cat:', file, this.responseText);
+    //         }
+    //     });
+    // }
 
     // -------------------------------------------------------------------------
-
-    // firmware namspace
-    sh.firmware = {
-        version  : '0.0.1-alpha',
-        storageId: 'sh.firmware',
-        storage  : true,
-        edge     : {
-            update : 0,
-            commits: {}
-        }
-    };
-
-    // locale storage shortcut
-    sh.firmware.store = function(index, value) {
-        sh.store.call(this, index, value);
-    };
-
-    // load local settings
-    sh.firmware.store();
-
-    // update edge firmware commits from the git
-    sh.firmware.updateEdgeFirmwareCommits = function() {
-        var self = this;
-        sh.network.getEdgeFirmwareCommits(function(commits) {
-            self.edge.update  = Date.now();
-            self.edge.commits = commits;
-            self.store('edge', self.edge);
-        });
-    };
-
-    // return the version position
-    sh.firmware.getEdgeCommitPosition = function(hash) {
-        if (this.edge.commits[hash] === undefined) {
-            return -1;
-        }
-        return parseInt(this.edge.commits[hash]);
-    };
-
-    // -------------------------------------------------------------------------
-
     // export global namespace
+    // -------------------------------------------------------------------------
     global.smoothieHappy = sh;
 
 }(window);
