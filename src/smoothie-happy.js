@@ -216,43 +216,32 @@
 
         // internal onload callback
         settings.onload = function(event) {
-            // response text
-            var text = this.responseText;
+            // raw version string
+            var raw = this.responseText;
 
             // call user callbacks
             onload.call(this, event);
 
-            if (!settings.onversion) {
-                return;
-            }
+            if (settings.onversion) {
+                // version pattern
+                // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
+                var pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
 
-            // version pattern
-            // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
-            var pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
+                // test the pattern
+                var matches = raw.match(pattern);
 
-            // test the pattern
-            var matches = text.match(pattern);
+                if (matches) {
+                    var branch  = matches[1].split('-');
 
-            if (matches) {
-                // board info
-                var version  = matches[1];
-                var branch   = version.split('-');
-                var hash     = branch[1];
-                    branch   = branch[0];
-                //var upToDate = sh.firmware.getEdgeCommitPosition(hash);
-
-                version = {
-                    ip      : ip,
-                    branch  : branch,
-                    hash    : hash,
-                    //upToDate: upToDate,
-                    date    : matches[2],
-                    mcu     : matches[3],
-                    clock   : matches[4],
-                    raw     : version
-                };
-
-                settings.onversion.call(this, version);
+                    settings.onversion.call(this, {
+                        branch  : branch[0],
+                        hash    : branch[1],
+                        date    : matches[2],
+                        mcu     : matches[3],
+                        clock   : matches[4],
+                        raw     : raw
+                    });
+                }
             }
         }
 
