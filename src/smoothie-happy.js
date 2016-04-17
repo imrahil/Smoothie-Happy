@@ -14,7 +14,7 @@
     // network namespace
     // -------------------------------------------------------------------------
     sh.network = {
-        timeout: 5000
+        timeout: 2000
     };
 
     // XMLHttpRequest wrapper
@@ -25,9 +25,9 @@
         // defaults settings
         settings = settings || {};
 
-        var data     = settings.data     || null;
-        var headers  = settings.headers  || {};
-        var options  = settings.options  || settings;
+        var data     = settings.data    || null;
+        var headers  = settings.headers || {};
+        var options  = settings.options || settings;
 
         // force some headers
         headers['Cache-Control'] = 'no-cache';
@@ -36,6 +36,9 @@
         // http request object
         var xhr = new XMLHttpRequest();
 
+        // open the request
+        xhr.open(type, uri, true);
+
         // set default xhr properties
         options.timeout = options.timeout || this.timeout;
 
@@ -43,7 +46,9 @@
         for (var key in options) {
             if (key === 'upload') {
                 for (var event in options[key]) {
-                    xhr.upload[event] = options[key][event];
+                    if (xhr.upload[event] !== undefined) {
+                        xhr.upload[event] = options[key][event];
+                    }
                 }
             }
             else if (xhr[key] !== undefined) {
@@ -56,9 +61,6 @@
             uri += data;
             data = null;
         }
-
-        // open the request
-        xhr.open(type, uri, true);
 
         // set custom headers
         for (var key in headers) {
@@ -130,7 +132,7 @@
         settings = settings || {};
 
         settings.onfiles = settings.onfiles || null;
-        settings.filter  = settings.filter || null;
+        settings.filter  = settings.filter  || null;
 
         // user on load callback
         var onload = settings.onload || function() {};
@@ -167,15 +169,39 @@
         sh.network.command(ip, 'ls -s ' + path, settings);
     };
 
-    // function cat(file, limit) {
-    //     limit = limit ? (' ' + limit) : '';
-    //     console.log('cat sd/' + file + limit);
-    //     sh.network.command(ip, 'cat sd/' + file + limit, {
-    //         onload: function() {
-    //             console.log('cat:', file, this.responseText);
-    //         }
-    //     });
-    // }
+    sh.command.cat = function(ip, path, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        settings.ontext  = settings.ontext  || null;
+        settings.onlines = settings.onlines || null;
+
+        // user on load callback
+        var onload = settings.onload || function() {};
+
+        // internal onload callback
+        settings.onload = function(event) {
+            // call user callbacks
+            onload.call(this, event);
+
+            // response text
+            var text = this.responseText;
+
+            if (settings.ontext) {
+                settings.ontext.call(this, text);
+            }
+
+            if (settings.onlines) {
+                settings.onlines.call(this, text.split('\n'));
+            }
+        };
+
+        // set limit if requested
+        var limit = settings.limit ? (' ' + settings.limit) : '';
+
+        // send the comand
+        sh.network.command(ip, 'cat ' + path + limit, settings);
+    }
 
     // -------------------------------------------------------------------------
     // export global namespace

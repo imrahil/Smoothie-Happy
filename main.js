@@ -10,20 +10,21 @@ sh.network.command(ip, 'version', {
     }
 });
 
-function cat(file, limit) {
-    limit = limit ? (' ' + limit) : '';
-    console.log('cat sd/' + file + limit);
-    sh.network.command(ip, 'cat sd/' + file + limit, {
-        onload: function() {
-            console.log('cat:', file, this.responseText);
-        }
-    });
-}
-
-// get the files list on the sd card
+// get files list on the sd card
 sh.command.ls(ip, 'sd/', {
     onfiles: function(files) {
-        console.log('files list', files);
+        console.log('files list:', files);
+    }
+});
+
+// read the 10 first lines from the config file
+sh.command.cat(ip, 'sd/config.txt', {
+    limit : 10,
+    ontext: function(text) {
+        console.log('config.txt:', text);
+    },
+    onlines: function(lines) {
+        console.log('config.txt:', lines);
     }
 });
 
