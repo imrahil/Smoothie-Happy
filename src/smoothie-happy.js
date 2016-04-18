@@ -34,12 +34,12 @@ var sh = sh || {};
     /**
      * XMLHttpRequest wrapper.
      * @method sh.network.request
-     * @param {String}  type             'GET' or 'POST'.
-     * @param {String}  url              URL with protocol.
-     * @param {Object}  settings         Request settings.
-     * @param {Mixed}   settings.data    Data to send with the request.
-     * @param {Object}  settings.headers Headers to send with the request.
-     * @param {Object}  settings.options {XMLHttpRequest} properties/methods to overwrite.
+     * @param  {String}  type              'GET' or 'POST'.
+     * @param  {String}  url               URL with protocol.
+     * @param  {Object}  settings          Request settings.
+     * @param  {Mixed}   settings.data     Data to send with the request.
+     * @param  {Object}  settings.headers  Headers to send with the request.
+     * @param  {Object}  settings.options  {XMLHttpRequest} properties/methods to overwrite.
      * @return {XMLHttpRequest}
      */
     sh.network.request = function(type, url, settings) {
@@ -98,7 +98,7 @@ var sh = sh || {};
      * GET request.
      * @method sh.network.get
      * @param  {String}  url       URL with protocol.
-     * @param  {Object}  settings  See "{@link sh.network.request}.settings" for possible settings values.
+     * @param  {Mixed}   settings  See "{@link sh.network.request}.settings".
      * @return {XMLHttpRequest}
      */
     sh.network.get = function(url, settings) {
@@ -109,7 +109,7 @@ var sh = sh || {};
      * POST request.
      * @method sh.network.post
      * @param  {String}  url       URL with protocol.
-     * @param  {Object}  settings  See "{@link sh.network.request}.settings" for possible settings values.
+     * @param  {Mixed}   settings  See "{@link sh.network.request}.settings".
      * @return {XMLHttpRequest}
      */
     sh.network.post = function(url, settings) {
@@ -119,9 +119,9 @@ var sh = sh || {};
     /**
      * Upload a file on the sd card.
      * @method sh.network.upload
-     * @param  {String}       ip        Board ip.
-     * @param  {Object|File}  file      {File} object or an {Object} with "name" and "data" properties set.
-     * @param  {Object}       settings  See "{@link sh.network.request}.settings" for possible settings values.
+     * @param  {String}      ip        Board ip.
+     * @param  {Object|File} file      {File} object or an {Object} with "name" and "data" properties set.
+     * @param  {Mixed}       settings  See "{@link sh.network.request}.settings".
      * @return {XMLHttpRequest}
      */
     sh.network.upload = function(ip, file, settings) {
@@ -149,6 +149,61 @@ var sh = sh || {};
 
         // send the command as post request
         return this.post('http://' + ip + '/upload', settings);
+    };
+
+    /**
+     * Send a raw command.
+     * @method sh.network.command
+     * @param  {String}    ip                   Board ip.
+     * @param  {String}    command              The command string. See {@link http://smoothieware.org/console-commands} for a complete list.
+     * @param  {Mixed}     settings             See "{@link sh.network.request}.settings".
+     * @param  {Function}  settings.parser      Function who take the response text as parameter and return the parsed response.
+     * @param  {Function}  settings.onresponse  Function called when the response is parsed.
+     * @return {XMLHttpRequest}
+     */
+    sh.network.command = function(ip, command, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // default response parser callback
+        settings.parser = settings.parser || null;
+
+        // default response callback
+        settings.onresponse = settings.onresponse || null;
+
+        // user on load callback
+        var onload = settings.onload || function() {};
+
+        // internal onload callback
+        settings.onload = function(event) {
+            // call onload user callbacks
+            onload.call(this, event);
+
+            if (settings.onresponse) {
+                // raw response text
+                var raw = this.responseText;
+
+                // no data by default
+                var data = null;
+
+                // parse the raw response
+                if (settings.parser) {
+                    data = settings.parser.call(this, raw);
+                }
+
+                // response object
+                var response = { raw : raw, data: data };
+
+                // call onresponse user callback
+                settings.onresponse.call(this, response);
+            }
+        };
+
+        // set the command as request data
+        settings.data = command.trim() + '\n';
+
+        // send the command as post request
+        return this.post('http://' + ip + '/command', settings);
     };
 
 })();
