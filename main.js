@@ -4,6 +4,7 @@ var ip = '192.168.1.101';
 
 //------------------------------------------------------------------------------
 
+// // send an command
 // sh.network.command(ip, 'version', {
 //     onload: function() {
 //         console.info('version:', this.responseText);
@@ -19,27 +20,27 @@ sh.command.version(ip, {
     }
 });
 
-// get files list on the sd card
-sh.command.ls(ip, 'sd/', {
-    onresponse: function(response) {
-        console.log('files list:', response);
-    }
-});
+// // get files list on the sd card
+// sh.command.ls(ip, 'sd/', {
+//     onresponse: function(response) {
+//         console.log('files:', response.data.files);
+//     }
+// });
 
-// read the first 10 lines from the config file
-sh.command.cat(ip, 'sd/config.txt', {
-    limit     : 10,
-    onresponse: function(response) {
-        console.log('cat sd/config.txt:', response);
-    }
-});
+// // get the first 10 lines from the config file
+// sh.command.cat(ip, 'sd/config.txt', {
+//     limit     : 10,
+//     onresponse: function(response) {
+//         console.log('cat sd/config.txt:', response);
+//     }
+// });
 
-// get memory usage.
-sh.command.mem(ip, {
-    onresponse: function(response) {
-        console.log('mem:', response);
-    }
-});
+// // get memory usage.
+// sh.command.mem(ip, {
+//     onresponse: function(response) {
+//         console.log('mem:', response);
+//     }
+// });
 
 //------------------------------------------------------------------------------
 
@@ -50,27 +51,16 @@ $('#file').on('change', function(e) {
     // upload the file
     sh.network.upload(ip, file, {
         upload: {
-            onloadstart: function(event) {
-                console.log('start:', event);
-            },
-            onprogress: function(event) {
-                console.log('progress:', event);
-            },
-            onerror: function(event) {
-                console.log('error:', event);
-            },
             onloadend: function(event) {
-                console.log('end:', event);
                 sh.command.ls(ip, 'sd/', {
-                    onfiles: function(files) {
-                        console.log('files list:', files);
+                    onresponse: function(response) {
+                        console.log('files:', response.data.files);
                     }
                 });
             }
         }
     });
 });
-
 
 //------------------------------------------------------------------------------
 
