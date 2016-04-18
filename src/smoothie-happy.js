@@ -84,18 +84,6 @@
         return this.request('POST', uri, settings);
     };
 
-    // post command to ip
-    sh.network.command = function(ip, command, settings) {
-        // defaults settings
-        settings = settings || {};
-
-        // set the command as request data
-        settings.data = command.trim() + '\n';
-
-        // send the command as post request
-        return this.post('http://' + ip + '/command', settings);
-    };
-
     // upload a file to ip
     sh.network.upload = function(ip, file, settings) {
         // defaults settings
@@ -119,6 +107,52 @@
         return this.post('http://' + ip + '/upload', settings);
     };
 
+    // post command to ip
+    sh.network.command = function(ip, command, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // default response parser callback
+        settings.parser = settings.parser || null;
+
+        // default response callback
+        settings.onresponse = settings.onresponse || null;
+
+        // user on load callback
+        var onload = settings.onload || function() {};
+
+        // internal onload callback
+        settings.onload = function(event) {
+            // call onload user callbacks
+            onload.call(this, event);
+
+            if (settings.onresponse) {
+                // raw response text
+                var raw = this.responseText;
+
+                // no data by default
+                var data = null;
+
+                // parse the raw response
+                if (settings.parser) {
+                    data = settings.parser.call(this, raw);
+                }
+
+                // response object
+                var response = { raw : raw, data: data };
+
+                // call onresponse user callback
+                settings.onresponse.call(this, response);
+            }
+        };
+
+        // set the command as request data
+        settings.data = command.trim() + '\n';
+
+        // send the command as post request
+        return this.post('http://' + ip + '/command', settings);
+    };
+
     // -------------------------------------------------------------------------
     // command namespace
     // http://smoothieware.org/console-commands
@@ -133,45 +167,25 @@
         // default filename filter callback
         settings.filter = settings.filter  || null;
 
-        // default response callback
-        settings.onresponse = settings.onresponse || null;
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            // split file on new line
+            var files = raw.trim().split('\n');
 
-        // user on load callback
-        var onload = settings.onload || function() {};
-
-        // internal onload callback
-        settings.onload = function(event) {
-            // call user callbacks
-            onload.call(this, event);
-
-            if (settings.onresponse) {
-                // raw response text
-                var raw = this.responseText;
-
-                // split file on new line
-                var files = raw.trim().split('\n');
-
-                // filter files
-                if (settings.filter) {
-                    files = files.filter(settings.filter);
-                }
-
-                // extract file name/size
-                files = files.map(function(value) {
-                    value = value.split(' ');
-                    return {
-                        path: path,
-                        name: value[0],
-                        size: value[1]
-                    }
-                });
-
-                // response object
-                var response = { raw : raw, data: { files: files } };
-
-                // call user callback
-                settings.onresponse.call(this, response);
+            // filter files
+            if (settings.filter) {
+                files = files.filter(settings.filter);
             }
+
+            // extract file name/size
+            return files.map(function(value) {
+                value = value.split(' ');
+                return {
+                    path: path,
+                    name: value[0],
+                    size: value[1]
+                }
+            });
         };
 
         // send the command
@@ -184,27 +198,9 @@
         // defaults settings
         settings = settings || {};
 
-        // default response callback
-        settings.onresponse = settings.onresponse || null;
-
-        // user on load callback
-        var onload = settings.onload || function() {};
-
-        // internal onload callback
-        settings.onload = function(event) {
-            // call user callbacks
-            onload.call(this, event);
-
-            if (settings.onresponse) {
-                // raw response text
-                var raw = this.responseText;
-
-                // response object
-                var response = { raw : raw, data: { lines: raw.split('\n') } };
-
-                // call user callback
-                settings.onresponse.call(this, response);
-            }
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            return { lines: raw.split('\n') };
         };
 
         // set limit if requested
@@ -219,47 +215,27 @@
         // defaults settings
         settings = settings || {};
 
-        // default response callback
-        settings.onresponse = settings.onresponse || null;
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            // version pattern
+            // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
+            var pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
 
-        // user on load callback
-        var onload = settings.onload || function() {};
+            // test the pattern
+            var matches = raw.match(pattern);
 
-        // internal onload callback
-        settings.onload = function(event) {
-            // call user callbacks
-            onload.call(this, event);
+            if (matches) {
+                // split branch-hash on dash
+                var branch = matches[1].split('-');
 
-            if (settings.onresponse) {
-                // raw response text
-                var raw = this.responseText;
-
-                // version pattern
-                // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
-                var pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
-
-                // test the pattern
-                var matches = raw.match(pattern);
-
-                if (matches) {
-                    // split branch-hash on dash
-                    var branch = matches[1].split('-');
-
-                    // response object
-                    var response = {
-                        raw : raw,
-                        data: {
-                            branch: branch[0],
-                            hash  : branch[1],
-                            date  : matches[2],
-                            mcu   : matches[3],
-                            clock : matches[4],
-                        }
-                    };
-
-                    // call user callback
-                    settings.onresponse.call(this, response);
-                }
+                // response object
+                return {
+                    branch: branch[0],
+                    hash  : branch[1],
+                    date  : matches[2],
+                    mcu   : matches[3],
+                    clock : matches[4]
+                };
             }
         };
 
@@ -272,30 +248,10 @@
         // defaults settings
         settings = settings || {};
 
-        // default response callback
-        settings.onresponse = settings.onresponse || null;
-
-        // user on load callback
-        var onload = settings.onload || function() {};
-
-        // internal onload callback
-        settings.onload = function(event) {
-            // call user callbacks
-            onload.call(this, event);
-
-            if (settings.onresponse) {
-                // raw response text
-                var raw = this.responseText;
-
-                // split response text on new lines
-                var lines = raw.trim().split('\n');
-
-                // response object
-                var response = { raw : raw, data: lines };
-
-                // call user callback
-                settings.onresponse.call(this, response);
-            }
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            // split response text on new lines
+            return { lines: raw.trim().split('\n') };
         };
 
         // send the comand
