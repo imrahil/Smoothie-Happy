@@ -14,7 +14,7 @@
     // network namespace
     // -------------------------------------------------------------------------
     sh.network = {
-        timeout: 2000
+        timeout: 5000
     };
 
     // XMLHttpRequest wrapper
@@ -130,37 +130,47 @@
         // defaults settings
         settings = settings || {};
 
-        settings.onfiles = settings.onfiles || null;
-        settings.filter  = settings.filter  || null;
+        // default filename filter callback
+        settings.filter = settings.filter  || null;
+
+        // default response callback
+        settings.onresponse = settings.onresponse || null;
 
         // user on load callback
         var onload = settings.onload || function() {};
 
         // internal onload callback
         settings.onload = function(event) {
-            // split file on new line
-            var files = this.responseText.split('\n');
-
-            // filter files
-            if (settings.filter) {
-                files = files.filter(settings.filter);
-            }
-
-            // extract file name/size
-            files = files.map(function(value) {
-                value = value.split(' ');
-                return {
-                    path: path,
-                    name: value[0],
-                    size: value[1]
-                }
-            });
-
             // call user callbacks
             onload.call(this, event);
 
-            if (settings.onfiles) {
-                settings.onfiles.call(this, files);
+            if (settings.onresponse) {
+                // raw response text
+                var raw = this.responseText;
+
+                // split file on new line
+                var files = raw.trim().split('\n');
+
+                // filter files
+                if (settings.filter) {
+                    files = files.filter(settings.filter);
+                }
+
+                // extract file name/size
+                files = files.map(function(value) {
+                    value = value.split(' ');
+                    return {
+                        path: path,
+                        name: value[0],
+                        size: value[1]
+                    }
+                });
+
+                // response object
+                var response = { raw : raw, data: { files: files } };
+
+                // call user callback
+                settings.onresponse.call(this, response);
             }
         };
 
@@ -174,26 +184,26 @@
         // defaults settings
         settings = settings || {};
 
-        settings.ontext  = settings.ontext  || null;
-        settings.onlines = settings.onlines || null;
+        // default response callback
+        settings.onresponse = settings.onresponse || null;
 
         // user on load callback
         var onload = settings.onload || function() {};
 
         // internal onload callback
         settings.onload = function(event) {
-            // response text
-            var text = this.responseText;
-
             // call user callbacks
             onload.call(this, event);
 
-            if (settings.ontext) {
-                settings.ontext.call(this, text);
-            }
+            if (settings.onresponse) {
+                // raw response text
+                var raw = this.responseText;
 
-            if (settings.onlines) {
-                settings.onlines.call(this, text.split('\n'));
+                // response object
+                var response = { raw : raw, data: { lines: raw.split('\n') } };
+
+                // call user callback
+                settings.onresponse.call(this, response);
             }
         };
 
@@ -209,20 +219,21 @@
         // defaults settings
         settings = settings || {};
 
-        settings.onversion = settings.onversion || null;
+        // default response callback
+        settings.onresponse = settings.onresponse || null;
 
         // user on load callback
         var onload = settings.onload || function() {};
 
         // internal onload callback
         settings.onload = function(event) {
-            // raw version string
-            var raw = this.responseText;
-
             // call user callbacks
             onload.call(this, event);
 
-            if (settings.onversion) {
+            if (settings.onresponse) {
+                // raw response text
+                var raw = this.responseText;
+
                 // version pattern
                 // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
                 var pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
@@ -231,22 +242,64 @@
                 var matches = raw.match(pattern);
 
                 if (matches) {
-                    var branch  = matches[1].split('-');
+                    // split branch-hash on dash
+                    var branch = matches[1].split('-');
 
-                    settings.onversion.call(this, {
-                        branch  : branch[0],
-                        hash    : branch[1],
-                        date    : matches[2],
-                        mcu     : matches[3],
-                        clock   : matches[4],
-                        raw     : raw
-                    });
+                    // response object
+                    var response = {
+                        raw : raw,
+                        data: {
+                            branch: branch[0],
+                            hash  : branch[1],
+                            date  : matches[2],
+                            mcu   : matches[3],
+                            clock : matches[4],
+                        }
+                    };
+
+                    // call user callback
+                    settings.onresponse.call(this, response);
                 }
             }
-        }
+        };
 
         // send the comand
         sh.network.command(ip, 'version', settings);
+    };
+
+    // get information about RAM usage.
+    sh.command.mem = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // default response callback
+        settings.onresponse = settings.onresponse || null;
+
+        // user on load callback
+        var onload = settings.onload || function() {};
+
+        // internal onload callback
+        settings.onload = function(event) {
+            // call user callbacks
+            onload.call(this, event);
+
+            if (settings.onresponse) {
+                // raw response text
+                var raw = this.responseText;
+
+                // split response text on new lines
+                var lines = raw.trim().split('\n');
+
+                // response object
+                var response = { raw : raw, data: lines };
+
+                // call user callback
+                settings.onresponse.call(this, response);
+            }
+        };
+
+        // send the comand
+        sh.network.command(ip, 'mem ', settings);
     };
 
     // -------------------------------------------------------------------------

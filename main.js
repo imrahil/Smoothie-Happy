@@ -10,35 +10,44 @@ var ip = '192.168.1.101';
 //     }
 // });
 
+//------------------------------------------------------------------------------
+
 // get the board version
 sh.command.version(ip, {
-    onversion: function(version) {
-        console.log('version:', version);
+    onresponse: function(response) {
+        console.log('version:', response);
     }
 });
 
 // get files list on the sd card
 sh.command.ls(ip, 'sd/', {
-    onfiles: function(files) {
-        console.log('files list:', files);
+    onresponse: function(response) {
+        console.log('files list:', response);
     }
 });
 
-// read the 10 first lines from the config file
+// read the first 10 lines from the config file
 sh.command.cat(ip, 'sd/config.txt', {
-    limit : 10,
-    ontext: function(text) {
-        console.log('config.txt:', text);
-    },
-    onlines: function(lines) {
-        console.log('config.txt:', lines);
+    limit     : 10,
+    onresponse: function(response) {
+        console.log('cat sd/config.txt:', response);
+    }
+});
+
+// get memory usage.
+sh.command.mem(ip, {
+    onresponse: function(response) {
+        console.log('mem:', response);
     }
 });
 
 //------------------------------------------------------------------------------
+
+// on file selected
 $('#file').on('change', function(e) {
     var file = e.target.files[0];
 
+    // upload the file
     sh.network.upload(ip, file, {
         upload: {
             onloadstart: function(event) {
@@ -52,8 +61,11 @@ $('#file').on('change', function(e) {
             },
             onloadend: function(event) {
                 console.log('end:', event);
-                ls();
-                cat(file.name, 10);
+                sh.command.ls(ip, 'sd/', {
+                    onfiles: function(files) {
+                        console.log('files list:', files);
+                    }
+                });
             }
         }
     });
