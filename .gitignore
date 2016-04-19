@@ -2,3 +2,5 @@ old
 docs
 node_modules
 makedocs.bat
+jsdoc.json
+package.json
