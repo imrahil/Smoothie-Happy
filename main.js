@@ -1,44 +1,57 @@
 // smoothie-happy alias
-var sh = smoothieHappy;
 var ip = '192.168.1.101';
 
 //------------------------------------------------------------------------------
 
-// // send an command
-// sh.network.command(ip, 'version', {
+// // send command(s)
+// sh.network.command(ip, 'version\nmem\nversion', {
 //     onload: function() {
-//         console.info('version:', this.responseText);
+//         console.info('version:', this);
 //     }
 // });
 
 //------------------------------------------------------------------------------
 
-// get the board version
-sh.command.version(ip, {
+// // get the board version
+// sh.command.version(ip, {
+//     onresponse: function(response) {
+//         console.log('version:', response);
+//     }
+// });
+
+// get the first 10 lines from the config file
+sh.command.cat(ip, 'sd/config.txt', {
+    limit     : 10,
     onresponse: function(response) {
-        console.log('version:', response);
+        console.log('cat sd/config.txt:', response);
     }
 });
-
-// // get files list on the sd card
-// sh.command.ls(ip, 'sd/', {
-//     onresponse: function(response) {
-//         console.log('files:', response.data.files);
-//     }
-// });
-
-// // get the first 10 lines from the config file
-// sh.command.cat(ip, 'sd/config.txt', {
-//     limit     : 10,
-//     onresponse: function(response) {
-//         console.log('cat sd/config.txt:', response);
-//     }
-// });
 
 // // get memory usage.
 // sh.command.mem(ip, {
 //     onresponse: function(response) {
 //         console.log('mem:', response);
+//     }
+// });
+
+// // get files list on the sd card
+// sh.command.ls(ip, 'sd/', {
+//     onresponse: function(response) {
+//         console.log('files:', response);
+//     }
+// });
+
+// // Change the current folder.
+// sh.command.cd(ip, 'sd', {
+//     onresponse: function(response) {
+//         console.log('cd:', response);
+//     }
+// });
+//
+// // get files list on current dir
+// sh.command.ls(ip, '', {
+//     onresponse: function(response) {
+//         console.log('files:', response.data.files);
 //     }
 // });
 

@@ -10,10 +10,10 @@ var sh = sh || {};
     // -------------------------------------------------------------------------
 
     /** @property {String} */
-    sh.version = '0.0.1-alpha';
+    sh.name = 'smoothie-happy';
 
     /** @property {String} */
-    sh.name = 'Smoothie Happy';
+    sh.version = '0.0.1-alpha';
 
     /** @property {String} */
     sh.description = 'Smoothieware network communication API.';
@@ -196,7 +196,22 @@ var sh = sh || {};
                 }
 
                 // response object
-                var response = { raw : raw, data: data };
+                var response = { error: null, raw : raw, data: data };
+
+                // data type check
+                if (typeof data !== 'object') {
+                    if (typeof data === 'string') {
+                        // error message provided
+                        response.error = data.trim();
+                    }
+                    else {
+                        // default message
+                        response.error = 'Unknown error';
+                    }
+
+                    // delete data property
+                    delete response.data;
+                }
 
                 // call onresponse user callback
                 settings.onresponse.call(this, response);
@@ -218,80 +233,6 @@ var sh = sh || {};
      * @see http://smoothieware.org/console-commands
      */
     sh.command = {};
-
-    /**
-     * List the files in the folder passed as a parameter.
-     * @method sh.command.ls
-     * @param  {String} ip        Board ip.
-     * @param  {String} path      Path to list, can be absolute or relative.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
-    sh.command.ls = function(ip, path, settings) {
-        // defaults settings
-        settings = settings || {};
-
-        // set the command
-        var command = 'ls -s ' + path;
-
-        // default filename filter callback
-        settings.filter = settings.filter  || null;
-
-        // default response parser callback
-        settings.parser = settings.parser || function(raw) {
-            // split file on new line
-            var files = raw.trim().split('\n');
-
-            // filter files
-            if (settings.filter) {
-                files = files.filter(settings.filter);
-            }
-
-            // extract file name/size
-            files = files.map(function(value) {
-                value = value.split(' ');
-                return {
-                    path: path,
-                    name: value[0],
-                    size: value[1]
-                }
-            });
-
-            // return files
-            return { files: files };
-        };
-
-        // send the command
-        sh.network.command(ip, command, settings);
-    };
-
-    /**
-     * Get the content of the file given as a parameter to the standard output,
-     * limited to number of limit lines if that parameter is passed.
-     * @method sh.command.cat
-     * @param  {String} ip        Board ip.
-     * @param  {String} path      Path to file, can be absolute or relative.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
-    sh.command.cat = function(ip, path, settings) {
-        // defaults settings
-        settings = settings || {};
-
-        // set limit if requested
-        var limit = settings.limit ? (' ' + settings.limit) : '';
-
-        // set the command
-        var command = 'cat ' + path + limit;
-
-        // default response parser callback
-        settings.parser = settings.parser || function(raw) {
-            return { lines: raw.split('\n') };
-        };
-
-        // send the comand
-        sh.network.command(ip, command, settings);
-    };
 
     /**
      * Get the board/firmware version.
@@ -331,7 +272,7 @@ var sh = sh || {};
             }
 
             // not found
-            return null;
+            return 'No version found';
         };
 
         // send the comand
@@ -357,19 +298,117 @@ var sh = sh || {};
 
         // default response parser callback
         settings.parser = settings.parser || function(raw) {
-            // version pattern
-            // expected : Unused Heap: 8948 bytes\nUsed Heap Size: 17404 Allocated: 9712, Free: 6732\nTotal Free RAM: 15680 bytes\nFree AHB0: 13236, AHB1: 10440
-            var pattern = /Unused Heap: ([0-9]+) bytes\nUsed Heap Size: ([0-9]+) Allocated: ([0-9]+), Free: ([0-9]+)\nTotal Free RAM: ([0-9]+) bytes\nFree AHB0: ([0-9]+), AHB1: ([0-9]+)/g;
-
-            // test the pattern
-            var matches = raw.match(pattern);
-
-            if (matches) {
-                console.log(matches);
-            }
-
             // split response text on new lines
             return { lines: raw.trim().split('\n') };
+        };
+
+        // send the comand
+        sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * List the files in the folder passed as a parameter.
+     * @method sh.command.ls
+     * @param  {String} ip        Board ip.
+     * @param  {String} path      Path to list, can be absolute or relative.
+     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.ls = function(ip, path, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'ls -s ' + path;
+
+        // default filename filter callback
+        settings.filter = settings.filter  || null;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            // error
+            if (raw.indexOf('Could not open directory') === 0) {
+                return raw;
+            }
+
+            // split file on new line
+            var files = raw.trim().split('\n');
+
+            // filter files
+            if (settings.filter) {
+                files = files.filter(settings.filter);
+            }
+
+            // extract file name/size
+            files = files.map(function(value) {
+                value = value.split(' ');
+                return {
+                    path: path,
+                    name: value[0],
+                    size: value[1]
+                }
+            });
+
+            // return files
+            return { files: files };
+        };
+
+        // send the command
+        sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Change the current folder to the folder passed as a parameter.
+     * @method sh.command.cd
+     * @param  {String} ip        Board ip.
+     * @param  {String} path      Path to folder, can be absolute or relative.
+     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.cd = function(ip, path, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'cd ' + path;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            var error = raw.trim();
+            return error.length ? error : true;
+        };
+
+        // send the comand
+        sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Get the content of the file given as a parameter to the standard output,
+     * limited to number of limit lines if that parameter is passed.
+     * @method sh.command.cat
+     * @param  {String} ip        Board ip.
+     * @param  {String} path      Path to file, can be absolute or relative.
+     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.cat = function(ip, path, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set limit if requested
+        var limit = settings.limit ? (' ' + settings.limit) : '';
+
+        // set the command
+        var command = 'cat ' + path + limit;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            // error
+            if (raw.indexOf('File not found') === 0) {
+                return raw;
+            }
+
+            return { lines: raw.split('\n') };
         };
 
         // send the comand
