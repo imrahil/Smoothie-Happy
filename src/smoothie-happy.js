@@ -204,7 +204,7 @@ var sh = sh || {};
                         // error message provided
                         response.error = data.trim();
                     }
-                    else {
+                    else if (data !== true) {
                         // default message
                         response.error = 'Unknown error';
                     }
@@ -383,6 +383,29 @@ var sh = sh || {};
     };
 
     /**
+     * Shows the current folder.
+     * @method sh.command.pwd
+     * @param  {String} ip        Board ip.
+     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.pwd = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'pwd';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            return { directory: raw.trim() };
+        };
+
+        // send the comand
+        sh.network.command(ip, command, settings);
+    };
+
+    /**
      * Get the content of the file given as a parameter to the standard output,
      * limited to number of limit lines if that parameter is passed.
      * @method sh.command.cat
@@ -409,6 +432,35 @@ var sh = sh || {};
             }
 
             return { lines: raw.split('\n') };
+        };
+
+        // send the comand
+        sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Remove a file.
+     * @method sh.command.rm
+     * @param  {String} ip        Board ip.
+     * @param  {String} path      Path to file to remove.
+     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.rm = function(ip, path, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'rm ' + path;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            // error
+            if (raw.indexOf('Could not delete') === 0) {
+                return raw;
+            }
+
+            return true;
         };
 
         // send the comand

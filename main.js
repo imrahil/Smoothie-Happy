@@ -19,13 +19,13 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// get the first 10 lines from the config file
-sh.command.cat(ip, 'sd/config.txt', {
-    limit     : 10,
-    onresponse: function(response) {
-        console.log('cat sd/config.txt:', response);
-    }
-});
+// // get the first 10 lines from the config file
+// sh.command.cat(ip, 'sd/config.txt', {
+//     limit     : 10,
+//     onresponse: function(response) {
+//         console.log('cat sd/config.txt:', response);
+//     }
+// });
 
 // // get memory usage.
 // sh.command.mem(ip, {
@@ -47,13 +47,27 @@ sh.command.cat(ip, 'sd/config.txt', {
 //         console.log('cd:', response);
 //     }
 // });
-//
-// // get files list on current dir
-// sh.command.ls(ip, '', {
+
+// get files list on current dir
+sh.command.ls(ip, '', {
+    onresponse: function(response) {
+        console.log('files:', response.data.files);
+    }
+});
+
+// // get the first 10 lines from the config file
+// sh.command.pwd(ip, {
 //     onresponse: function(response) {
-//         console.log('files:', response.data.files);
+//         console.log('pwd:', response);
 //     }
 // });
+
+// get the first 10 lines from the config file
+sh.command.rm(ip, 'gcode/test.txt', {
+    onresponse: function(response) {
+        console.log('rm:', response);
+    }
+});
 
 //------------------------------------------------------------------------------
 
