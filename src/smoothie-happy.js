@@ -161,8 +161,8 @@ var sh = sh || {};
      * @param  {String}    ip                   Board ip.
      * @param  {String}    command              The command string. See {@link http://smoothieware.org/console-commands} for a complete list.
      * @param  {Mixed}     settings             See "{@link sh.network.request}.settings".
-     * @param  {Function}  settings.parser      Function who take the response text as parameter and return the parsed response.
-     * @param  {Function}  settings.onresponse  Function called when the response is parsed.
+     * @param  {Callback}  settings.parser      Function who take the response text as parameter and return the parsed response.
+     * @param  {Callback}  settings.onresponse  Function called when the response is parsed.
      * @return {XMLHttpRequest}
      */
     sh.network.command = function(ip, command, settings) {
@@ -237,9 +237,10 @@ var sh = sh || {};
     /**
      * List the files in the folder passed as a parameter.
      * @method sh.command.ls
-     * @param  {String} ip        Board ip.
-     * @param  {String} path      Path to list, can be absolute or relative.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @param  {String}    ip               Board ip.
+     * @param  {String}    path             Path to list, can be absolute or relative.
+     * @param  {Mixed}     settings         See "{@link sh.network.command}.settings".
+     * @param  {Callback}  settings.filter  Function to filter the files list.
      * @return {XMLHttpRequest}
      */
     sh.command.ls = function(ip, path, settings) {
@@ -340,12 +341,12 @@ var sh = sh || {};
     };
 
     /**
-     * Get the content of the file given as a parameter to the standard output,
-     * limited to number of limit lines if that parameter is passed.
+     * Get the content of the file given as a parameter.
      * @method sh.command.cat
-     * @param  {String} ip        Board ip.
-     * @param  {String} path      Path to file, can be absolute or relative.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @param  {String}   ip              Board ip.
+     * @param  {String}   path            Path to file, can be absolute or relative.
+     * @param  {Mixed}    settings        See "{@link sh.network.command}.settings".
+     * @param  {Integer}  settings.limit  Limit the returned number of lines.
      * @return {XMLHttpRequest}
      */
     sh.command.cat = function(ip, path, settings) {
@@ -432,8 +433,10 @@ var sh = sh || {};
     };
 
     /**
+     * Alias of {@link sh.network.upload}.
      * Upload a file on the sd card.
      * @method sh.command.upload
+     * @uses   sh.network.upload
      * @param  {String}      ip        Board ip.
      * @param  {Object|File} file      {File} object or an {Object} with "name" and "data" properties set.
      * @param  {Mixed}       settings  See "{@link sh.network.request}.settings".
@@ -441,6 +444,122 @@ var sh = sh || {};
      */
     sh.command.upload = function(ip, file, settings) {
         return sh.network.upload(ip, file, settings);
+    };
+
+    /**
+     * Wait until the board is online.
+     * @method sh.command.waitUntilOnline
+     * @param  {String}    ip                 Board ip.
+     * @param  {Mixed}     settings           See "{@link sh.network.command}.settings".
+     * @param  {Integer}   settings.limit     Maximum number of trials {@default 10}.
+     * @param  {Integer}   settings.interval  Interval between trials in milliseconds {@default 2000}.
+     * @param  {Callback}  settings.online    Called when the board is online.
+     * @param  {Callback}  settings.ontry     Called when we try to connect with the board.
+     * @return {XMLHttpRequest}
+     */
+    sh.command.waitUntilOnline = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // request timeout
+        settings.timeout = settings.timeout || 1000;
+
+        // trials limit
+        settings.limit = settings.limit || 10;
+
+        // interval between trials
+        settings.interval = settings.interval || 2000;
+
+        // online callback
+        settings.online = settings.online || null;
+
+        // ontry callback
+        settings.ontry = settings.ontry || null;
+
+        // user callbacks
+        var ontimeout  = settings.ontimeout  || null;
+        var onresponse = settings.onresponse || null;
+
+        // trials counter
+        settings.trials = settings.trials || 1;
+
+        // on connection timeout
+        settings.ontimeout = settings.onerror = function() {
+            // increment trials counter
+            settings.trials++;
+
+            // if limit is reached
+            if (settings.trials > settings.limit) {
+                ontimeout.call(this);
+                return;
+            }
+
+            // delay next try
+            setTimeout(function() {
+                sh.command.waitUntilOnline(ip, settings);
+            }, settings.interval);
+        };
+
+        // on response
+        settings.onresponse = function(response) {
+            // call default user callback
+            if (onresponse) {
+                onresponse.call(this, response);
+                onresponse = null;
+            }
+
+            // if online callback defined and version data
+            if (settings.online && response.data.branch) {
+                settings.online.call(this, response.data);
+                settings.online = null;
+            }
+        };
+
+        // send version command
+        var xhr = sh.command.version(ip, settings);
+
+        // on try callback ?
+        if (settings.ontry) {
+            settings.ontry.call(xhr, settings.trials);
+        }
+
+        // return the request Object
+        return xhr;
+    };
+
+    /**
+     * Reset the system.
+     * @method sh.command.reset
+     * @param  {String}   ip                        Board ip.
+     * @param  {Mixed}    settings                  See "{@link sh.network.command}.settings".
+     * @param  {Integer}  settings.resetDelay       Delay before the smoothie reset (@default: 5000).
+     * @param  {Object}   settings.waitUntilOnline  See "{@link sh.network.waitUntilOnline}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.reset = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'reset';
+
+        // delay before the smoothie reset (default: 5 seconds)
+        // https://github.com/Smoothieware/Smoothieware/blob/100e5055156f7fbe9f7b57fccdc4bfd0784bc728/src/modules/utils/simpleshell/SimpleShell.cpp#L620
+        settings.resetDelay = settings.resetDelay || 5000;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            if (settings.waitUntilOnline) {
+                setTimeout(function() {
+                    sh.command.waitUntilOnline(ip, settings.waitUntilOnline);
+                }, settings.resetDelay + 1000);
+            }
+
+            return { message: raw.trim() };
+        };
+
+        // send the comand
+        sh.network.command(ip, command, settings);
     };
 
     /**

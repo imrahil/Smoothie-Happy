@@ -19,7 +19,7 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// // change the current folder.
+// // change the current folder
 // sh.command.cd(ip, 'sd/', {
 //     onresponse: function(response) {
 //         console.log('cd sd/', response);
@@ -69,12 +69,46 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// // get memory usage.
+// // get memory usage
 // sh.command.mem(ip, {
 //     onresponse: function(response) {
 //         console.log('mem', response);
 //     }
 // });
+
+// // wait until the board is online
+// sh.command.waitUntilOnline(ip, {
+//     ontry: function(trials) {
+//         console.log('ontry', trials);
+//     },
+//     online: function(version) {
+//         console.log('online', version);
+//     },
+//     ontimeout: function() {
+//         console.log('ontimeout', this);
+//     }
+// });
+
+// reset the system
+sh.command.reset(ip, {
+    onresponse: function(response) {
+        console.log('reset:onresponse', response);
+    },
+    onerror: function() {
+        console.log('reset:onerror', this);
+    },
+    waitUntilOnline: {
+        ontry: function(trials) {
+            console.log('waitUntilOnline:ontry', trials);
+        },
+        online: function(version) {
+            console.log('waitUntilOnline:online', version);
+        },
+        ontimeout: function() {
+            console.log('waitUntilOnline:offline', this);
+        }
+    }
+});
 
 //------------------------------------------------------------------------------
 
@@ -83,7 +117,7 @@ $('#file').on('change', function(e) {
     var file = e.target.files[0];
 
     // upload the file
-    sh.network.upload(ip, file, {
+    sh.command.upload(ip, file, {
         upload: {
             onloadend: function(event) {
                 sh.command.ls(ip, 'sd/', {
