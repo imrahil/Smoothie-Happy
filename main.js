@@ -89,26 +89,37 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// reset the system
-sh.command.reset(ip, {
-    onresponse: function(response) {
-        console.log('reset:onresponse', response);
-    },
-    onerror: function() {
-        console.log('reset:onerror', this);
-    },
-    waitUntilOnline: {
-        ontry: function(trials) {
-            console.log('waitUntilOnline:ontry', trials);
-        },
-        online: function(version) {
-            console.log('waitUntilOnline:online', version);
-        },
-        ontimeout: function() {
-            console.log('waitUntilOnline:offline', this);
-        }
-    }
-});
+// // reset the system
+// sh.command.reset(ip, {
+//     onresponse: function(response) {
+//         console.log('reset:onresponse', response);
+//     },
+//     onerror: function() {
+//         console.log('reset:onerror', this);
+//     },
+//     waitUntilOnline: {
+//         ontry: function(trials) {
+//             console.log('waitUntilOnline:ontry', trials);
+//         },
+//         online: function(version) {
+//             console.log('waitUntilOnline:online', version);
+//         },
+//         ontimeout: function() {
+//             console.log('waitUntilOnline:offline', this);
+//         }
+//     }
+// });
+
+// // get config value
+// sh.command.configGet(ip, 'alpha_steps_per_mm', {
+//     location: 'sd',
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     },
+//     onvalue: function(value) {
+//         console.log('value', value);
+//     }
+// });
 
 //------------------------------------------------------------------------------
 

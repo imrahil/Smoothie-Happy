@@ -563,6 +563,58 @@ var sh = sh || {};
     };
 
     /**
+     * Get config setting value.
+     * @method sh.command.configGet
+     * @param  {String}   ip                 Board ip.
+     * @param  {String}   setting            Setting name.
+     * @param  {Mixed}    settings           See "{@link sh.network.command}.settings".
+     * @param  {String}   settings.location  Where to read the value from {@default 'cache'}.
+     * @return {XMLHttpRequest}
+     */
+    sh.command.configGet = function(ip, setting, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set config location
+        var location = settings.location || 'cache';
+
+        if (location === 'cache') {
+            location = '';
+        }
+
+        if (location.length) {
+            location = location + ' ';
+        }
+
+        // set the command
+        var command = 'config-get ' + location + setting;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            var raw = raw.trim();
+
+            if (raw.indexOf('is not in config') !== -1) {
+                return raw;
+            }
+
+            if (raw.length) {
+                var value = raw.split(' ').pop();
+
+                if (settings.onvalue) {
+                    settings.onvalue.call(this, value);
+                }
+
+                return { value: value };
+            }
+
+            return 'invalid location';
+        };
+
+        // send the comand
+        sh.network.command(ip, command, settings);
+    };
+
+    /**
      * Get a list of commands.
      * @method sh.command.help
      * @param  {String} ip        Board ip.
