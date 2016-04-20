@@ -302,8 +302,14 @@ var sh = sh || {};
 
         // default response parser callback
         settings.parser = settings.parser || function(raw) {
-            var error = raw.trim();
-            return error.length ? error : true;
+            // error
+            var message = raw.trim();
+
+            if (message.length) {
+                return message;
+            }
+
+            return { message: message };
         };
 
         // send the comand
@@ -388,11 +394,53 @@ var sh = sh || {};
                 return raw;
             }
 
-            return true;
+            return { message: raw.trim() };
         };
 
         // send the comand
         sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Move a file.
+     * @method sh.command.mv
+     * @param  {String} ip        Board ip.
+     * @param  {String} path      Path to file source.
+     * @param  {String} newpath   Path to file destination.
+     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.mv = function(ip, path, newpath, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'mv ' + path + ' ' + newpath;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            // error
+            if (raw.indexOf('Could not rename') === 0) {
+                return raw;
+            }
+
+            return { message: raw.trim() };
+        };
+
+        // send the comand
+        sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Upload a file on the sd card.
+     * @method sh.command.upload
+     * @param  {String}      ip        Board ip.
+     * @param  {Object|File} file      {File} object or an {Object} with "name" and "data" properties set.
+     * @param  {Mixed}       settings  See "{@link sh.network.request}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.upload = function(ip, file, settings) {
+        return sh.network.upload(ip, file, settings);
     };
 
     /**

@@ -6,23 +6,30 @@ var ip = '192.168.1.101';
 // // send command(s)
 // sh.network.command(ip, 'version\nmem\nversion', {
 //     onload: function() {
-//         console.info('version:', this);
+//         console.info('version', this);
 //     }
 // });
 
 //------------------------------------------------------------------------------
 
-// get the help
-sh.command.help(ip, {
-    onresponse: function(response) {
-        console.log('version:', response);
-    }
-});
-
-// // get the board version
-// sh.command.version(ip, {
+// // get files list on the sd card
+// sh.command.ls(ip, 'sd/', {
 //     onresponse: function(response) {
-//         console.log('version:', response);
+//         console.log('ls sd/', response);
+//     }
+// });
+
+// // change the current folder.
+// sh.command.cd(ip, 'sd/', {
+//     onresponse: function(response) {
+//         console.log('cd sd/', response);
+//     }
+// });
+
+// // get the first 10 lines from the config file
+// sh.command.pwd(ip, {
+//     onresponse: function(response) {
+//         console.log('pwd', response);
 //     }
 // });
 
@@ -30,49 +37,42 @@ sh.command.help(ip, {
 // sh.command.cat(ip, 'sd/config.txt', {
 //     limit     : 10,
 //     onresponse: function(response) {
-//         console.log('cat sd/config.txt:', response);
+//         console.log('cat sd/config.txt', response);
+//     }
+// });
+
+// // remove a file
+// sh.command.rm(ip, '/sd/test.txt', {
+//     onresponse: function(response) {
+//         console.log('rm gcode/test.txt', response);
+//     }
+// });
+
+// // move a file
+// sh.command.mv(ip, '/sd/gcode/test.txt', '/sd/test.txt', {
+//     onresponse: function(response) {
+//         console.log('rm gcode/test.txt', response);
+//     }
+// });
+
+// // get the help
+// sh.command.help(ip, {
+//     onresponse: function(response) {
+//         console.log('help', response);
+//     }
+// });
+
+// // get the board version
+// sh.command.version(ip, {
+//     onresponse: function(response) {
+//         console.log('version', response);
 //     }
 // });
 
 // // get memory usage.
 // sh.command.mem(ip, {
 //     onresponse: function(response) {
-//         console.log('mem:', response);
-//     }
-// });
-
-// // get files list on the sd card
-// sh.command.ls(ip, 'sd/', {
-//     onresponse: function(response) {
-//         console.log('files:', response);
-//     }
-// });
-
-// // change the current folder.
-// sh.command.cd(ip, 'sd', {
-//     onresponse: function(response) {
-//         console.log('cd:', response);
-//     }
-// });
-
-// // get files list on current dir
-// sh.command.ls(ip, '', {
-//     onresponse: function(response) {
-//         console.log('files:', response.data.files);
-//     }
-// });
-
-// // get the first 10 lines from the config file
-// sh.command.pwd(ip, {
-//     onresponse: function(response) {
-//         console.log('pwd:', response);
-//     }
-// });
-
-// // get the first 10 lines from the config file
-// sh.command.rm(ip, 'gcode/test.txt', {
-//     onresponse: function(response) {
-//         console.log('rm:', response);
+//         console.log('mem', response);
 //     }
 // });
 
@@ -88,7 +88,7 @@ $('#file').on('change', function(e) {
             onloadend: function(event) {
                 sh.command.ls(ip, 'sd/', {
                     onresponse: function(response) {
-                        console.log('files:', response.data.files);
+                        console.log('files', response.data.files);
                     }
                 });
             }
@@ -99,4 +99,4 @@ $('#file').on('change', function(e) {
 //------------------------------------------------------------------------------
 
 // debug...
-//console.log('sh:', sh);
+//console.log('sh', sh);
