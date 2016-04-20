@@ -235,78 +235,6 @@ var sh = sh || {};
     sh.command = {};
 
     /**
-     * Get the board/firmware version.
-     * @method sh.command.version
-     * @param  {String} ip        Board ip.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
-    sh.command.version = function(ip, settings) {
-        // defaults settings
-        settings = settings || {};
-
-        // set the command
-        var command = 'version';
-
-        // default response parser callback
-        settings.parser = settings.parser || function(raw) {
-            // version pattern
-            // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
-            var pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
-
-            // test the pattern
-            var matches = raw.match(pattern);
-
-            if (matches) {
-                // split branch-hash on dash
-                var branch = matches[1].split('-');
-
-                // response object
-                return {
-                    branch: branch[0],
-                    hash  : branch[1],
-                    date  : matches[2],
-                    mcu   : matches[3],
-                    clock : matches[4]
-                };
-            }
-
-            // not found
-            return 'No version found';
-        };
-
-        // send the comand
-        sh.network.command(ip, command, settings);
-    };
-
-    /**
-     * Get information about RAM usage.
-     * @method sh.command.mem
-     * @param  {String} ip        Board ip.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
-    sh.command.mem = function(ip, settings) {
-        // defaults settings
-        settings = settings || {};
-
-        // set verbosity
-        var verbose = settings.verbose ? ' -v' : '';
-
-        // set the command
-        var command = 'mem' + verbose;
-
-        // default response parser callback
-        settings.parser = settings.parser || function(raw) {
-            // split response text on new lines
-            return { lines: raw.trim().split('\n') };
-        };
-
-        // send the comand
-        sh.network.command(ip, command, settings);
-    };
-
-    /**
      * List the files in the folder passed as a parameter.
      * @method sh.command.ls
      * @param  {String} ip        Board ip.
@@ -467,4 +395,105 @@ var sh = sh || {};
         sh.network.command(ip, command, settings);
     };
 
+    /**
+     * Get a list of commands.
+     * @method sh.command.help
+     * @param  {String} ip        Board ip.
+     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.help = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'help';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            // split response text on new lines
+            var lines = raw.trim().split('\n');
+
+            // remove first line ('Commands:')
+            lines.shift();
+
+            // return commands list
+            return { lines: lines };
+        };
+
+        // send the comand
+        sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Get the board/firmware version.
+     * @method sh.command.version
+     * @param  {String} ip        Board ip.
+     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.version = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'version';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            // version pattern
+            // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
+            var pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
+
+            // test the pattern
+            var matches = raw.match(pattern);
+
+            if (matches) {
+                // split branch-hash on dash
+                var branch = matches[1].split('-');
+
+                // response object
+                return {
+                    branch: branch[0],
+                    hash  : branch[1],
+                    date  : matches[2],
+                    mcu   : matches[3],
+                    clock : matches[4]
+                };
+            }
+
+            // not found
+            return 'No version found';
+        };
+
+        // send the comand
+        sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Get information about RAM usage.
+     * @method sh.command.mem
+     * @param  {String} ip        Board ip.
+     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.mem = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set verbosity
+        var verbose = settings.verbose ? ' -v' : '';
+
+        // set the command
+        var command = 'mem' + verbose;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            // split response text on new lines
+            return { lines: raw.trim().split('\n') };
+        };
+
+        // send the comand
+        sh.network.command(ip, command, settings);
+    };
 })();
