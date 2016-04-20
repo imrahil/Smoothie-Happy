@@ -225,6 +225,87 @@ var sh = sh || {};
         return this.post('http://' + ip + '/command', settings);
     };
 
+    /**
+     * Wait until the board is online.
+     * @method sh.network.waitUntilOnline
+     * @param  {String}    ip                 Board ip.
+     * @param  {Mixed}     settings           See "{@link sh.network.command}.settings".
+     * @param  {Integer}   settings.limit     Maximum number of trials {@default 10}.
+     * @param  {Integer}   settings.interval  Interval between trials in milliseconds {@default 2000}.
+     * @param  {Callback}  settings.online    Called when the board is online.
+     * @param  {Callback}  settings.ontry     Called when we try to connect with the board.
+     * @return {XMLHttpRequest}
+     */
+    sh.network.waitUntilOnline = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // request timeout
+        settings.timeout = settings.timeout || 1000;
+
+        // trials limit
+        settings.limit = settings.limit || 10;
+
+        // interval between trials
+        settings.interval = settings.interval || 2000;
+
+        // online callback
+        settings.online = settings.online || null;
+
+        // ontry callback
+        settings.ontry = settings.ontry || null;
+
+        // user callbacks
+        var ontimeout  = settings.ontimeout  || null;
+        var onresponse = settings.onresponse || null;
+
+        // trials counter
+        settings.trials = settings.trials || 1;
+
+        // on connection timeout
+        settings.ontimeout = settings.onerror = function() {
+            // increment trials counter
+            settings.trials++;
+
+            // if limit is reached
+            if (settings.trials > settings.limit) {
+                ontimeout.call(this);
+                return;
+            }
+
+            // delay next try
+            setTimeout(function() {
+                sh.network.waitUntilOnline(ip, settings);
+            }, settings.interval);
+        };
+
+        // on response
+        settings.onresponse = function(response) {
+            // call default user callback
+            if (onresponse) {
+                onresponse.call(this, response);
+                onresponse = null;
+            }
+
+            // if online callback defined and version data
+            if (settings.online && response.data.branch) {
+                settings.online.call(this, response.data);
+                settings.online = null;
+            }
+        };
+
+        // send version command
+        var xhr = sh.command.version(ip, settings);
+
+        // on try callback ?
+        if (settings.ontry) {
+            settings.ontry.call(xhr, settings.trials);
+        }
+
+        // return the request Object
+        return xhr;
+    };
+
     // -------------------------------------------------------------------------
 
     /**
@@ -447,87 +528,6 @@ var sh = sh || {};
     };
 
     /**
-     * Wait until the board is online.
-     * @method sh.command.waitUntilOnline
-     * @param  {String}    ip                 Board ip.
-     * @param  {Mixed}     settings           See "{@link sh.network.command}.settings".
-     * @param  {Integer}   settings.limit     Maximum number of trials {@default 10}.
-     * @param  {Integer}   settings.interval  Interval between trials in milliseconds {@default 2000}.
-     * @param  {Callback}  settings.online    Called when the board is online.
-     * @param  {Callback}  settings.ontry     Called when we try to connect with the board.
-     * @return {XMLHttpRequest}
-     */
-    sh.command.waitUntilOnline = function(ip, settings) {
-        // defaults settings
-        settings = settings || {};
-
-        // request timeout
-        settings.timeout = settings.timeout || 1000;
-
-        // trials limit
-        settings.limit = settings.limit || 10;
-
-        // interval between trials
-        settings.interval = settings.interval || 2000;
-
-        // online callback
-        settings.online = settings.online || null;
-
-        // ontry callback
-        settings.ontry = settings.ontry || null;
-
-        // user callbacks
-        var ontimeout  = settings.ontimeout  || null;
-        var onresponse = settings.onresponse || null;
-
-        // trials counter
-        settings.trials = settings.trials || 1;
-
-        // on connection timeout
-        settings.ontimeout = settings.onerror = function() {
-            // increment trials counter
-            settings.trials++;
-
-            // if limit is reached
-            if (settings.trials > settings.limit) {
-                ontimeout.call(this);
-                return;
-            }
-
-            // delay next try
-            setTimeout(function() {
-                sh.command.waitUntilOnline(ip, settings);
-            }, settings.interval);
-        };
-
-        // on response
-        settings.onresponse = function(response) {
-            // call default user callback
-            if (onresponse) {
-                onresponse.call(this, response);
-                onresponse = null;
-            }
-
-            // if online callback defined and version data
-            if (settings.online && response.data.branch) {
-                settings.online.call(this, response.data);
-                settings.online = null;
-            }
-        };
-
-        // send version command
-        var xhr = sh.command.version(ip, settings);
-
-        // on try callback ?
-        if (settings.ontry) {
-            settings.ontry.call(xhr, settings.trials);
-        }
-
-        // return the request Object
-        return xhr;
-    };
-
-    /**
      * Reset the system.
      * @method sh.command.reset
      * @param  {String}   ip                        Board ip.
@@ -551,7 +551,7 @@ var sh = sh || {};
         settings.parser = settings.parser || function(raw) {
             if (settings.waitUntilOnline) {
                 setTimeout(function() {
-                    sh.command.waitUntilOnline(ip, settings.waitUntilOnline);
+                    sh.network.waitUntilOnline(ip, settings.waitUntilOnline);
                 }, settings.resetDelay + 1000);
             }
 

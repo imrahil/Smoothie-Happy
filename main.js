@@ -77,7 +77,7 @@ var ip = '192.168.1.101';
 // });
 
 // // wait until the board is online
-// sh.command.waitUntilOnline(ip, {
+// sh.network.waitUntilOnline(ip, {
 //     ontry: function(trials) {
 //         console.log('ontry', trials);
 //     },
