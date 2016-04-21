@@ -121,6 +121,23 @@ var ip = '192.168.1.101';
 //     }
 // });
 
+// // set config value
+// sh.command.configSet(ip, 'alpha_steps_per_mm', '90', {
+//     location: 'sd',
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     },
+//     onvalue: function(value) {
+//         console.log('value', value);
+//     },
+//     ontimeout: function() {
+//         console.log('timeout', this);
+//     },
+//     onend: function() {
+//         console.log('end', this);
+//     }
+// });
+
 //------------------------------------------------------------------------------
 
 // on file selected

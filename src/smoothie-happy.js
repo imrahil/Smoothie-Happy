@@ -563,37 +563,82 @@ var sh = sh || {};
     };
 
     /**
-     * Get config setting value.
+     * Get config value.
      * @method sh.command.configGet
      * @param  {String}   ip                 Board ip.
-     * @param  {String}   setting            Setting name.
+     * @param  {String}   name               Setting name.
      * @param  {Mixed}    settings           See "{@link sh.network.command}.settings".
-     * @param  {String}   settings.location  Where to read the value from {@default 'cache'}.
+     * @param  {String}   settings.location  Where to read the value {@default 'sd'}.
      * @return {XMLHttpRequest}
      */
-    sh.command.configGet = function(ip, setting, settings) {
+    sh.command.configGet = function(ip, name, settings) {
         // defaults settings
         settings = settings || {};
 
         // set config location
-        var location = settings.location || 'cache';
-
-        if (location === 'cache') {
-            location = '';
-        }
+        var location = settings.location || 'sd';
 
         if (location.length) {
             location = location + ' ';
         }
 
         // set the command
-        var command = 'config-get ' + location + setting;
+        var command = 'config-get ' + location + name;
 
         // default response parser callback
         settings.parser = settings.parser || function(raw) {
             var raw = raw.trim();
 
             if (raw.indexOf('is not in config') !== -1) {
+                return raw;
+            }
+
+            if (raw.length) {
+                var value = raw.split(' ').pop();
+
+                if (settings.onvalue) {
+                    settings.onvalue.call(this, value);
+                }
+
+                return { value: value };
+            }
+
+            return 'invalid location';
+        };
+
+        // send the comand
+        sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Set config value.
+     * @method sh.command.configSet
+     * @param  {String}   ip                 Board ip.
+     * @param  {String}   name               Setting name.
+     * @param  {String}   value              Setting value.
+     * @param  {Mixed}    settings           See "{@link sh.network.command}.settings".
+     * @param  {String}   settings.location  Where to write the value {@default 'sd'}.
+     * @return {XMLHttpRequest}
+     */
+    sh.command.configSet = function(ip, name, value, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set config location
+        var location = settings.location || 'sd';
+
+        if (location.length) {
+            location = location + ' ';
+        }
+
+        // set the command
+        var command = 'config-set ' + location + name + ' ' + value;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            var raw = raw.trim();
+
+            if (raw.indexOf('not enough space to overwrite existing key/value') !== -1) {
                 return raw;
             }
 
