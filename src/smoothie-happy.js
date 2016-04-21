@@ -1050,4 +1050,52 @@ var sh = sh || {};
         // send the comand
         return sh.command.get(ip, what, settings);
     };
+
+    /**
+     * Get system status.
+     * @method sh.command.getStatus
+     * @param  {String}    ip                Board ip.
+     * @param  {Mixed}     settings          See "{@link sh.network.command}.settings".
+     * @param  {Callback}  settings.onstate  Called when state.
+     * @return {XMLHttpRequest}
+     */
+    sh.command.getStatus = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var what = 'status';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+            raw = raw.substr(1, raw.length - 2);
+            raw = raw.replace('MPos:', '').replace('WPos:', '');
+
+            var parts  = raw.split(',');
+            var status = {
+                name: parts[0],
+                machine: {
+                    x: parseFloat(parts[1]),
+                    y: parseFloat(parts[2]),
+                    z: parseFloat(parts[3]),
+                },
+                world: {
+                    x: parseFloat(parts[4]),
+                    y: parseFloat(parts[5]),
+                    z: parseFloat(parts[6]),
+                }
+            };
+
+            if (settings.onstatus) {
+                settings.onstatus.call(this, status);
+            }
+
+            return { raw: raw };
+        };
+
+        // send the comand
+        return sh.command.get(ip, what, settings);
+    };
+
 })();

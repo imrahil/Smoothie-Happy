@@ -179,13 +179,23 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// get state
-sh.command.getState(ip, {
+// // get state
+// sh.command.getState(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     },
+//     onstate: function(state) {
+//         console.log('state', state);
+//     }
+// });
+
+// get status
+sh.command.getStatus(ip, {
     onresponse: function(response) {
         console.log('response', response);
     },
-    onstate: function(state) {
-        console.log('state', state);
+    onstatus: function(status) {
+        console.log('status', status);
     }
 });
 
