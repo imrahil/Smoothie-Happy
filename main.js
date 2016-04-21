@@ -151,17 +151,21 @@ var ip = '192.168.1.101';
 //     }
 // });
 
+// set temperatures
+sh.command.setTemp(ip, 'bed', 50, {
+    onresponse: function(response) {
+        console.log('response', response);
+    }
+});
+
 // get temperatures
 sh.command.getTemp(ip, {
     device: 'bed',
     onresponse: function(response) {
         console.log('response', response);
     },
-    ontimeout: function() {
-        console.log('timeout', this);
-    },
-    onend: function() {
-        console.log('end', this);
+    ontemps: function(temps) {
+        console.log('temps', temps);
     }
 });
 

@@ -862,4 +862,37 @@ var sh = sh || {};
         // send the comand
         return sh.command.get(ip, what, settings);
     };
+
+    /**
+     * Set temperature.
+     * @method sh.command.setTemp
+     * @param  {String}  ip        Board ip.
+     * @param  {String}  device    Device [bed|hotend].
+     * @param  {Integer} temp      Target tempertaure.
+     * @param  {Mixed}   settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.setTemp = function(ip, device, temp, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'set_temp ' + device + ' ' + temp;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('is not a known temperature device') !== -1) {
+                return raw;
+            }
+
+            // return message
+            return { message: raw };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+
+    };
 })();
