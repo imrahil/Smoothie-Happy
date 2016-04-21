@@ -169,13 +169,23 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// get work coordinate system
-sh.command.getWCS(ip, {
+// // get work coordinate system
+// sh.command.getWCS(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     },
+//     onwcs: function(wcs) {
+//         console.log('wcs', wcs);
+//     }
+// });
+
+// get state
+sh.command.getState(ip, {
     onresponse: function(response) {
         console.log('response', response);
     },
-    onwcs: function(wcs) {
-        console.log('wcs', wcs);
+    onstate: function(state) {
+        console.log('state', state);
     }
 });
 

@@ -833,9 +833,9 @@ var sh = sh || {};
                         type      : line[0] === 'B' ? 'bed' : 'hotend',
                         designator: line[0],
                         id        : line[1].substr(1, line[1].length-2),
-                        current   : temp[0],
-                        target    : temp[1],
-                        pwm       : line[4].substr(1)
+                        current   : parseFloat(temp[0]),
+                        target    : parseFloat(temp[1]),
+                        pwm       : parseFloat(line[4].substr(1))
                     });
                 }
                 // %s temp: %f/%f @%d
@@ -844,9 +844,9 @@ var sh = sh || {};
                     temp  = line[2].split('/');
                     temps = {
                         type   : line[0],
-                        current: temp[0],
-                        target : temp[1],
-                        pwm    : line[3].substr(1)
+                        current: parseFloat(temp[0]),
+                        target : parseFloat(temp[1]),
+                        pwm    : parseFloat(line[3].substr(1))
                     };
                 }
             }
@@ -997,6 +997,54 @@ var sh = sh || {};
 
             // split response text on new lines
             return { lines: lines };
+        };
+
+        // send the comand
+        return sh.command.get(ip, what, settings);
+    };
+
+    /**
+     * Get system state.
+     * @method sh.command.getState
+     * @param  {String}    ip                Board ip.
+     * @param  {Mixed}     settings          See "{@link sh.network.command}.settings".
+     * @param  {Callback}  settings.onstate  Called when state.
+     * @return {XMLHttpRequest}
+     */
+    sh.command.getState = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var what = 'state';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            // remove brackets and split on spaces
+            var parts = raw.substr(1, raw.length - 2).split(' ');
+            var state = {};
+
+            // [G0 G54 G17 G21 G90 G94 M0 M5 M9 T0 F0.]
+            state.move      = parts[0];
+            state.rapid     = state.move === 'G0';
+            state.arc_cw    = state.move === 'G2';
+            state.arc_ccw   = state.move === 'G3';
+            state.wcs       = parts[1];
+            state.plane     = parts[2] === 'G17' ? 'XY' : (parts[2] === 'G18' ? 'ZX' : (parts[2] === 'G19' ? 'YZ' : '--'));
+            state.units     = parts[3] === 'G20' ? 'in' : 'mm';
+            state.mode      = parts[4] === 'G90' ? 'absolute' : 'relative';
+            state.absolute  = state.mode === 'absolute';
+            state.relative  = state.mode === 'relative';
+            state.tool      = parseInt(parts[9].substr(1));
+            state.feed_rate = parseFloat(parts[10].substr(1));
+
+            if (settings.onstate) {
+                settings.onstate.call(this, state);
+            }
+
+            return { state: state };
         };
 
         // send the comand
