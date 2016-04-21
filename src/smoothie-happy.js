@@ -364,7 +364,7 @@ var sh = sh || {};
         };
 
         // send the command
-        sh.network.command(ip, command, settings);
+        return sh.network.command(ip, command, settings);
     };
 
     /**
@@ -395,7 +395,7 @@ var sh = sh || {};
         };
 
         // send the comand
-        sh.network.command(ip, command, settings);
+        return sh.network.command(ip, command, settings);
     };
 
     /**
@@ -418,7 +418,7 @@ var sh = sh || {};
         };
 
         // send the comand
-        sh.network.command(ip, command, settings);
+        return sh.network.command(ip, command, settings);
     };
 
     /**
@@ -451,7 +451,7 @@ var sh = sh || {};
         };
 
         // send the comand
-        sh.network.command(ip, command, settings);
+        return sh.network.command(ip, command, settings);
     };
 
     /**
@@ -480,7 +480,7 @@ var sh = sh || {};
         };
 
         // send the comand
-        sh.network.command(ip, command, settings);
+        return sh.network.command(ip, command, settings);
     };
 
     /**
@@ -510,7 +510,7 @@ var sh = sh || {};
         };
 
         // send the comand
-        sh.network.command(ip, command, settings);
+        return sh.network.command(ip, command, settings);
     };
 
     /**
@@ -559,7 +559,7 @@ var sh = sh || {};
         };
 
         // send the comand
-        sh.network.command(ip, command, settings);
+        return sh.network.command(ip, command, settings);
     };
 
     /**
@@ -587,7 +587,7 @@ var sh = sh || {};
 
         // default response parser callback
         settings.parser = settings.parser || function(raw) {
-            var raw = raw.trim();
+            raw = raw.trim();
 
             if (raw.indexOf('is not in config') !== -1) {
                 return raw;
@@ -607,7 +607,7 @@ var sh = sh || {};
         };
 
         // send the comand
-        sh.network.command(ip, command, settings);
+        return sh.network.command(ip, command, settings);
     };
 
     /**
@@ -636,7 +636,7 @@ var sh = sh || {};
 
         // default response parser callback
         settings.parser = settings.parser || function(raw) {
-            var raw = raw.trim();
+            raw = raw.trim();
 
             if (raw.indexOf('not enough space to overwrite existing key/value') !== -1) {
                 return raw;
@@ -656,7 +656,7 @@ var sh = sh || {};
         };
 
         // send the comand
-        sh.network.command(ip, command, settings);
+        return sh.network.command(ip, command, settings);
     };
 
     /**
@@ -686,7 +686,7 @@ var sh = sh || {};
         };
 
         // send the comand
-        sh.network.command(ip, command, settings);
+        return sh.network.command(ip, command, settings);
     };
 
     /**
@@ -731,7 +731,7 @@ var sh = sh || {};
         };
 
         // send the comand
-        sh.network.command(ip, command, settings);
+        return sh.network.command(ip, command, settings);
     };
 
     /**
@@ -758,6 +758,108 @@ var sh = sh || {};
         };
 
         // send the comand
-        sh.network.command(ip, command, settings);
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Get [temp|pos|wcs|state|status|fk|ik].
+     * @method sh.command.get
+     * @param  {String} ip        Board ip.
+     * @param  {String} what      Possible value [temp|pos|wcs|state|status|fk|ik].
+     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.get = function(ip, what, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'get ' + what;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            // split response text on new lines
+            return { lines: raw.trim().split('\n') };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Get current temperature.
+     * @method sh.command.getTemp
+     * @param  {String}    ip               Board ip.
+     * @param  {Mixed}     settings         See "{@link sh.network.command}.settings".
+     * @param  {Mixed}     settings.device  Possible values: [all, bed, hotend] {@default all}.
+     * @param  {Callback}  settings.ontemps Called when temperature.
+     * @return {XMLHttpRequest}
+     */
+    sh.command.getTemp = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set default device
+        var device = settings.device || 'all';
+            device = device === 'all' ? '' : ' ' + device;
+
+        // set the command
+        var what = 'temp' + device;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('no heaters found') === 0) {
+                return raw;
+            }
+            else if (raw.indexOf('is not a known temperature device') !== -1) {
+                return raw;
+            }
+
+            // split response on new lines
+            var lines = raw.split('\n');
+
+            var i, il, line, temp, temps = [];
+
+            for (i = 0, il = lines.length; i < il; i++) {
+                line = lines[i].split(' ');
+
+                // %s (%d) temp: %f/%f @%d
+                // designator, id, current_temperature, target_temperature, pwm
+                if (device === '') {
+                    temp = line[3].split('/');
+                    temps.push({
+                        type      : line[0] === 'B' ? 'bed' : 'hotend',
+                        designator: line[0],
+                        id        : line[1].substr(1, line[1].length-2),
+                        current   : temp[0],
+                        target    : temp[1],
+                        pwm       : line[4].substr(1)
+                    });
+                }
+                // %s temp: %f/%f @%d
+                // designator, id, current_temperature, target_temperature, pwm
+                else {
+                    temp  = line[2].split('/');
+                    temps = {
+                        type   : line[0],
+                        current: temp[0],
+                        target : temp[1],
+                        pwm    : line[3].substr(1)
+                    };
+
+                    if (settings.ontemps) {
+                        settings.ontemps.call(this, temps);
+                    }
+                }
+            }
+
+            // split response text on new lines
+            return { temps: temps, lines: raw.split('\n') };
+        };
+
+        // send the comand
+        return sh.command.get(ip, what, settings);
     };
 })();

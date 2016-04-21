@@ -138,6 +138,33 @@ var ip = '192.168.1.101';
 //     }
 // });
 
+// // get raw [temp|pos|wcs|state|status|fk|ik]
+// sh.command.get(ip, 'temp', {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     },
+//     ontimeout: function() {
+//         console.log('timeout', this);
+//     },
+//     onend: function() {
+//         console.log('end', this);
+//     }
+// });
+
+// get temperatures
+sh.command.getTemp(ip, {
+    device: 'bed',
+    onresponse: function(response) {
+        console.log('response', response);
+    },
+    ontimeout: function() {
+        console.log('timeout', this);
+    },
+    onend: function() {
+        console.log('end', this);
+    }
+});
+
 //------------------------------------------------------------------------------
 
 // on file selected
