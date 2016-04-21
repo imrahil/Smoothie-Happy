@@ -848,11 +848,11 @@ var sh = sh || {};
                         target : temp[1],
                         pwm    : line[3].substr(1)
                     };
-
-                    if (settings.ontemps) {
-                        settings.ontemps.call(this, temps);
-                    }
                 }
+            }
+
+            if (settings.ontemps) {
+                settings.ontemps.call(this, temps);
             }
 
             // split response text on new lines
@@ -893,6 +893,52 @@ var sh = sh || {};
 
         // send the comand
         return sh.network.command(ip, command, settings);
+    };
 
+    /**
+     * Get current position.
+     * @method sh.command.getPos
+     * @param  {String} ip        Board ip.
+     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.getPos = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var what = 'pos';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            // split on new lines
+            var lines = raw.split('\n');
+
+            var i, il, line, key, x, y, z, pos = {};
+
+            for (i = 0, il = lines.length; i < il; i++) {
+                line = lines[i].split(':');
+                key  = line.shift().replace(' ', '_').toLowerCase();
+                line = line.join(':').trim().split(' ');
+
+                pos[key] = {
+                    x: line[0].substr(2),
+                    y: line[1].substr(2),
+                    z: line[2].substr(2)
+                };
+            }
+
+            if (settings.onpos) {
+                settings.onpos.call(this, pos);
+            }
+
+            // split response text on new lines
+            return { lines: lines };
+        };
+
+        // send the comand
+        return sh.command.get(ip, what, settings);
     };
 })();

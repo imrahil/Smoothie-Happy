@@ -151,21 +151,31 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// set temperatures
-sh.command.setTemp(ip, 'bed', 50, {
-    onresponse: function(response) {
-        console.log('response', response);
-    }
-});
+// // set temperatures
+// sh.command.setTemp(ip, 'bed', 50, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
 
-// get temperatures
-sh.command.getTemp(ip, {
-    device: 'bed',
+// // get temperatures
+// sh.command.getTemp(ip, {
+//     device: 'bed',
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     },
+//     ontemps: function(temps) {
+//         console.log('temps', temps);
+//     }
+// });
+
+// get position
+sh.command.getPos(ip, {
     onresponse: function(response) {
         console.log('response', response);
     },
-    ontemps: function(temps) {
-        console.log('temps', temps);
+    onpos: function(pos) {
+        console.log('pos', pos);
     }
 });
 
