@@ -169,13 +169,13 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// get position
-sh.command.getPos(ip, {
+// get work coordinate system
+sh.command.getWCS(ip, {
     onresponse: function(response) {
         console.log('response', response);
     },
-    onpos: function(pos) {
-        console.log('pos', pos);
+    onwcs: function(wcs) {
+        console.log('wcs', wcs);
     }
 });
 

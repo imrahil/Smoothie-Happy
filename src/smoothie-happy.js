@@ -916,7 +916,7 @@ var sh = sh || {};
             // split on new lines
             var lines = raw.split('\n');
 
-            var i, il, line, key, x, y, z, pos = {};
+            var i, il, line, key, pos = {};
 
             for (i = 0, il = lines.length; i < il; i++) {
                 line = lines[i].split(':');
@@ -924,14 +924,75 @@ var sh = sh || {};
                 line = line.join(':').trim().split(' ');
 
                 pos[key] = {
-                    x: line[0].substr(2),
-                    y: line[1].substr(2),
-                    z: line[2].substr(2)
+                    x: parseFloat(line[0].substr(2)),
+                    y: parseFloat(line[1].substr(2)),
+                    z: parseFloat(line[2].substr(2))
                 };
             }
 
             if (settings.onpos) {
                 settings.onpos.call(this, pos);
+            }
+
+            // split response text on new lines
+            return { lines: lines };
+        };
+
+        // send the comand
+        return sh.command.get(ip, what, settings);
+    };
+
+    /**
+     * Get work coordinate system.
+     * @method sh.command.getWCS
+     * @param  {String}    ip              Board ip.
+     * @param  {Mixed}     settings        See "{@link sh.network.command}.settings".
+     * @param  {Callback}  settings.onwcs  Called when wcs.
+     * @return {XMLHttpRequest}
+     */
+    sh.command.getWCS = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var what = 'wcs';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            // split on new lines
+            var lines = raw.split('\n');
+
+            var i, il, line, key, wcs = {};
+
+            // extract the first line as current wcs
+            wcs.current = lines.shift().split(':').pop().replace(']', '').trim();
+
+            for (i = 0, il = lines.length; i < il; i++) {
+                line = lines[i].substr(1, lines[i].length - 2).split(/[:,]/);
+                key  = line.shift();
+
+                if (key === 'PRB') {
+                    key = 'prob';
+                }
+                else if (key[0] !== 'G') {
+                    key = key.replace(' ', '_').toLowerCase();
+                }
+
+                wcs[key] = {
+                    x: parseFloat(line[0]),
+                    y: parseFloat(line[1]),
+                    z: parseFloat(line[2])
+                };
+
+                if (key === 'prob') {
+                    wcs[key].ok = !!parseInt(line[3]);
+                }
+            }
+
+            if (settings.onwcs) {
+                settings.onwcs.call(this, wcs);
             }
 
             // split response text on new lines
