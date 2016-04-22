@@ -163,7 +163,7 @@ var sh = sh || {};
      * @param  {Mixed}                     settings             See "{@link sh.network.request}.settings".
      * @param  {Callback}                  settings.onresponse  Function called when the response is received.
      * @param  {Callback}                  settings.onresult    Function called when the response is parsed.
-     * @param  {sh.network.commandParser}  settings.parser      Function that parses the response.
+     * @param  {sh.network.parserCallback}  settings.parser      Function that parses the response.
      * @return {XMLHttpRequest}
      */
     sh.network.command = function(ip, command, settings) {
@@ -210,21 +210,33 @@ var sh = sh || {};
     };
 
     /**
-     * Function that parses the raw response.
-     * @callback sh.network.commandParser
-     * @param  {String} responseText The raw response text provided by the {XMLHttpRequest}
-     * @return {Mixed}  The response parsed as an object or TRUE if no data. FALSE if an error occure.
+     * Callback called by {@link sh.network.command} that parses the raw response.
+     * @callback sh.network.parserCallback
+     * @param    {String} responseText The raw response text provided by the {XMLHttpRequest}
+     * @return   {Mixed}  The response parsed as an object or TRUE if no data. FALSE if an error occure.
+     */
+
+    /**
+     * Callback called by {@link sh.network.waitUntilOnline} when the board is online.
+     * @callback sh.network.onlineCallback
+     * @param    {Object} board Board info (result of version cmd).
+     */
+
+    /**
+     * Callback called by {@link sh.network.waitUntilOnline} when we try to connect with the board.
+     * @callback sh.network.ontryCallback
+     * @param    {Integer} trials Number of trials.
      */
 
     /**
      * Wait until the board is online.
      * @method sh.network.waitUntilOnline
-     * @param  {String}    ip                 Board ip.
-     * @param  {Mixed}     settings           See "{@link sh.network.command}.settings".
-     * @param  {Integer}   settings.limit     Maximum number of trials {@default 10}.
-     * @param  {Integer}   settings.interval  Interval between trials in milliseconds {@default 2000}.
-     * @param  {Callback}  settings.online    Called when the board is online.
-     * @param  {Callback}  settings.ontry     Called when we try to connect with the board.
+     * @param  {String}                     ip                 Board ip.
+     * @param  {Mixed}                      settings           See "{@link sh.network.command}.settings".
+     * @param  {Integer}                    settings.limit     Maximum number of trials {@default 10}.
+     * @param  {Integer}                    settings.interval  Interval between trials in milliseconds {@default 2000}.
+     * @param  {sh.network.onlineCallback}  settings.online    Called when the board is online.
+     * @param  {sh.network.ontryCallback}   settings.ontry     Called when we try to connect with the board.
      * @return {XMLHttpRequest}
      */
     sh.network.waitUntilOnline = function(ip, settings) {
@@ -279,8 +291,8 @@ var sh = sh || {};
             }
 
             // if online callback defined and version data
-            if (settings.online && response.data.branch) {
-                settings.online.call(this, response.data);
+            if (settings.online && response.result.branch) {
+                settings.online.call(this, response.result);
                 settings.online = null;
             }
         };
