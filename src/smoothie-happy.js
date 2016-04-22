@@ -158,64 +158,48 @@ var sh = sh || {};
     /**
      * Send a raw command.
      * @method sh.network.command
-     * @param  {String}    ip                   Board ip.
-     * @param  {String}    command              The command string. See {@link http://smoothieware.org/console-commands} for a complete list.
-     * @param  {Mixed}     settings             See "{@link sh.network.request}.settings".
-     * @param  {Callback}  settings.parser      Function who take the response text as parameter and return the parsed response.
-     * @param  {Callback}  settings.onresponse  Function called when the response is parsed.
+     * @param  {String}                    ip                   Board ip.
+     * @param  {String}                    command              The command string. See {@link http://smoothieware.org/console-commands} for a complete list.
+     * @param  {Mixed}                     settings             See "{@link sh.network.request}.settings".
+     * @param  {Callback}                  settings.onresponse  Function called when the response is received.
+     * @param  {Callback}                  settings.onresult    Function called when the response is parsed.
+     * @param  {sh.network.commandParser}  settings.parser      Function that parses the response.
      * @return {XMLHttpRequest}
      */
     sh.network.command = function(ip, command, settings) {
         // defaults settings
         settings = settings || {};
 
-        // default response parser callback
-        settings.parser = settings.parser || null;
-
-        // default response callback
-        settings.onresponse = settings.onresponse || null;
-
-        // user on load callback
-        var onload = settings.onload || function() {};
+        // default callbacks
+        settings.onresponse = settings.onresponse || function() {};
+        settings.parser     = settings.parser     || function(responseText) {
+            return responseText.trim().split('\n');
+        };
 
         // internal onload callback
         settings.onload = function(event) {
-            // call onload user callbacks
-            onload.call(this, event);
+            // parse the response
+            var result = settings.parser.call(this, this.responseText);
 
-            if (settings.onresponse) {
-                // raw response text
-                var raw = this.responseText;
+            // response object
+            var response = { error: null, result: result };
 
-                // no data by default
-                var data = null;
-
-                // parse the raw response
-                if (settings.parser) {
-                    data = settings.parser.call(this, raw);
+            // result type check
+            if (typeof result !== 'object') {
+                if (typeof result === 'string') {
+                    // error message provided
+                    response.error  = result.trim();
+                    response.result = null;
                 }
-
-                // response object
-                var response = { error: null, raw : raw, data: data };
-
-                // data type check
-                if (typeof data !== 'object') {
-                    if (typeof data === 'string') {
-                        // error message provided
-                        response.error = data.trim();
-                    }
-                    else if (data !== true) {
-                        // default message
-                        response.error = 'Unknown error';
-                    }
-
-                    // delete data property
-                    delete response.data;
+                else if (result !== true) {
+                    // unknown error message
+                    response.error = 'Unknown error';
+                    response.result = null;
                 }
-
-                // call onresponse user callback
-                settings.onresponse.call(this, response);
             }
+
+            // call user callbacks
+            settings.onresponse.call(this, response);
         };
 
         // set the command as request data
@@ -224,6 +208,13 @@ var sh = sh || {};
         // send the command as post request
         return this.post('http://' + ip + '/command', settings);
     };
+
+    /**
+     * Function that parses the raw response.
+     * @callback sh.network.commandParser
+     * @param  {String} responseText The raw response text provided by the {XMLHttpRequest}
+     * @return {Mixed}  The response parsed as an object or TRUE if no data. FALSE if an error occure.
+     */
 
     /**
      * Wait until the board is online.
@@ -360,7 +351,7 @@ var sh = sh || {};
             });
 
             // return files
-            return { files: files };
+            return files;
         };
 
         // send the command
@@ -447,7 +438,7 @@ var sh = sh || {};
                 return raw;
             }
 
-            return { lines: raw.split('\n') };
+            return raw.split('\n');
         };
 
         // send the comand
@@ -594,13 +585,7 @@ var sh = sh || {};
             }
 
             if (raw.length) {
-                var value = raw.split(' ').pop();
-
-                if (settings.onvalue) {
-                    settings.onvalue.call(this, value);
-                }
-
-                return { value: value };
+                return { value: raw.split(' ').pop() };
             }
 
             return 'invalid location';
@@ -643,13 +628,7 @@ var sh = sh || {};
             }
 
             if (raw.length) {
-                var value = raw.split(' ').pop();
-
-                if (settings.onvalue) {
-                    settings.onvalue.call(this, value);
-                }
-
-                return { value: value };
+                return { value: raw.split(' ').pop() };
             }
 
             return 'invalid location';
@@ -682,7 +661,7 @@ var sh = sh || {};
             lines.shift();
 
             // return commands list
-            return { lines: lines };
+            return lines;
         };
 
         // send the comand
@@ -751,12 +730,6 @@ var sh = sh || {};
         // set the command
         var command = 'mem' + verbose;
 
-        // default response parser callback
-        settings.parser = settings.parser || function(raw) {
-            // split response text on new lines
-            return { lines: raw.trim().split('\n') };
-        };
-
         // send the comand
         return sh.network.command(ip, command, settings);
     };
@@ -770,29 +743,15 @@ var sh = sh || {};
      * @return {XMLHttpRequest}
      */
     sh.command.get = function(ip, what, settings) {
-        // defaults settings
-        settings = settings || {};
-
-        // set the command
-        var command = 'get ' + what;
-
-        // default response parser callback
-        settings.parser = settings.parser || function(raw) {
-            // split response text on new lines
-            return { lines: raw.trim().split('\n') };
-        };
-
-        // send the comand
-        return sh.network.command(ip, command, settings);
+        return sh.network.command(ip, 'get ' + what, settings || {});
     };
 
     /**
      * Get current temperature.
      * @method sh.command.getTemp
-     * @param  {String}    ip               Board ip.
-     * @param  {Mixed}     settings         See "{@link sh.network.command}.settings".
-     * @param  {Mixed}     settings.device  Possible values: [all, bed, hotend] {@default all}.
-     * @param  {Callback}  settings.ontemps Called when temperature.
+     * @param  {String}  ip               Board ip.
+     * @param  {Mixed}   settings         See "{@link sh.network.command}.settings".
+     * @param  {Mixed}   settings.device  Possible values: [all, bed, hotend] {@default all}.
      * @return {XMLHttpRequest}
      */
     sh.command.getTemp = function(ip, settings) {
@@ -851,12 +810,7 @@ var sh = sh || {};
                 }
             }
 
-            if (settings.ontemps) {
-                settings.ontemps.call(this, temps);
-            }
-
-            // split response text on new lines
-            return { temps: temps, lines: raw.split('\n') };
+            return temps;
         };
 
         // send the comand
@@ -916,26 +870,22 @@ var sh = sh || {};
             // split on new lines
             var lines = raw.split('\n');
 
-            var i, il, line, key, pos = {};
+            var i, il, line, key, positions = {};
 
             for (i = 0, il = lines.length; i < il; i++) {
                 line = lines[i].split(':');
                 key  = line.shift().replace(' ', '_').toLowerCase();
                 line = line.join(':').trim().split(' ');
 
-                pos[key] = {
+                positions[key] = {
                     x: parseFloat(line[0].substr(2)),
                     y: parseFloat(line[1].substr(2)),
                     z: parseFloat(line[2].substr(2))
                 };
             }
 
-            if (settings.onpos) {
-                settings.onpos.call(this, pos);
-            }
-
             // split response text on new lines
-            return { lines: lines };
+            return positions;
         };
 
         // send the comand
@@ -945,9 +895,8 @@ var sh = sh || {};
     /**
      * Get work coordinate system.
      * @method sh.command.getWCS
-     * @param  {String}    ip              Board ip.
-     * @param  {Mixed}     settings        See "{@link sh.network.command}.settings".
-     * @param  {Callback}  settings.onwcs  Called when wcs.
+     * @param  {String}    ip        Board ip.
+     * @param  {Mixed}     settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.getWCS = function(ip, settings) {
@@ -991,12 +940,7 @@ var sh = sh || {};
                 }
             }
 
-            if (settings.onwcs) {
-                settings.onwcs.call(this, wcs);
-            }
-
-            // split response text on new lines
-            return { lines: lines };
+            return wcs;
         };
 
         // send the comand
@@ -1006,9 +950,8 @@ var sh = sh || {};
     /**
      * Get system state.
      * @method sh.command.getState
-     * @param  {String}    ip                Board ip.
-     * @param  {Mixed}     settings          See "{@link sh.network.command}.settings".
-     * @param  {Callback}  settings.onstate  Called when state.
+     * @param  {String}    ip        Board ip.
+     * @param  {Mixed}     settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.getState = function(ip, settings) {
@@ -1040,11 +983,7 @@ var sh = sh || {};
             state.tool      = parseInt(parts[9].substr(1));
             state.feed_rate = parseFloat(parts[10].substr(1));
 
-            if (settings.onstate) {
-                settings.onstate.call(this, state);
-            }
-
-            return { state: state };
+            return state;
         };
 
         // send the comand
@@ -1054,9 +993,8 @@ var sh = sh || {};
     /**
      * Get system status.
      * @method sh.command.getStatus
-     * @param  {String}    ip                Board ip.
-     * @param  {Mixed}     settings          See "{@link sh.network.command}.settings".
-     * @param  {Callback}  settings.onstate  Called when state.
+     * @param  {String}    ip        Board ip.
+     * @param  {Mixed}     settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.getStatus = function(ip, settings) {
@@ -1074,7 +1012,7 @@ var sh = sh || {};
 
             var parts  = raw.split(',');
             var status = {
-                name: parts[0],
+                state: parts[0],
                 machine: {
                     x: parseFloat(parts[1]),
                     y: parseFloat(parts[2]),
@@ -1087,11 +1025,7 @@ var sh = sh || {};
                 }
             };
 
-            if (settings.onstatus) {
-                settings.onstatus.call(this, status);
-            }
-
-            return { raw: raw };
+            return status;
         };
 
         // send the comand

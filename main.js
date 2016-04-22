@@ -115,9 +115,6 @@ var ip = '192.168.1.101';
 //     location: 'sd',
 //     onresponse: function(response) {
 //         console.log('response', response);
-//     },
-//     onvalue: function(value) {
-//         console.log('value', value);
 //     }
 // });
 
@@ -126,9 +123,6 @@ var ip = '192.168.1.101';
 //     location: 'sd',
 //     onresponse: function(response) {
 //         console.log('response', response);
-//     },
-//     onvalue: function(value) {
-//         console.log('value', value);
 //     },
 //     ontimeout: function() {
 //         console.log('timeout', this);
@@ -163,9 +157,6 @@ var ip = '192.168.1.101';
 //     device: 'bed',
 //     onresponse: function(response) {
 //         console.log('response', response);
-//     },
-//     ontemps: function(temps) {
-//         console.log('temps', temps);
 //     }
 // });
 
@@ -173,9 +164,6 @@ var ip = '192.168.1.101';
 // sh.command.getWCS(ip, {
 //     onresponse: function(response) {
 //         console.log('response', response);
-//     },
-//     onwcs: function(wcs) {
-//         console.log('wcs', wcs);
 //     }
 // });
 
@@ -183,9 +171,6 @@ var ip = '192.168.1.101';
 // sh.command.getState(ip, {
 //     onresponse: function(response) {
 //         console.log('response', response);
-//     },
-//     onstate: function(state) {
-//         console.log('state', state);
 //     }
 // });
 
@@ -193,9 +178,6 @@ var ip = '192.168.1.101';
 sh.command.getStatus(ip, {
     onresponse: function(response) {
         console.log('response', response);
-    },
-    onstatus: function(status) {
-        console.log('status', status);
     }
 });
 
