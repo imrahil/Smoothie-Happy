@@ -650,6 +650,142 @@ var sh = sh || {};
     };
 
     /**
+     * Get configuration from file.
+     * @method sh.command.config
+     * @param  {String}  ip                 Board ip.
+     * @param  {Mixed}   settings           See "{@link sh.network.command}.settings".
+     * @param  {Mixed}   settings.timeout   Connexion timeout {@default 60000}.
+     * @param  {Mixed}   settings.filename  Configuration filename relative to sd card root directory {@default 'config.txt'}.
+     * @return {XMLHttpRequest}
+     */
+    sh.command.configFile = function(ip, settings) {
+
+        // defaults settings
+        settings = settings || {};
+
+        // set default timeout to 60s
+        settings.timeout = settings.timeout || 60000;
+
+        // set default filename
+        var filename = settings.filename || 'config.txt';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            // split response text on new lines
+            var lines = raw.trim().split('\n');
+
+            // extract sections
+            var line, section, matches, name, value, disabled, comments;
+            var sections = [], items = {};
+
+            for (var i = 0, il = lines.length; i < il; i++) {
+                // current line
+                line = lines[i];
+
+                // section comments
+                if (line[0] === '#' && line[1] === ' ') {
+                    // first line
+                    if (! section) {
+                        section = {
+                            comments : [],
+                            items    : {},
+                            maxLength: {
+                                name : 0,
+                                value: 0
+                            }
+                        };
+                    }
+
+                    // push comment line
+                    section.comments.push(line.substr(2).trim());
+                    continue;
+                }
+
+                // end of file or section
+                if (i == il - 1 || (lines[i + 1][0] === '#' && lines[i + 1][1] === ' ')) {
+                    sections.push(section);
+                    section = null;
+                    continue;
+                }
+
+                // item comment, append to last item comment
+                if (name && line[0] === ' ') {
+                    var item = section.items[name];
+                    item.comments.push(line.trim().replace(/^# */, ''));
+                    continue;
+                }
+
+                // disabled item (commented)
+                disabled = line[0] === '#';
+
+                if (disabled) {
+                    line = line.substr(1);
+                }
+
+                // extracts [name, value, comment]
+                matches = line.trim().match(/([^ ]+) +([^ ]+) *(.*)?/);
+
+                if (matches) {
+                    name     = matches[1];
+                    value    = matches[2];
+                    comments = matches[3] ? matches[3].substr(1).trim() : '';
+
+                    section.items[name] = {
+                        name    : name,
+                        value   : value,
+                        disabled: disabled,
+                        comments: [comments]
+                    };
+
+                    items[name] = sections.length;
+
+                    section.maxLength.name  = Math.max(section.maxLength.name , name.length);
+                    section.maxLength.value = Math.max(section.maxLength.value, value.length);
+                }
+
+            }
+
+            // return result
+            return {
+                sections: sections,
+                lines   : lines,
+                items   : items,
+                get     : function(name) {
+                    if (items[name] === undefined
+                    || sections[items[name]] === undefined
+                    || sections[items[name]].items[name] === undefined) {
+                        return null;
+                    }
+                    return sections[items[name]].items[name];
+                }
+            };
+        };
+
+        // send the command
+        return sh.command.cat(ip, '/sd/' + filename, settings);
+    };
+
+    /**
+     * Set/Get configuration.
+     * @method sh.command.config
+     * @param  {String}  ip        Board ip.
+     * @param  {String}  [name]    Setting name.
+     * @param  {String}  [value]   Setting value.
+     * @param  {Mixed}   settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.config = function(ip, name, value, settings) {
+        var args   = Array.prototype.slice.call(arguments);
+        var method = 'configFile';
+
+        if (args.length > 2) {
+            var method = args.length > 3 ? 'configSet' : 'configGet';
+        }
+
+        return sh.command[method].apply(this, args);
+    };
+
+    /**
      * Get a list of commands.
      * @method sh.command.help
      * @param  {String} ip        Board ip.
@@ -759,13 +895,13 @@ var sh = sh || {};
 
     /**
      * Get current temperature.
-     * @method sh.command.getTemp
+     * @method sh.command.tempGet
      * @param  {String}  ip               Board ip.
      * @param  {Mixed}   settings         See "{@link sh.network.command}.settings".
      * @param  {Mixed}   settings.device  Possible values: [all, bed, hotend] {@default all}.
      * @return {XMLHttpRequest}
      */
-    sh.command.getTemp = function(ip, settings) {
+    sh.command.tempGet = function(ip, settings) {
         // defaults settings
         settings = settings || {};
 
@@ -803,7 +939,7 @@ var sh = sh || {};
                         type      : line[0] === 'B' ? 'bed' : 'hotend',
                         designator: line[0],
                         id        : line[1].substr(1, line[1].length-2),
-                        current   : parseFloat(temp[0]),
+                        current   : parseFloat(temp[0] === 'inf' ? Infinity : temp[0]),
                         target    : parseFloat(temp[1]),
                         pwm       : parseFloat(line[4].substr(1))
                     });
@@ -814,7 +950,7 @@ var sh = sh || {};
                     temp  = line[2].split('/');
                     temps = {
                         type   : line[0],
-                        current: parseFloat(temp[0]),
+                        current: parseFloat(temp[0] === 'inf' ? Infinity : temp[0]),
                         target : parseFloat(temp[1]),
                         pwm    : parseFloat(line[3].substr(1))
                     };
@@ -830,14 +966,14 @@ var sh = sh || {};
 
     /**
      * Set temperature.
-     * @method sh.command.setTemp
+     * @method sh.command.tempSet
      * @param  {String}  ip        Board ip.
      * @param  {String}  device    Device [bed|hotend].
      * @param  {Integer} temp      Target tempertaure.
      * @param  {Mixed}   settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
-    sh.command.setTemp = function(ip, device, temp, settings) {
+    sh.command.tempSet = function(ip, device, temp, settings) {
         // defaults settings
         settings = settings || {};
 
@@ -861,13 +997,117 @@ var sh = sh || {};
     };
 
     /**
+     * Set/Get temperature.
+     * @method sh.command.temp
+     * @param  {String}  ip        Board ip.
+     * @param  {String}  [device]  Device [bed|hotend].
+     * @param  {Integer} [temp]    Target tempertaure.
+     * @param  {Mixed}   settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.temp = function(ip, device, temp, settings) {
+        var args   = Array.prototype.slice.call(arguments);
+        var method = args.length > 2 ? 'tempSet' : 'tempGet';
+        return sh.command[method].apply(this, args);
+    };
+
+    /**
+     * Do forward or inverse kinematics on the given cartesian position,
+     * optionally moves the actuators and finaly display the coordinates.
+     * @method sh.command.kinematics
+     * @param  {String}   ip                Board ip.
+     * @param  {Mixed}    settings          See "{@link sh.network.command}.settings".
+     * @param  {Boolean}  settings.move     Move to the calculated or given XYZ coords {@default false}.
+     * @param  {Boolean}  settings.inverse  Do inverse kinematics {@default false}.
+     * @return {XMLHttpRequest}
+     */
+    sh.command.kinematics = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // inverse or forward
+        var type = settings.inverse ? 'ik' : 'fk';
+
+        // move to the calculated or given XYZ coords ?
+        var move = settings.move ? ' -m' : '';
+
+        // positions
+        var position = settings.position || 0;
+
+        // set coords
+        var x, y, z;
+
+        if (typeof position !== 'object') {
+            x = y = z = parseFloat(position);
+        }
+        else {
+            x = position.x || 0;
+            y = position.y || x;
+            z = position.z || y;
+        }
+
+        // set the command
+        var what = type + move + ' ' + x + ',' + y + ',' + z;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('error:') === 0) {
+                return raw.substr(6);
+            }
+
+            if (type === 'ik') {
+                var pattern = /(.*)= A (.*), B (.*), C (.*)/;
+            }
+            else {
+                var pattern = /(.*)= X (.*), Y (.*), Z (.*), Steps= A (.*), B (.*), C (.*)/;
+            }
+
+            var matches = raw.match(pattern);
+
+            if (matches) {
+                if (type == 'ik') {
+                    return {
+                        type: matches[1],
+                        coords: {
+                            a: parseFloat(matches[2]),
+                            b: parseFloat(matches[3]),
+                            c: parseFloat(matches[4]),
+                        }
+                    }
+                }
+
+                return {
+                    type: matches[1],
+                    coords: {
+                        x: parseFloat(matches[2]),
+                        y: parseFloat(matches[3]),
+                        z: parseFloat(matches[4]),
+                    },
+                    steps: {
+                        a: parseFloat(matches[5]),
+                        b: parseFloat(matches[6]),
+                        c: parseFloat(matches[7]),
+                    }
+                }
+            }
+
+            return 'unknown error';
+        };
+
+        // send the comand
+        return sh.command.get(ip, what, settings);
+    };
+
+    /**
      * Get current position.
-     * @method sh.command.getPos
+     * @method sh.command.position
      * @param  {String} ip        Board ip.
      * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
-    sh.command.getPos = function(ip, settings) {
+    sh.command.position = function(ip, settings) {
         // defaults settings
         settings = settings || {};
 
@@ -905,12 +1145,12 @@ var sh = sh || {};
 
     /**
      * Get work coordinate system.
-     * @method sh.command.getWCS
+     * @method sh.command.wcs
      * @param  {String}    ip        Board ip.
      * @param  {Mixed}     settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
-    sh.command.getWCS = function(ip, settings) {
+    sh.command.wcs = function(ip, settings) {
         // defaults settings
         settings = settings || {};
 
@@ -960,12 +1200,12 @@ var sh = sh || {};
 
     /**
      * Get system state.
-     * @method sh.command.getState
+     * @method sh.command.state
      * @param  {String}    ip        Board ip.
      * @param  {Mixed}     settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
-    sh.command.getState = function(ip, settings) {
+    sh.command.state = function(ip, settings) {
         // defaults settings
         settings = settings || {};
 
@@ -1003,12 +1243,12 @@ var sh = sh || {};
 
     /**
      * Get system status.
-     * @method sh.command.getStatus
+     * @method sh.command.status
      * @param  {String}    ip        Board ip.
      * @param  {Mixed}     settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
-    sh.command.getStatus = function(ip, settings) {
+    sh.command.status = function(ip, settings) {
         // defaults settings
         settings = settings || {};
 

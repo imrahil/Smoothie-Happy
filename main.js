@@ -123,63 +123,104 @@ var ip = '192.168.1.101';
 //     location: 'sd',
 //     onresponse: function(response) {
 //         console.log('response', response);
-//     },
-//     ontimeout: function() {
-//         console.log('timeout', this);
-//     },
-//     onend: function() {
-//         console.log('end', this);
 //     }
 // });
+
+// // set config value
+// sh.command.config(ip, 'alpha_steps_per_mm', '90', {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//         // get config value
+//         sh.command.config(ip, 'alpha_steps_per_mm', {
+//             onresponse: function(response) {
+//                 console.log('response', response);
+//             }
+//         });
+//     }
+// });
+
+// get entire config
+sh.command.config(ip, {
+    limit: 20,
+    onresponse: function(response) {
+        console.log('response', response);
+        var item = response.result.get('mm_per_arc_segment');
+        console.log('mm_per_arc_segment: ', item);
+    }
+});
 
 // // get raw [temp|pos|wcs|state|status|fk|ik]
 // sh.command.get(ip, 'temp', {
 //     onresponse: function(response) {
 //         console.log('response', response);
-//     },
-//     ontimeout: function() {
-//         console.log('timeout', this);
-//     },
-//     onend: function() {
-//         console.log('end', this);
 //     }
 // });
 
 // // set temperatures
-// sh.command.setTemp(ip, 'bed', 50, {
+// sh.command.tempSet(ip, 'bed', 50, {
 //     onresponse: function(response) {
 //         console.log('response', response);
 //     }
 // });
 
 // // get temperatures
-// sh.command.getTemp(ip, {
+// sh.command.tempGet(ip, {
 //     device: 'bed',
 //     onresponse: function(response) {
 //         console.log('response', response);
 //     }
 // });
 
+// // set temperatures
+// sh.command.temp(ip, 'bed', 80, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//         // get temperatures
+//         sh.command.temp(ip, {
+//             device: 'bed',
+//             onresponse: function(response) {
+//                 console.log('response', response);
+//             }
+//         });
+//     }
+// });
+
+// // get position
+// sh.command.position(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
 // // get work coordinate system
-// sh.command.getWCS(ip, {
+// sh.command.wcs(ip, {
 //     onresponse: function(response) {
 //         console.log('response', response);
 //     }
 // });
 
 // // get state
-// sh.command.getState(ip, {
+// sh.command.state(ip, {
 //     onresponse: function(response) {
 //         console.log('response', response);
 //     }
 // });
 
-// get status
-sh.command.getStatus(ip, {
-    onresponse: function(response) {
-        console.log('response', response);
-    }
-});
+// // get status
+// sh.command.status(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// // do inverse kinematics on the given cartesian position,
+// // optionally moves the actuators and finaly display the coordinates.
+// sh.command.kinematics(ip, {
+//     //inverse: false,
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
 
 //------------------------------------------------------------------------------
 
