@@ -651,7 +651,7 @@ var sh = sh || {};
 
     /**
      * Get configuration from file.
-     * @method sh.command.config
+     * @method sh.command.configFile
      * @param  {String}  ip                 Board ip.
      * @param  {Mixed}   settings           See "{@link sh.network.command}.settings".
      * @param  {Mixed}   settings.timeout   Connexion timeout {@default 60000}.
@@ -1281,6 +1281,38 @@ var sh = sh || {};
 
         // send the comand
         return sh.command.get(ip, what, settings);
+    };
+
+    /**
+     * Switch.
+     * @method sh.command.switch
+     * @param  {String}  ip        Board ip.
+     * @param  {String}  device    Device [bed|hotend].
+     * @param  {Mixed}   value     State [on|off|toggle] or value.
+     * @param  {Mixed}   settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.switch = function(ip, device, value, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'switch ' + device + ' ' + value;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('is not a known switch device') !== -1) {
+                return raw;
+            }
+
+            // return message
+            return { message: raw };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
     };
 
 })();

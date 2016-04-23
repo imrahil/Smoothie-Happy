@@ -139,15 +139,15 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// get entire config
-sh.command.config(ip, {
-    limit: 20,
-    onresponse: function(response) {
-        console.log('response', response);
-        var item = response.result.get('mm_per_arc_segment');
-        console.log('mm_per_arc_segment: ', item);
-    }
-});
+// // get entire config
+// sh.command.config(ip, {
+//     limit: 20,
+//     onresponse: function(response) {
+//         console.log('response', response);
+//         var item = response.result.get('mm_per_arc_segment');
+//         console.log('mm_per_arc_segment: ', item);
+//     }
+// });
 
 // // get raw [temp|pos|wcs|state|status|fk|ik]
 // sh.command.get(ip, 'temp', {
@@ -221,6 +221,13 @@ sh.command.config(ip, {
 //         console.log('response', response);
 //     }
 // });
+
+// switch
+sh.command.switch(ip, 'fan', 'on', {
+    onresponse: function(response) {
+        console.log('response', response);
+    }
+});
 
 //------------------------------------------------------------------------------
 
