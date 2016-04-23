@@ -217,18 +217,6 @@ var sh = sh || {};
      */
 
     /**
-     * Callback called by {@link sh.network.waitUntilOnline} when the board is online.
-     * @callback sh.network.onlineCallback
-     * @param    {Object} board Board info (result of version cmd).
-     */
-
-    /**
-     * Callback called by {@link sh.network.waitUntilOnline} when we try to connect with the board.
-     * @callback sh.network.ontryCallback
-     * @param    {Integer} trials Number of trials.
-     */
-
-    /**
      * Wait until the board is online.
      * @method sh.network.waitUntilOnline
      * @param  {String}                     ip                 Board ip.
@@ -308,6 +296,18 @@ var sh = sh || {};
         // return the request Object
         return xhr;
     };
+
+   /**
+    * Callback called by {@link sh.network.waitUntilOnline} when the board is online.
+    * @callback sh.network.onlineCallback
+    * @param    {Object} board Board info (result of version cmd).
+    */
+
+   /**
+    * Callback called by {@link sh.network.waitUntilOnline} when we try to connect with the board.
+    * @callback sh.network.ontryCallback
+    * @param    {Integer} trials Number of trials.
+    */
 
     // -------------------------------------------------------------------------
 

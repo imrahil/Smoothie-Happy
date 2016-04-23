@@ -89,26 +89,26 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// reset the system
-sh.command.reset(ip, {
-    onresponse: function(response) {
-        console.log('reset:onresponse', response);
-    },
-    onerror: function() {
-        console.log('reset:onerror', this);
-    },
-    waitUntilOnline: {
-        ontry: function(trials) {
-            console.log('waitUntilOnline:ontry', trials);
-        },
-        online: function(version) {
-            console.log('waitUntilOnline:online', version);
-        },
-        ontimeout: function() {
-            console.log('waitUntilOnline:offline', this);
-        }
-    }
-});
+// // reset the system
+// sh.command.reset(ip, {
+//     onresponse: function(response) {
+//         console.log('reset:onresponse', response);
+//     },
+//     onerror: function() {
+//         console.log('reset:onerror', this);
+//     },
+//     waitUntilOnline: {
+//         ontry: function(trials) {
+//             console.log('waitUntilOnline:ontry', trials);
+//         },
+//         online: function(version) {
+//             console.log('waitUntilOnline:online', version);
+//         },
+//         ontimeout: function() {
+//             console.log('waitUntilOnline:offline', this);
+//         }
+//     }
+// });
 
 // // get config value
 // sh.command.configGet(ip, 'alpha_steps_per_mm', {
@@ -174,12 +174,12 @@ sh.command.reset(ip, {
 //     }
 // });
 
-// // get status
-// sh.command.getStatus(ip, {
-//     onresponse: function(response) {
-//         console.log('response', response);
-//     }
-// });
+// get status
+sh.command.getStatus(ip, {
+    onresponse: function(response) {
+        console.log('response', response);
+    }
+});
 
 //------------------------------------------------------------------------------
 
