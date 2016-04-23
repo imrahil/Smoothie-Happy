@@ -1287,8 +1287,8 @@ var sh = sh || {};
      * Switch.
      * @method sh.command.switch
      * @param  {String}  ip        Board ip.
-     * @param  {String}  device    Device [bed|hotend].
-     * @param  {Mixed}   value     State [on|off|toggle] or value.
+     * @param  {String}  device    Device ex.: 'fan' or 'misc'.
+     * @param  {String}  value     State [on|off] or value.
      * @param  {Mixed}   settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
