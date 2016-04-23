@@ -520,7 +520,6 @@ var sh = sh || {};
      * Alias of {@link sh.network.upload}.
      * Upload a file on the sd card.
      * @method sh.command.upload
-     * @uses   sh.network.upload
      * @param  {String}      ip        Board ip.
      * @param  {Object|File} file      {File} object or an {Object} with "name" and "data" properties set.
      * @param  {Mixed}       settings  See "{@link sh.network.request}.settings".
