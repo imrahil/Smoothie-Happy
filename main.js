@@ -312,12 +312,57 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// get md5 sum of the given file.
-sh.command.md5sum(ip, '/sd/config.txt', {
-    onresponse: function(response) {
-        console.log('response', response);
-    }
-});
+// // get md5 sum of the given file.
+// sh.command.md5sum(ip, '/sd/config.txt', {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// // play a gcode file
+// sh.command.play(ip, '/sd/gcode/triangle.gcode', {
+//     verbose: true,
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// // remove file
+// sh.command.rm(ip, '/sd/gcode/triangle.gcode', {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// // get progress of current play
+// setTimeout(function() {
+//     sh.command.progress(ip, {
+//         onresponse: function(response) {
+//             console.log('response', response);
+//         }
+//     });
+// }, 2000);
+
+// // abort currently playing file
+// sh.command.abort(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// // suspend a print in progress
+// sh.command.suspend(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// // resume the suspended print
+// sh.command.resume(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
 
 //------------------------------------------------------------------------------
 

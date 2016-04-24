@@ -24,28 +24,28 @@ var sh = sh || {};
     // -------------------------------------------------------------------------
 
     /**
-     * Network module.
-     * @namespace
-     */
+      * Network module.
+      * @namespace
+      */
     sh.network = {
-        /**
-         * @property {Integer} timeout Default timeout for all request (ms).
-         * @default  5000
-         */
+       /**
+        * @property {Integer} timeout Default timeout for all request (ms).
+        * @default  5000
+      */
         timeout: 5000
     };
 
     /**
-     * XMLHttpRequest wrapper.
-     * @method sh.network.request
-     * @param  {String}  type              'GET' or 'POST'.
-     * @param  {String}  url               URL with protocol.
-     * @param  {Object}  settings          Request settings.
-     * @param  {Mixed}   settings.data     Data to send with the request.
-     * @param  {Object}  settings.headers  Headers to send with the request.
-     * @param  {Object}  settings.options  {XMLHttpRequest} properties/methods to overwrite.
-     * @return {XMLHttpRequest}
-     */
+      * XMLHttpRequest wrapper.
+      * @method sh.network.request
+      * @param  {String}  type              'GET' or 'POST'.
+      * @param  {String}  url               URL with protocol.
+      * @param  {Object}  settings          Request settings.
+      * @param  {Mixed}   settings.data     Data to send with the request.
+      * @param  {Object}  settings.headers  Headers to send with the request.
+      * @param  {Object}  settings.options  {XMLHttpRequest} properties/methods to overwrite.
+      * @return {XMLHttpRequest}
+      */
     sh.network.request = function(type, url, settings) {
         // force type to uppercase
         type = type.toUpperCase();
@@ -99,35 +99,35 @@ var sh = sh || {};
     };
 
     /**
-     * GET request.
-     * @method sh.network.get
-     * @param  {String}  url       URL with protocol.
-     * @param  {Object}  settings  See "{@link sh.network.request}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * GET request.
+      * @method sh.network.get
+      * @param  {String}  url       URL with protocol.
+      * @param  {Object}  settings  See "{@link sh.network.request}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.network.get = function(url, settings) {
         return this.request('GET', url, settings);
     };
 
     /**
-     * POST request.
-     * @method sh.network.post
-     * @param  {String}  url       URL with protocol.
-     * @param  {Object}  settings  See "{@link sh.network.request}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * POST request.
+      * @method sh.network.post
+      * @param  {String}  url       URL with protocol.
+      * @param  {Object}  settings  See "{@link sh.network.request}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.network.post = function(url, settings) {
         return this.request('POST', url, settings);
     };
 
     /**
-     * Upload a file on the sd card.
-     * @method sh.network.upload
-     * @param  {String}       ip        Board ip.
-     * @param  {Object|File}  file      {File} object or an {Object} with "name" and "data" properties set.
-     * @param  {Object}       settings  See "{@link sh.network.request}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Upload a file on the sd card.
+      * @method sh.network.upload
+      * @param  {String}       ip        Board ip.
+      * @param  {Object|File}  file      {File} object or an {Object} with "name" and "data" properties set.
+      * @param  {Object}       settings  See "{@link sh.network.request}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.network.upload = function(ip, file, settings) {
         // defaults settings
         settings = settings || {};
@@ -156,15 +156,15 @@ var sh = sh || {};
     };
 
     /**
-     * Send a raw command.
-     * @method sh.network.command
-     * @param  {String}                       ip                   Board ip.
-     * @param  {String}                       command              The command string. See {@link http://smoothieware.org/console-commands} for a complete list.
-     * @param  {Object}                       settings             See "{@link sh.network.request}.settings".
-     * @param  {sh.network.responseCallback}  settings.onresponse  Function called when the response is received.
-     * @param  {sh.network.parserCallback}    settings.parser      Function that parses the response.
-     * @return {XMLHttpRequest}
-     */
+      * Send a raw command.
+      * @method sh.network.command
+      * @param  {String}                       ip                   Board ip.
+      * @param  {String}                       command              The command string. See {@link http://smoothieware.org/console-commands} for a complete list.
+      * @param  {Object}                       settings             See "{@link sh.network.request}.settings".
+      * @param  {sh.network.responseCallback}  settings.onresponse  Function called when the response is received.
+      * @param  {sh.network.parserCallback}    settings.parser      Function that parses the response.
+      * @return {XMLHttpRequest}
+      */
     sh.network.command = function(ip, command, settings) {
         // defaults settings
         settings = settings || {};
@@ -209,29 +209,29 @@ var sh = sh || {};
     };
 
     /**
-     * Callback called by {@link sh.network.command} that parses the raw response.
-     * @callback sh.network.parserCallback
-     * @param    {String} responseText The raw response text provided by the {XMLHttpRequest}
-     * @return   {Mixed}  The response parsed as an object or TRUE if no data. FALSE if an error occure.
-     */
-
-     /**
-      * Callback called by {@link sh.network.command} when the response is parsed.
-      * @callback sh.network.responseCallback
-      * @param    {Object} response Arbitrary object that represents the response.
+      * Callback called by {@link sh.network.command} that parses the raw response.
+      * @callback sh.network.parserCallback
+      * @param    {String} responseText The raw response text provided by the {XMLHttpRequest}
+      * @return   {Mixed}  The response parsed as an object or TRUE if no data. FALSE if an error occure.
       */
 
     /**
-     * Wait until the board is online.
-     * @method sh.network.waitUntilOnline
-     * @param  {String}                     ip                 Board ip.
-     * @param  {Object}                     settings           See "{@link sh.network.command}.settings".
-     * @param  {Integer}                    settings.limit     Maximum number of trials {@default 10}.
-     * @param  {Integer}                    settings.interval  Interval between trials in milliseconds {@default 2000}.
-     * @param  {sh.network.onlineCallback}  settings.online    Called when the board is online.
-     * @param  {sh.network.ontryCallback}   settings.ontry     Called when we try to connect with the board.
-     * @return {XMLHttpRequest}
+     * Callback called by {@link sh.network.command} when the response is parsed.
+     * @callback sh.network.responseCallback
+     * @param    {Object} response Arbitrary object that represents the response.
      */
+
+    /**
+      * Wait until the board is online.
+      * @method sh.network.waitUntilOnline
+      * @param  {String}                     ip                 Board ip.
+      * @param  {Object}                     settings           See "{@link sh.network.command}.settings".
+      * @param  {Integer}                    settings.limit     Maximum number of trials {@default 10}.
+      * @param  {Integer}                    settings.interval  Interval between trials in milliseconds {@default 2000}.
+      * @param  {sh.network.onlineCallback}  settings.online    Called when the board is online.
+      * @param  {sh.network.ontryCallback}   settings.ontry     Called when we try to connect with the board.
+      * @return {XMLHttpRequest}
+      */
     sh.network.waitUntilOnline = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -303,35 +303,35 @@ var sh = sh || {};
     };
 
    /**
-    * Callback called by {@link sh.network.waitUntilOnline} when the board is online.
-    * @callback sh.network.onlineCallback
-    * @param    {Object} board Board info (result of version cmd).
-    */
+     * Callback called by {@link sh.network.waitUntilOnline} when the board is online.
+     * @callback sh.network.onlineCallback
+     * @param    {Object} board Board info (result of version cmd).
+     */
 
    /**
-    * Callback called by {@link sh.network.waitUntilOnline} when we try to connect with the board.
-    * @callback sh.network.ontryCallback
-    * @param    {Integer} trials Number of trials.
-    */
+     * Callback called by {@link sh.network.waitUntilOnline} when we try to connect with the board.
+     * @callback sh.network.ontryCallback
+     * @param    {Integer} trials Number of trials.
+     */
 
     // -------------------------------------------------------------------------
 
     /**
-     * Command module.
-     * @namespace
-     * @see http://smoothieware.org/console-commands
-     */
+      * Command module.
+      * @namespace
+      * @see http://smoothieware.org/console-commands
+      */
     sh.command = {};
 
     /**
-     * List the files in the folder passed as a parameter.
-     * @method sh.command.ls
-     * @param  {String}    ip               Board ip.
-     * @param  {String}    path             Path to list, can be absolute or relative.
-     * @param  {Object}    settings         See "{@link sh.network.command}.settings".
-     * @param  {Callback}  settings.filter  Function to filter the files list.
-     * @return {XMLHttpRequest}
-     */
+      * List the files in the folder passed as a parameter.
+      * @method sh.command.ls
+      * @param  {String}    ip               Board ip.
+      * @param  {String}    path             Path to list, can be absolute or relative.
+      * @param  {Object}    settings         See "{@link sh.network.command}.settings".
+      * @param  {Callback}  settings.filter  Function to filter the files list.
+      * @return {XMLHttpRequest}
+      */
     sh.command.ls = function(ip, path, settings) {
         // defaults settings
         settings = settings || {};
@@ -376,13 +376,13 @@ var sh = sh || {};
     };
 
     /**
-     * Change the current folder to the folder passed as a parameter.
-     * @method sh.command.cd
-     * @param  {String}  ip        Board ip.
-     * @param  {String}  path      Path to folder, can be absolute or relative.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Change the current folder to the folder passed as a parameter.
+      * @method sh.command.cd
+      * @param  {String}  ip        Board ip.
+      * @param  {String}  path      Path to folder, can be absolute or relative.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.cd = function(ip, path, settings) {
         // defaults settings
         settings = settings || {};
@@ -407,12 +407,12 @@ var sh = sh || {};
     };
 
     /**
-     * Shows the current folder.
-     * @method sh.command.pwd
-     * @param  {String}  ip        Board ip.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Shows the current folder.
+      * @method sh.command.pwd
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.pwd = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -430,14 +430,14 @@ var sh = sh || {};
     };
 
     /**
-     * Get the content of the file given as a parameter.
-     * @method sh.command.cat
-     * @param  {String}   ip              Board ip.
-     * @param  {String}   path            Path to file, can be absolute or relative.
-     * @param  {Object}   settings        See "{@link sh.network.command}.settings".
-     * @param  {Integer}  settings.limit  Limit the returned number of lines.
-     * @return {XMLHttpRequest}
-     */
+      * Get the content of the file given as a parameter.
+      * @method sh.command.cat
+      * @param  {String}   ip              Board ip.
+      * @param  {String}   path            Path to file, can be absolute or relative.
+      * @param  {Object}   settings        See "{@link sh.network.command}.settings".
+      * @param  {Integer}  settings.limit  Limit the returned number of lines.
+      * @return {XMLHttpRequest}
+      */
     sh.command.cat = function(ip, path, settings) {
         // defaults settings
         settings = settings || {};
@@ -463,13 +463,13 @@ var sh = sh || {};
     };
 
     /**
-     * Remove a file.
-     * @method sh.command.rm
-     * @param  {String}  ip        Board ip.
-     * @param  {String}  path      Path to file to remove.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Remove a file.
+      * @method sh.command.rm
+      * @param  {String}  ip        Board ip.
+      * @param  {String}  path      Path to file to remove.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.rm = function(ip, path, settings) {
         // defaults settings
         settings = settings || {};
@@ -484,7 +484,7 @@ var sh = sh || {};
                 return raw;
             }
 
-            return { message: raw.trim() };
+            return { message: 'removed' };
         };
 
         // send the comand
@@ -492,14 +492,14 @@ var sh = sh || {};
     };
 
     /**
-     * Move a file.
-     * @method sh.command.mv
-     * @param  {String}  ip        Board ip.
-     * @param  {String}  path      Path to file source.
-     * @param  {String}  newpath   Path to file destination.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Move a file.
+      * @method sh.command.mv
+      * @param  {String}  ip        Board ip.
+      * @param  {String}  path      Path to file source.
+      * @param  {String}  newpath   Path to file destination.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.mv = function(ip, path, newpath, settings) {
         // defaults settings
         settings = settings || {};
@@ -522,27 +522,27 @@ var sh = sh || {};
     };
 
     /**
-     * Alias of {@link sh.network.upload}.
-     * Upload a file on the sd card.
-     * @method sh.command.upload
-     * @param  {String}       ip        Board ip.
-     * @param  {Object|File}  file      {File} object or an {Object} with "name" and "data" properties set.
-     * @param  {Object}       settings  See "{@link sh.network.request}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Alias of {@link sh.network.upload}.
+      * Upload a file on the sd card.
+      * @method sh.command.upload
+      * @param  {String}       ip        Board ip.
+      * @param  {Object|File}  file      {File} object or an {Object} with "name" and "data" properties set.
+      * @param  {Object}       settings  See "{@link sh.network.request}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.upload = function(ip, file, settings) {
         return sh.network.upload(ip, file, settings);
     };
 
     /**
-     * Reset the system.
-     * @method sh.command.reset
-     * @param  {String}   ip                        Board ip.
-     * @param  {Object}   settings                  See "{@link sh.network.command}.settings".
-     * @param  {Integer}  settings.resetDelay       Delay before the smoothie reset (@default: 5000).
-     * @param  {Object}   settings.waitUntilOnline  See "{@link sh.network.waitUntilOnline}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Reset the system.
+      * @method sh.command.reset
+      * @param  {String}   ip                        Board ip.
+      * @param  {Object}   settings                  See "{@link sh.network.command}.settings".
+      * @param  {Integer}  settings.resetDelay       Delay before the smoothie reset (@default: 5000).
+      * @param  {Object}   settings.waitUntilOnline  See "{@link sh.network.waitUntilOnline}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.reset = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -570,14 +570,14 @@ var sh = sh || {};
     };
 
     /**
-     * Get config value.
-     * @method sh.command.configGet
-     * @param  {String}  ip                 Board ip.
-     * @param  {String}  name               Setting name.
-     * @param  {Object}  settings           See "{@link sh.network.command}.settings".
-     * @param  {String}  settings.location  Where to read the value {@default 'sd'}.
-     * @return {XMLHttpRequest}
-     */
+      * Get config value.
+      * @method sh.command.configGet
+      * @param  {String}  ip                 Board ip.
+      * @param  {String}  name               Setting name.
+      * @param  {Object}  settings           See "{@link sh.network.command}.settings".
+      * @param  {String}  settings.location  Where to read the value {@default 'sd'}.
+      * @return {XMLHttpRequest}
+      */
     sh.command.configGet = function(ip, name, settings) {
         // defaults settings
         settings = settings || {};
@@ -612,15 +612,15 @@ var sh = sh || {};
     };
 
     /**
-     * Set config value.
-     * @method sh.command.configSet
-     * @param  {String}  ip                 Board ip.
-     * @param  {String}  name               Setting name.
-     * @param  {String}  value              Setting value.
-     * @param  {Object}  settings           See "{@link sh.network.command}.settings".
-     * @param  {String}  settings.location  Where to write the value {@default 'sd'}.
-     * @return {XMLHttpRequest}
-     */
+      * Set config value.
+      * @method sh.command.configSet
+      * @param  {String}  ip                 Board ip.
+      * @param  {String}  name               Setting name.
+      * @param  {String}  value              Setting value.
+      * @param  {Object}  settings           See "{@link sh.network.command}.settings".
+      * @param  {String}  settings.location  Where to write the value {@default 'sd'}.
+      * @return {XMLHttpRequest}
+      */
     sh.command.configSet = function(ip, name, value, settings) {
         // defaults settings
         settings = settings || {};
@@ -655,14 +655,14 @@ var sh = sh || {};
     };
 
     /**
-     * Get configuration from file.
-     * @method sh.command.configFile
-     * @param  {String}  ip                 Board ip.
-     * @param  {Object}  settings           See "{@link sh.network.command}.settings".
-     * @param  {Mixed}   settings.timeout   Connexion timeout {@default 60000}.
-     * @param  {Mixed}   settings.filename  Configuration filename relative to sd card root directory {@default 'config.txt'}.
-     * @return {XMLHttpRequest}
-     */
+      * Get configuration from file.
+      * @method sh.command.configFile
+      * @param  {String}  ip                 Board ip.
+      * @param  {Object}  settings           See "{@link sh.network.command}.settings".
+      * @param  {Mixed}   settings.timeout   Connexion timeout {@default 60000}.
+      * @param  {Mixed}   settings.filename  Configuration filename relative to sd card root directory {@default 'config.txt'}.
+      * @return {XMLHttpRequest}
+      */
     sh.command.configFile = function(ip, settings) {
 
         // defaults settings
@@ -771,14 +771,14 @@ var sh = sh || {};
     };
 
     /**
-     * Set/Get configuration.
-     * @method sh.command.config
-     * @param  {String}  ip        Board ip.
-     * @param  {String}  [name]    Setting name.
-     * @param  {String}  [value]   Setting value.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Set/Get configuration.
+      * @method sh.command.config
+      * @param  {String}  ip        Board ip.
+      * @param  {String}  [name]    Setting name.
+      * @param  {String}  [value]   Setting value.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.config = function(ip, name, value, settings) {
         var args   = Array.prototype.slice.call(arguments);
         var method = 'configFile';
@@ -791,13 +791,13 @@ var sh = sh || {};
     };
 
     /**
-     * Saves a configuration override file as specified filename or as config-override.
-     * @method sh.command.configOverrideSave
-     * @param  {String}  ip          Board ip.
-     * @param  {String}  [filename]  Target config-override filename.
-     * @param  {Object}  settings    See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Saves a configuration override file as specified filename or as config-override.
+      * @method sh.command.configOverrideSave
+      * @param  {String}  ip          Board ip.
+      * @param  {String}  [filename]  Target config-override filename.
+      * @param  {Object}  settings    See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.configOverrideSave = function(ip, filename, settings) {
         if (arguments.length === 2) {
             settings = filename;
@@ -820,13 +820,13 @@ var sh = sh || {};
     };
 
     /**
-     * loads a configuration override file from specified name or config-override.
-     * @method sh.command.configOverrideLoad
-     * @param  {String}  ip          Board ip.
-     * @param  {String}  [filename]  Target config-override filename.
-     * @param  {Object}  settings    See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * loads a configuration override file from specified name or config-override.
+      * @method sh.command.configOverrideLoad
+      * @param  {String}  ip          Board ip.
+      * @param  {String}  [filename]  Target config-override filename.
+      * @param  {Object}  settings    See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.configOverrideLoad = function(ip, filename, settings) {
         if (arguments.length === 2) {
             settings = filename;
@@ -858,13 +858,13 @@ var sh = sh || {};
     };
 
     /**
-     * Load/unload/dump configuration cache.
-     * @method sh.command.configCache
-     * @param  {String}  ip        Board ip.
-     * @param  {String}  action    Possible values [load|unload|dump].
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Load/unload/dump configuration cache.
+      * @method sh.command.configCache
+      * @param  {String}  ip        Board ip.
+      * @param  {String}  action    Possible values [load|unload|dump].
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.configCache = function(ip, action, settings) {
         // defaults settings
         settings = settings || {};
@@ -897,46 +897,46 @@ var sh = sh || {};
     };
 
     /**
-     * Load configuration cache.
-     * @method sh.command.configCacheLoad
-     * @param  {String}  ip        Board ip.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Load configuration cache.
+      * @method sh.command.configCacheLoad
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.configCacheLoad = function(ip, settings) {
         return sh.command.configCache(ip, 'load', settings);
     };
 
     /**
-     * Unload configuration cache.
-     * @method sh.command.configCacheUnload
-     * @param  {String}  ip        Board ip.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Unload configuration cache.
+      * @method sh.command.configCacheUnload
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.configCacheUnload = function(ip, settings) {
         return sh.command.configCache(ip, 'unload', settings);
     };
 
     /**
-     * Dump configuration cache.
-     * @method sh.command.configCacheDump
-     * @param  {String}  ip        Board ip.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Dump configuration cache.
+      * @method sh.command.configCacheDump
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.configCacheDump = function(ip, settings) {
         return sh.command.configCache(ip, 'dump', settings);
     };
 
     /**
-     * Get the input value checksum.
-     * @method sh.command.checksum
-     * @param  {String}  ip        Board ip.
-     * @param  {String}  input     Input value to get checksum.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Get the input value checksum.
+      * @method sh.command.checksum
+      * @param  {String}  ip        Board ip.
+      * @param  {String}  input     Input value to get checksum.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.checksum = function(ip, input, settings) {
         // defaults settings
         settings = settings || {};
@@ -958,12 +958,12 @@ var sh = sh || {};
     };
 
     /**
-     * Get a list of commands.
-     * @method sh.command.help
-     * @param  {String}  ip        Board ip.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Get a list of commands.
+      * @method sh.command.help
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.help = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -988,12 +988,12 @@ var sh = sh || {};
     };
 
     /**
-     * Get the board/firmware version.
-     * @method sh.command.version
-     * @param  {String}  ip        Board ip.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Get the board/firmware version.
+      * @method sh.command.version
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.version = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -1033,12 +1033,12 @@ var sh = sh || {};
     };
 
     /**
-     * Get information about RAM usage.
-     * @method sh.command.mem
-     * @param  {String}  ip        Board ip.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Get information about RAM usage.
+      * @method sh.command.mem
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.mem = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -1054,25 +1054,25 @@ var sh = sh || {};
     };
 
     /**
-     * Get [temp|pos|wcs|state|status|fk|ik].
-     * @method sh.command.get
-     * @param  {String} ip        Board ip.
-     * @param  {String} what      Possible value [temp|pos|wcs|state|status|fk|ik].
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Get [temp|pos|wcs|state|status|fk|ik].
+      * @method sh.command.get
+      * @param  {String} ip        Board ip.
+      * @param  {String} what      Possible value [temp|pos|wcs|state|status|fk|ik].
+      * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.get = function(ip, what, settings) {
         return sh.network.command(ip, 'get ' + what, settings || {});
     };
 
     /**
-     * Get current temperature.
-     * @method sh.command.tempGet
-     * @param  {String}  ip               Board ip.
-     * @param  {Object}  settings         See "{@link sh.network.command}.settings".
-     * @param  {Mixed}   settings.device  Possible values: [all, bed, hotend] {@default all}.
-     * @return {XMLHttpRequest}
-     */
+      * Get current temperature.
+      * @method sh.command.tempGet
+      * @param  {String}  ip               Board ip.
+      * @param  {Object}  settings         See "{@link sh.network.command}.settings".
+      * @param  {Mixed}   settings.device  Possible values: [all, bed, hotend] {@default all}.
+      * @return {XMLHttpRequest}
+      */
     sh.command.tempGet = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -1137,14 +1137,14 @@ var sh = sh || {};
     };
 
     /**
-     * Set temperature.
-     * @method sh.command.tempSet
-     * @param  {String}  ip        Board ip.
-     * @param  {String}  device    Device [bed|hotend].
-     * @param  {Integer} temp      Target tempertaure.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Set temperature.
+      * @method sh.command.tempSet
+      * @param  {String}  ip        Board ip.
+      * @param  {String}  device    Device [bed|hotend].
+      * @param  {Integer} temp      Target tempertaure.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.tempSet = function(ip, device, temp, settings) {
         // defaults settings
         settings = settings || {};
@@ -1169,14 +1169,14 @@ var sh = sh || {};
     };
 
     /**
-     * Set/Get temperature.
-     * @method sh.command.temp
-     * @param  {String}  ip        Board ip.
-     * @param  {String}  [device]  Device [bed|hotend].
-     * @param  {Integer} [temp]    Target tempertaure.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Set/Get temperature.
+      * @method sh.command.temp
+      * @param  {String}  ip        Board ip.
+      * @param  {String}  [device]  Device [bed|hotend].
+      * @param  {Integer} [temp]    Target tempertaure.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.temp = function(ip, device, temp, settings) {
         var args   = Array.prototype.slice.call(arguments);
         var method = args.length > 2 ? 'tempSet' : 'tempGet';
@@ -1184,15 +1184,15 @@ var sh = sh || {};
     };
 
     /**
-     * Do forward or inverse kinematics on the given cartesian position,
-     * optionally moves the actuators and finaly display the coordinates.
-     * @method sh.command.kinematics
-     * @param  {String}   ip                Board ip.
-     * @param  {Object}   settings          See "{@link sh.network.command}.settings".
-     * @param  {Boolean}  settings.move     Move to the calculated or given XYZ coords {@default false}.
-     * @param  {Boolean}  settings.inverse  Do inverse kinematics {@default false}.
-     * @return {XMLHttpRequest}
-     */
+      * Do forward or inverse kinematics on the given cartesian position,
+      * optionally moves the actuators and finaly display the coordinates.
+      * @method sh.command.kinematics
+      * @param  {String}   ip                Board ip.
+      * @param  {Object}   settings          See "{@link sh.network.command}.settings".
+      * @param  {Boolean}  settings.move     Move to the calculated or given XYZ coords {@default false}.
+      * @param  {Boolean}  settings.inverse  Do inverse kinematics {@default false}.
+      * @return {XMLHttpRequest}
+      */
     sh.command.kinematics = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -1273,12 +1273,12 @@ var sh = sh || {};
     };
 
     /**
-     * Get current position.
-     * @method sh.command.position
-     * @param  {String}  ip        Board ip.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Get current position.
+      * @method sh.command.position
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.position = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -1316,12 +1316,12 @@ var sh = sh || {};
     };
 
     /**
-     * Get work coordinate system.
-     * @method sh.command.wcs
-     * @param  {String}  ip        Board ip.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Get work coordinate system.
+      * @method sh.command.wcs
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.wcs = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -1371,12 +1371,12 @@ var sh = sh || {};
     };
 
     /**
-     * Get system state.
-     * @method sh.command.state
-     * @param  {String}  ip        Board ip.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Get system state.
+      * @method sh.command.state
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.state = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -1414,12 +1414,12 @@ var sh = sh || {};
     };
 
     /**
-     * Get system status.
-     * @method sh.command.status
-     * @param  {String}  ip        Board ip.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Get system status.
+      * @method sh.command.status
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.status = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -1456,14 +1456,14 @@ var sh = sh || {};
     };
 
     /**
-     * Switch.
-     * @method sh.command.switch
-     * @param  {String}  ip        Board ip.
-     * @param  {String}  device    Device ex.: 'fan' or 'misc'.
-     * @param  {String}  value     State [on|off] or value.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Switch.
+      * @method sh.command.switch
+      * @param  {String}  ip        Board ip.
+      * @param  {String}  device    Device ex.: 'fan' or 'misc'.
+      * @param  {String}  value     State [on|off] or value.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.switch = function(ip, device, value, settings) {
         // defaults settings
         settings = settings || {};
@@ -1488,12 +1488,12 @@ var sh = sh || {};
     };
 
     /**
-     * Get network config.
-     * @method sh.command.net
-     * @param  {String}  ip        Board ip.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Get network config.
+      * @method sh.command.net
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.net = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -1525,12 +1525,12 @@ var sh = sh || {};
     };
 
     /**
-     * Remount...
-     * @method sh.command.remount
-     * @param  {String}  ip        Board ip.
-     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-     * @return {XMLHttpRequest}
-     */
+      * Remount...
+      * @method sh.command.remount
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
     sh.command.remount = function(ip, settings) {
         // defaults settings
         settings = settings || {};
@@ -1548,16 +1548,16 @@ var sh = sh || {};
     };
 
     /**
-     * Calculate the Steinhart Hart coefficients for a thermistor.
-     * @method sh.command.thermistorCalc
-     * @param  {String}                             ip                Board ip.
-     * @param  {String}                             values            Thermistor values separated by commas 'T1,R1,T2,R2,T3,R3'.
-     * @param  {Object}                             settings          See "{@link sh.network.command}.settings".
-     * @param  {Integer}                            settings.storeto  Store the results to thermistor n.
-     * @param  {Boolean}                            settings.save     Save the stored results to override-config (storeto must be set).
-     * @param  {sh.command.thermistorSaveCallback}  settings.onsave   Called when the values was saved.
-     * @return {XMLHttpRequest}
-     */
+      * Calculate the Steinhart Hart coefficients for a thermistor.
+      * @method sh.command.thermistorCalc
+      * @param  {String}                             ip                Board ip.
+      * @param  {String}                             values            Thermistor values separated by commas 'T1,R1,T2,R2,T3,R3'.
+      * @param  {Object}                             settings          See "{@link sh.network.command}.settings".
+      * @param  {Integer}                            settings.storeto  Store the results to thermistor n.
+      * @param  {Boolean}                            settings.save     Save the stored results to override-config (storeto must be set).
+      * @param  {sh.command.thermistorSaveCallback}  settings.onsave   Called when the values was saved.
+      * @return {XMLHttpRequest}
+      */
     sh.command.thermistorCalc = function(ip, values, settings) {
         // defaults settings
         settings = settings || {};
@@ -1615,18 +1615,18 @@ var sh = sh || {};
     };
 
     /**
-     * Callback called by {@link sh.command.thermistorCalc} when the values was saved.
-     * @callback sh.command.thermistorSaveCallback
-     * @param    {Object} response The response object provided by the {@link sh.network.responseCallback}.
-     */
-
-     /**
-      * Get the predefined thermistors.
-      * @method sh.command.thermistors
-      * @param  {String}  ip        Board ip.
-      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-      * @return {XMLHttpRequest}
+      * Callback called by {@link sh.command.thermistorCalc} when the values was saved.
+      * @callback sh.command.thermistorSaveCallback
+      * @param    {Object} response The response object provided by the {@link sh.network.responseCallback}.
       */
+
+    /**
+     * Get the predefined thermistors.
+     * @method sh.command.thermistors
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
      sh.command.thermistors = function(ip, settings) {
          // defaults settings
          settings = settings || {};
@@ -1666,14 +1666,14 @@ var sh = sh || {};
          return sh.network.command(ip, command, settings);
      };
 
-     /**
-      * Get md5 sum of the given file.
-      * @method sh.command.md5sum
-      * @param  {String}  ip        Board ip.
-      * @param  {String}  path      Relative or absolute path to file.
-      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-      * @return {XMLHttpRequest}
-      */
+    /**
+     * Get md5 sum of the given file.
+     * @method sh.command.md5sum
+     * @param  {String}  ip        Board ip.
+     * @param  {String}  path      Relative or absolute path to file.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
      sh.command.md5sum = function(ip, path, settings) {
          // defaults settings
          settings = settings || {};
@@ -1700,5 +1700,220 @@ var sh = sh || {};
          // send the comand
          return sh.network.command(ip, command, settings);
      };
+
+    /**
+     * Play a gcode file.
+     * @method sh.command.play
+     * @param  {String}   ip                Board ip.
+     * @param  {String}   path              Relative or absolute path to file.
+     * @param  {Object}   settings          See "{@link sh.network.command}.settings".
+     * @param  {Boolean}  settings.verbose  Verbose output {@default false}.
+     * @return {XMLHttpRequest}
+     */
+     sh.command.play = function(ip, path, settings) {
+         // defaults settings
+         settings = settings || {};
+
+         var verbose = settings.verbose ? ' -v' : '';
+
+         // set the command
+         var command = 'play ' + path + verbose;
+
+         // default response parser callback
+         settings.parser = settings.parser || function(raw) {
+             raw = raw.trim();
+
+             if (! raw.length) {
+                 return 'Alarm';
+             }
+
+             if (raw.indexOf('File not found') !== -1) {
+                 return raw;
+             }
+
+             if (raw.indexOf('Currently printing') !== -1) {
+                 return raw;
+             }
+
+             var lines = raw.split('\n');
+             var file  = lines.shift().split(' ').pop().trim();
+             var size  = -1;
+
+             if (raw.indexOf('WARNING') === -1) {
+                 size = parseFloat(lines.shift().split(' ').pop().trim());
+             }
+
+             return { file: file, size: size };
+         };
+
+         // send the comand
+         return sh.network.command(ip, command, settings);
+     };
+
+    /**
+     * Get progress of current play.
+     * @method sh.command.progress
+     * @param  {String}   ip        Board ip.
+     * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.progress = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'progress';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (! raw.length) {
+                return 'Alarm';
+            }
+
+            if (raw.indexOf('Not currently playing') !== -1) {
+                return raw;
+            }
+
+            if (raw.indexOf('File size is unknown') !== -1) {
+                return raw;
+            }
+
+            if (raw.indexOf('SD print is paused at') !== -1) {
+                var parts = raw.split(' ');
+
+                return {
+                    paused: true,
+                    total : parseFloat(parts.pop().trim()),
+                    played: parseFloat(parts.pop().trim())
+                };
+            }
+
+            // file: %s, %u %% complete, elapsed time: %lu s, est time: %lu s
+            if (raw.indexOf('file:') === 0) {
+                var parts = raw.split(' ');
+
+                return {
+                    paused  : false,
+                    file    : parts[2].substr(0, parts[2].length - 2),
+                    complete: parseFloat(parts[3]),
+                    elapsed : parseFloat(parts[8]),
+                    esteemed: parts[12] ? parseFloat(parts[12]) : Infinity,
+                };
+            }
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Abort currently playing file.
+     * @method sh.command.abort
+     * @param  {String}   ip        Board ip.
+     * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.abort = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'abort';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (! raw.length) {
+                return 'Alarm';
+            }
+
+            if (raw.indexOf('Not currently playing') !== -1) {
+                return raw;
+            }
+
+            return { message: raw };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+   };
+
+   /**
+    * Suspend a print in progress.
+    * @method sh.command.suspend
+    * @param  {String}   ip        Board ip.
+    * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+   sh.command.suspend = function(ip, settings) {
+       // defaults settings
+       settings = settings || {};
+
+       // set the command
+       var command = 'suspend';
+
+       // default response parser callback
+       settings.parser = settings.parser || function(raw) {
+           raw = raw.trim();
+
+           if (! raw.length) {
+               return 'Alarm';
+           }
+
+           if (raw.indexOf('Already suspended') !== -1) {
+               return raw;
+           }
+
+           return { message: raw };
+       };
+
+       // send the comand
+       return sh.network.command(ip, command, settings);
+  };
+
+  /**
+   * Resume the suspended print.
+   * @method sh.command.resume
+   * @param  {String}   ip        Board ip.
+   * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+   * @return {XMLHttpRequest}
+   */
+  sh.command.resume = function(ip, settings) {
+      // defaults settings
+      settings = settings || {};
+
+      // set the command
+      var command = 'resume';
+
+      // default response parser callback
+      settings.parser = settings.parser || function(raw) {
+          raw = raw.trim();
+
+          if (! raw.length) {
+              return 'Alarm';
+          }
+
+          if (raw.indexOf('Not suspended') !== -1) {
+              return raw;
+          }
+
+          if (raw.indexOf('Resume aborted by kill') !== -1) {
+              return 'Resume aborted by kill';
+          }
+
+          var lines = raw.split('\n');
+
+          // TODO: parse response
+          // REF: https://github.com/Smoothieware/Smoothieware/blob/8cbd981e85c918e059a6e68d70fbf3cdad0f8ca5/src/modules/utils/player/Player.cpp#L614
+
+          return { lines: lines };
+      };
+
+      // send the comand
+      return sh.network.command(ip, command, settings);
+ };
 
 })();
