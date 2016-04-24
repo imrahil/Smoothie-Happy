@@ -825,6 +825,39 @@ var sh = sh || {};
     };
 
     /**
+     * Load configuration cache.
+     * @method sh.command.configCacheLoad
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.configCacheLoad = function(ip, settings) {
+        return sh.command.configCache(ip, 'load', settings);
+    };
+
+    /**
+     * Unload configuration cache.
+     * @method sh.command.configCacheUnload
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.configCacheUnload = function(ip, settings) {
+        return sh.command.configCache(ip, 'unload', settings);
+    };
+
+    /**
+     * Dump configuration cache.
+     * @method sh.command.configCacheDump
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.configCacheDump = function(ip, settings) {
+        return sh.command.configCache(ip, 'dump', settings);
+    };
+
+    /**
      * Get the input value checksum.
      * @method sh.command.checksum
      * @param  {String}  ip        Board ip.

@@ -146,12 +146,33 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// get input value checksum
-sh.command.checksum(ip, 'my_config_item', {
-    onresponse: function(response) {
-        console.log('response', response);
-    }
-});
+// // load config cache
+// sh.command.configCacheLoad(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// // unload config cache
+// sh.command.configCacheUnload(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// // dump config cache
+// sh.command.configCacheDump(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// // get input value checksum
+// sh.command.checksum(ip, 'my_config_item', {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
 
 // // get entire config
 // sh.command.config(ip, {
