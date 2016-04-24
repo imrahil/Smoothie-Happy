@@ -222,8 +222,15 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// switch
-sh.command.switch(ip, 'fan', 'on', {
+// // switch
+// sh.command.switch(ip, 'fan', 'on', {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// get network config
+sh.command.net(ip, {
     onresponse: function(response) {
         console.log('response', response);
     }
