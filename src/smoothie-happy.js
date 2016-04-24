@@ -102,7 +102,7 @@ var sh = sh || {};
      * GET request.
      * @method sh.network.get
      * @param  {String}  url       URL with protocol.
-     * @param  {Mixed}   settings  See "{@link sh.network.request}.settings".
+     * @param  {Object}  settings  See "{@link sh.network.request}.settings".
      * @return {XMLHttpRequest}
      */
     sh.network.get = function(url, settings) {
@@ -113,7 +113,7 @@ var sh = sh || {};
      * POST request.
      * @method sh.network.post
      * @param  {String}  url       URL with protocol.
-     * @param  {Mixed}   settings  See "{@link sh.network.request}.settings".
+     * @param  {Object}  settings  See "{@link sh.network.request}.settings".
      * @return {XMLHttpRequest}
      */
     sh.network.post = function(url, settings) {
@@ -123,9 +123,9 @@ var sh = sh || {};
     /**
      * Upload a file on the sd card.
      * @method sh.network.upload
-     * @param  {String}      ip        Board ip.
-     * @param  {Object|File} file      {File} object or an {Object} with "name" and "data" properties set.
-     * @param  {Mixed}       settings  See "{@link sh.network.request}.settings".
+     * @param  {String}       ip        Board ip.
+     * @param  {Object|File}  file      {File} object or an {Object} with "name" and "data" properties set.
+     * @param  {Object}       settings  See "{@link sh.network.request}.settings".
      * @return {XMLHttpRequest}
      */
     sh.network.upload = function(ip, file, settings) {
@@ -158,11 +158,11 @@ var sh = sh || {};
     /**
      * Send a raw command.
      * @method sh.network.command
-     * @param  {String}                    ip                   Board ip.
-     * @param  {String}                    command              The command string. See {@link http://smoothieware.org/console-commands} for a complete list.
-     * @param  {Mixed}                     settings             See "{@link sh.network.request}.settings".
-     * @param  {Callback}                  settings.onresponse  Function called when the response is received.
-     * @param  {Callback}                  settings.onresult    Function called when the response is parsed.
+     * @param  {String}                     ip                   Board ip.
+     * @param  {String}                     command              The command string. See {@link http://smoothieware.org/console-commands} for a complete list.
+     * @param  {Object}                     settings             See "{@link sh.network.request}.settings".
+     * @param  {Callback}                   settings.onresponse  Function called when the response is received.
+     * @param  {Callback}                   settings.onresult    Function called when the response is parsed.
      * @param  {sh.network.parserCallback}  settings.parser      Function that parses the response.
      * @return {XMLHttpRequest}
      */
@@ -220,7 +220,7 @@ var sh = sh || {};
      * Wait until the board is online.
      * @method sh.network.waitUntilOnline
      * @param  {String}                     ip                 Board ip.
-     * @param  {Mixed}                      settings           See "{@link sh.network.command}.settings".
+     * @param  {Object}                     settings           See "{@link sh.network.command}.settings".
      * @param  {Integer}                    settings.limit     Maximum number of trials {@default 10}.
      * @param  {Integer}                    settings.interval  Interval between trials in milliseconds {@default 2000}.
      * @param  {sh.network.onlineCallback}  settings.online    Called when the board is online.
@@ -323,7 +323,7 @@ var sh = sh || {};
      * @method sh.command.ls
      * @param  {String}    ip               Board ip.
      * @param  {String}    path             Path to list, can be absolute or relative.
-     * @param  {Mixed}     settings         See "{@link sh.network.command}.settings".
+     * @param  {Object}    settings         See "{@link sh.network.command}.settings".
      * @param  {Callback}  settings.filter  Function to filter the files list.
      * @return {XMLHttpRequest}
      */
@@ -373,9 +373,9 @@ var sh = sh || {};
     /**
      * Change the current folder to the folder passed as a parameter.
      * @method sh.command.cd
-     * @param  {String} ip        Board ip.
-     * @param  {String} path      Path to folder, can be absolute or relative.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @param  {String}  ip        Board ip.
+     * @param  {String}  path      Path to folder, can be absolute or relative.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.cd = function(ip, path, settings) {
@@ -404,8 +404,8 @@ var sh = sh || {};
     /**
      * Shows the current folder.
      * @method sh.command.pwd
-     * @param  {String} ip        Board ip.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.pwd = function(ip, settings) {
@@ -429,7 +429,7 @@ var sh = sh || {};
      * @method sh.command.cat
      * @param  {String}   ip              Board ip.
      * @param  {String}   path            Path to file, can be absolute or relative.
-     * @param  {Mixed}    settings        See "{@link sh.network.command}.settings".
+     * @param  {Object}   settings        See "{@link sh.network.command}.settings".
      * @param  {Integer}  settings.limit  Limit the returned number of lines.
      * @return {XMLHttpRequest}
      */
@@ -460,9 +460,9 @@ var sh = sh || {};
     /**
      * Remove a file.
      * @method sh.command.rm
-     * @param  {String} ip        Board ip.
-     * @param  {String} path      Path to file to remove.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @param  {String}  ip        Board ip.
+     * @param  {String}  path      Path to file to remove.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.rm = function(ip, path, settings) {
@@ -489,10 +489,10 @@ var sh = sh || {};
     /**
      * Move a file.
      * @method sh.command.mv
-     * @param  {String} ip        Board ip.
-     * @param  {String} path      Path to file source.
-     * @param  {String} newpath   Path to file destination.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @param  {String}  ip        Board ip.
+     * @param  {String}  path      Path to file source.
+     * @param  {String}  newpath   Path to file destination.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.mv = function(ip, path, newpath, settings) {
@@ -520,9 +520,9 @@ var sh = sh || {};
      * Alias of {@link sh.network.upload}.
      * Upload a file on the sd card.
      * @method sh.command.upload
-     * @param  {String}      ip        Board ip.
-     * @param  {Object|File} file      {File} object or an {Object} with "name" and "data" properties set.
-     * @param  {Mixed}       settings  See "{@link sh.network.request}.settings".
+     * @param  {String}       ip        Board ip.
+     * @param  {Object|File}  file      {File} object or an {Object} with "name" and "data" properties set.
+     * @param  {Object}       settings  See "{@link sh.network.request}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.upload = function(ip, file, settings) {
@@ -533,7 +533,7 @@ var sh = sh || {};
      * Reset the system.
      * @method sh.command.reset
      * @param  {String}   ip                        Board ip.
-     * @param  {Mixed}    settings                  See "{@link sh.network.command}.settings".
+     * @param  {Object}   settings                  See "{@link sh.network.command}.settings".
      * @param  {Integer}  settings.resetDelay       Delay before the smoothie reset (@default: 5000).
      * @param  {Object}   settings.waitUntilOnline  See "{@link sh.network.waitUntilOnline}.settings".
      * @return {XMLHttpRequest}
@@ -567,10 +567,10 @@ var sh = sh || {};
     /**
      * Get config value.
      * @method sh.command.configGet
-     * @param  {String}   ip                 Board ip.
-     * @param  {String}   name               Setting name.
-     * @param  {Mixed}    settings           See "{@link sh.network.command}.settings".
-     * @param  {String}   settings.location  Where to read the value {@default 'sd'}.
+     * @param  {String}  ip                 Board ip.
+     * @param  {String}  name               Setting name.
+     * @param  {Object}  settings           See "{@link sh.network.command}.settings".
+     * @param  {String}  settings.location  Where to read the value {@default 'sd'}.
      * @return {XMLHttpRequest}
      */
     sh.command.configGet = function(ip, name, settings) {
@@ -609,11 +609,11 @@ var sh = sh || {};
     /**
      * Set config value.
      * @method sh.command.configSet
-     * @param  {String}   ip                 Board ip.
-     * @param  {String}   name               Setting name.
-     * @param  {String}   value              Setting value.
-     * @param  {Mixed}    settings           See "{@link sh.network.command}.settings".
-     * @param  {String}   settings.location  Where to write the value {@default 'sd'}.
+     * @param  {String}  ip                 Board ip.
+     * @param  {String}  name               Setting name.
+     * @param  {String}  value              Setting value.
+     * @param  {Object}  settings           See "{@link sh.network.command}.settings".
+     * @param  {String}  settings.location  Where to write the value {@default 'sd'}.
      * @return {XMLHttpRequest}
      */
     sh.command.configSet = function(ip, name, value, settings) {
@@ -653,7 +653,7 @@ var sh = sh || {};
      * Get configuration from file.
      * @method sh.command.configFile
      * @param  {String}  ip                 Board ip.
-     * @param  {Mixed}   settings           See "{@link sh.network.command}.settings".
+     * @param  {Object}  settings           See "{@link sh.network.command}.settings".
      * @param  {Mixed}   settings.timeout   Connexion timeout {@default 60000}.
      * @param  {Mixed}   settings.filename  Configuration filename relative to sd card root directory {@default 'config.txt'}.
      * @return {XMLHttpRequest}
@@ -771,7 +771,7 @@ var sh = sh || {};
      * @param  {String}  ip        Board ip.
      * @param  {String}  [name]    Setting name.
      * @param  {String}  [value]   Setting value.
-     * @param  {Mixed}   settings  See "{@link sh.network.command}.settings".
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.config = function(ip, name, value, settings) {
@@ -788,8 +788,8 @@ var sh = sh || {};
     /**
      * Get a list of commands.
      * @method sh.command.help
-     * @param  {String} ip        Board ip.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.help = function(ip, settings) {
@@ -818,8 +818,8 @@ var sh = sh || {};
     /**
      * Get the board/firmware version.
      * @method sh.command.version
-     * @param  {String} ip        Board ip.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.version = function(ip, settings) {
@@ -863,8 +863,8 @@ var sh = sh || {};
     /**
      * Get information about RAM usage.
      * @method sh.command.mem
-     * @param  {String} ip        Board ip.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.mem = function(ip, settings) {
@@ -897,7 +897,7 @@ var sh = sh || {};
      * Get current temperature.
      * @method sh.command.tempGet
      * @param  {String}  ip               Board ip.
-     * @param  {Mixed}   settings         See "{@link sh.network.command}.settings".
+     * @param  {Object}  settings         See "{@link sh.network.command}.settings".
      * @param  {Mixed}   settings.device  Possible values: [all, bed, hotend] {@default all}.
      * @return {XMLHttpRequest}
      */
@@ -970,7 +970,7 @@ var sh = sh || {};
      * @param  {String}  ip        Board ip.
      * @param  {String}  device    Device [bed|hotend].
      * @param  {Integer} temp      Target tempertaure.
-     * @param  {Mixed}   settings  See "{@link sh.network.command}.settings".
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.tempSet = function(ip, device, temp, settings) {
@@ -1002,7 +1002,7 @@ var sh = sh || {};
      * @param  {String}  ip        Board ip.
      * @param  {String}  [device]  Device [bed|hotend].
      * @param  {Integer} [temp]    Target tempertaure.
-     * @param  {Mixed}   settings  See "{@link sh.network.command}.settings".
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.temp = function(ip, device, temp, settings) {
@@ -1016,7 +1016,7 @@ var sh = sh || {};
      * optionally moves the actuators and finaly display the coordinates.
      * @method sh.command.kinematics
      * @param  {String}   ip                Board ip.
-     * @param  {Mixed}    settings          See "{@link sh.network.command}.settings".
+     * @param  {Object}   settings          See "{@link sh.network.command}.settings".
      * @param  {Boolean}  settings.move     Move to the calculated or given XYZ coords {@default false}.
      * @param  {Boolean}  settings.inverse  Do inverse kinematics {@default false}.
      * @return {XMLHttpRequest}
@@ -1103,8 +1103,8 @@ var sh = sh || {};
     /**
      * Get current position.
      * @method sh.command.position
-     * @param  {String} ip        Board ip.
-     * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.position = function(ip, settings) {
@@ -1146,8 +1146,8 @@ var sh = sh || {};
     /**
      * Get work coordinate system.
      * @method sh.command.wcs
-     * @param  {String}    ip        Board ip.
-     * @param  {Mixed}     settings  See "{@link sh.network.command}.settings".
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.wcs = function(ip, settings) {
@@ -1201,8 +1201,8 @@ var sh = sh || {};
     /**
      * Get system state.
      * @method sh.command.state
-     * @param  {String}    ip        Board ip.
-     * @param  {Mixed}     settings  See "{@link sh.network.command}.settings".
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.state = function(ip, settings) {
@@ -1244,8 +1244,8 @@ var sh = sh || {};
     /**
      * Get system status.
      * @method sh.command.status
-     * @param  {String}    ip        Board ip.
-     * @param  {Mixed}     settings  See "{@link sh.network.command}.settings".
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.status = function(ip, settings) {
@@ -1289,7 +1289,7 @@ var sh = sh || {};
      * @param  {String}  ip        Board ip.
      * @param  {String}  device    Device ex.: 'fan' or 'misc'.
      * @param  {String}  value     State [on|off] or value.
-     * @param  {Mixed}   settings  See "{@link sh.network.command}.settings".
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
      * @return {XMLHttpRequest}
      */
     sh.command.switch = function(ip, device, value, settings) {
@@ -1305,6 +1305,43 @@ var sh = sh || {};
 
             if (raw.indexOf('is not a known switch device') !== -1) {
                 return raw;
+            }
+
+            // return message
+            return { message: raw };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Get network config.
+     * @method sh.command.net
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.net = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'net';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            var matches = raw.match(/IP Addr:([^\n]+)\nIP GW:([^\n]+)\nIP mask:([^\n]+)\nMAC Address:([^\n]+)/);
+
+            if (matches) {
+                return {
+                    ip     : matches[1].trim(),
+                    gateway: matches[2].trim(),
+                    mask   : matches[3].trim(),
+                    mac    : matches[4].trim()
+                }
             }
 
             // return message
