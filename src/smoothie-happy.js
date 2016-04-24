@@ -786,6 +786,73 @@ var sh = sh || {};
     };
 
     /**
+     * Saves a configuration override file as specified filename or as config-override.
+     * @method sh.command.configOverrideSave
+     * @param  {String}  ip          Board ip.
+     * @param  {String}  [filename]  Target config-override filename.
+     * @param  {Object}  settings    See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.configOverrideSave = function(ip, filename, settings) {
+        if (arguments.length === 2) {
+            settings = filename;
+            filename = '/';
+        }
+
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'save ' + filename;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            return { message: raw.trim() };
+        };
+
+        // send the command
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * loads a configuration override file from specified name or config-override.
+     * @method sh.command.configOverrideLoad
+     * @param  {String}  ip          Board ip.
+     * @param  {String}  [filename]  Target config-override filename.
+     * @param  {Object}  settings    See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.configOverrideLoad = function(ip, filename, settings) {
+        if (arguments.length === 2) {
+            settings = filename;
+            filename = '/';
+        }
+
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'load ' + filename;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('File not found') === 0) {
+                return raw;
+            }
+
+            var lines   = raw.split('\n');
+            var message = lines.shift() + ' ' + lines.pop() + '.';
+
+            return { message: message, lines: lines };
+        };
+
+        // send the command
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
      * Load/unload/dump configuration cache.
      * @method sh.command.configCache
      * @param  {String}  ip        Board ip.

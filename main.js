@@ -174,6 +174,22 @@ var ip = '192.168.1.101';
 //     }
 // });
 
+// // saves a configuration override file
+// // as specified filename or as config-override
+// sh.command.configOverrideSave(ip, '/', {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// load a configuration override file
+// from specified filename or from config-override
+sh.command.configOverrideLoad(ip, '/', {
+    onresponse: function(response) {
+        console.log('response', response);
+    }
+});
+
 // // get entire config
 // sh.command.config(ip, {
 //     limit: 20,
