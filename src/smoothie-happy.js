@@ -1841,22 +1841,22 @@ var sh = sh || {};
         return sh.network.command(ip, command, settings);
    };
 
-   /**
+    /**
     * Suspend a print in progress.
     * @method sh.command.suspend
     * @param  {String}   ip        Board ip.
     * @param  {Object}   settings  See "{@link sh.network.command}.settings".
     * @return {XMLHttpRequest}
     */
-   sh.command.suspend = function(ip, settings) {
-       // defaults settings
-       settings = settings || {};
+    sh.command.suspend = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
 
-       // set the command
-       var command = 'suspend';
+        // set the command
+        var command = 'suspend';
 
-       // default response parser callback
-       settings.parser = settings.parser || function(raw) {
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
            raw = raw.trim();
 
            if (! raw.length) {
@@ -1868,11 +1868,11 @@ var sh = sh || {};
            }
 
            return { message: raw };
-       };
+        };
 
-       // send the comand
-       return sh.network.command(ip, command, settings);
-  };
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
 
   /**
    * Resume the suspended print.
@@ -1915,5 +1915,28 @@ var sh = sh || {};
       // send the comand
       return sh.network.command(ip, command, settings);
  };
+
+    /**
+    * Reset alarm.
+    * @method sh.command.resetAlarm
+    * @param  {String}   ip        Board ip.
+    * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.resetAlarm = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = '$X';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            return { message: 'unlocked' };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
 
 })();

@@ -364,6 +364,13 @@ var ip = '192.168.1.101';
 //     }
 // });
 
+// reset alarm
+sh.command.resetAlarm(ip, {
+    onresponse: function(response) {
+        console.log('response', response);
+    }
+});
+
 //------------------------------------------------------------------------------
 
 // on file selected
