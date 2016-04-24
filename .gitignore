@@ -1,5 +1,5 @@
 old
-docs
+docs/clean.php
 node_modules
 makedocs.bat
 jsdoc.json
