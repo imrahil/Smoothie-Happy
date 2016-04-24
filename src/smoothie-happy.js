@@ -1939,4 +1939,47 @@ var sh = sh || {};
             return sh.network.command(ip, command, settings);
         };
 
+        /**
+        * Send ok (ping).
+        * @method sh.command.ok
+        * @param  {String}   ip        Board ip.
+        * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+        * @return {XMLHttpRequest}
+        */
+        sh.command.ok = function(ip, settings) {
+            // defaults settings
+            settings = settings || {};
+
+            // set the command
+            var command = 'ok';
+
+            // default response parser callback
+            settings.parser = settings.parser || function(raw) {
+                return { message: raw.trim() };
+            };
+
+            // send the comand
+            return sh.network.command(ip, command, settings);
+        };
+
+        /**
+        * Ping.
+        * @method sh.command.ping
+        * @param  {String}   ip        Board ip.
+        * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+        * @return {XMLHttpRequest}
+        */
+        sh.command.ping = function(ip, settings) {
+            // defaults settings
+            settings = settings || {};
+
+            // default response parser callback
+            settings.parser = settings.parser || function(raw) {
+                return { message: 'pong' };
+            };
+
+            // send the comand
+            return sh.command.ok(ip, settings);
+        };
+
     })();

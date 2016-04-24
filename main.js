@@ -371,25 +371,25 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// send ok
-sh.command.ok(ip, {
-    onresponse: function(response) {
-        console.log('response', response);
-    },
-    ontimeout: function() {
-        console.log('timeout', this);
-    }
-});
+// // send ok
+// sh.command.ok(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     },
+//     ontimeout: function() {
+//         console.log('timeout', this);
+//     }
+// });
 
-// send ping
-sh.command.ping(ip, {
-    onresponse: function(response) {
-        console.log('response', response);
-    },
-    ontimeout: function() {
-        console.log('timeout', this);
-    }
-});
+// // send ping
+// sh.command.ping(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     },
+//     ontimeout: function() {
+//         console.log('timeout', this);
+//     }
+// });
 
 //------------------------------------------------------------------------------
 
