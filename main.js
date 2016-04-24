@@ -364,10 +364,30 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// reset alarm
-sh.command.resetAlarm(ip, {
+// // reset alarm
+// sh.command.resetAlarm(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// send ok
+sh.command.ok(ip, {
     onresponse: function(response) {
         console.log('response', response);
+    },
+    ontimeout: function() {
+        console.log('timeout', this);
+    }
+});
+
+// send ping
+sh.command.ping(ip, {
+    onresponse: function(response) {
+        console.log('response', response);
+    },
+    ontimeout: function() {
+        console.log('timeout', this);
     }
 });
 
