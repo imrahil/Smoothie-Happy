@@ -1519,4 +1519,94 @@ var sh = sh || {};
         return sh.network.command(ip, command, settings);
     };
 
+    /**
+     * Remount...
+     * @method sh.command.remount
+     * @param  {String}  ip        Board ip.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.remount = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'remount';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            return { message: raw.trim() };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Calculate the Steinhart Hart coefficients for a thermistor.
+     * @method sh.command.thermistorCalc
+     * @param  {String}   ip                Board ip.
+     * @param  {String}   values            Thermistor values separated by commas 'T1,R1,T2,R2,T3,R3'.
+     * @param  {Object}   settings          See "{@link sh.network.command}.settings".
+     * @param  {Integer}  settings.storeto  Store the results to thermistor n.
+     * @param  {Boolean}  settings.save     Save the stored results to override-config (storeto must be set).
+     * @param  {Boolean}  settings.onsave   Called when the values was saved.
+     * @return {XMLHttpRequest}
+     */
+    sh.command.thermistorCalc = function(ip, values, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // store to thermistor n
+        var storeto = '';
+
+        if (settings.storeto || settings.storeto === 0) {
+            storeto = '-s' + settings.storeto + ' ';
+        }
+
+        // set the command
+        var command = 'calc_thermistor ' + storeto + values;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('Usage: calc_thermistor') === 0) {
+                return raw;
+            }
+
+            var lines   = raw.split('\n');
+            var result  = lines.shift().trim();
+            var message = lines.shift().trim();
+            var matches = result.match(/Steinhart Hart coefficients: *I(.*)J(.*)K(.*)/);
+
+            if (matches) {
+                var I = matches[1].trim();
+                var J = matches[2].trim();
+                var K = matches[3].trim();
+
+                if (I === 'nan' || J === 'nan' || K === 'nan') {
+                    return 'invalid input values';
+                }
+
+                result = { I: parseFloat(I), J: parseFloat(J), K: parseFloat(K) };
+            }
+
+            if (settings.save && storeto !== '') {
+                sh.network.command(ip, 'M500', {
+                    onresponse: function(response) {
+                        if (settings.onsave) {
+                            settings.onsave.call(this, response);
+                        }
+                    }
+                });
+            }
+
+            return { message: message, result: result };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
 })();

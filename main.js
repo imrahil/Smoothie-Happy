@@ -182,13 +182,13 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// load a configuration override file
-// from specified filename or from config-override
-sh.command.configOverrideLoad(ip, '/', {
-    onresponse: function(response) {
-        console.log('response', response);
-    }
-});
+// // load a configuration override file
+// // from specified filename or from config-override
+// sh.command.configOverrideLoad(ip, '/', {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
 
 // // get entire config
 // sh.command.config(ip, {
@@ -286,6 +286,24 @@ sh.command.configOverrideLoad(ip, '/', {
 //         console.log('response', response);
 //     }
 // });
+
+// // remount
+// sh.command.remount(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// calculate the Steinhart Hart coefficients for a thermistor
+sh.command.thermistorCalc(ip, '25000,5,10000,25,4000,45', {
+    storeto: 0, save: true,
+    onresponse: function(response) {
+        console.log('response', response);
+    },
+    onsave: function(response) {
+        console.log('response', response);
+    }
+});
 
 //------------------------------------------------------------------------------
 
