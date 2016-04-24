@@ -305,8 +305,15 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// get the predefined thermistors.
-sh.command.thermistors(ip, {
+// // get the predefined thermistors.
+// sh.command.thermistors(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// get md5 sum of the given file.
+sh.command.md5sum(ip, '/sd/config.txt', {
     onresponse: function(response) {
         console.log('response', response);
     }

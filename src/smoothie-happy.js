@@ -1666,4 +1666,39 @@ var sh = sh || {};
          return sh.network.command(ip, command, settings);
      };
 
+     /**
+      * Get md5 sum of the given file.
+      * @method sh.command.md5sum
+      * @param  {String}  ip        Board ip.
+      * @param  {String}  path      Relative or absolute path to file.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
+     sh.command.md5sum = function(ip, path, settings) {
+         // defaults settings
+         settings = settings || {};
+
+         // set the command
+         var command = 'md5sum ' + path;
+
+         // default response parser callback
+         settings.parser = settings.parser || function(raw) {
+             raw = raw.trim();
+
+             if (raw.indexOf('File not found') !== -1) {
+                 return raw;
+             }
+
+             var parts = raw.split(' ');
+
+             return {
+                 md5 : parts.shift().trim(),
+                 file: parts.shift().trim()
+             };
+         };
+
+         // send the comand
+         return sh.network.command(ip, command, settings);
+     };
+
 })();
