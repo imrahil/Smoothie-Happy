@@ -158,12 +158,11 @@ var sh = sh || {};
     /**
      * Send a raw command.
      * @method sh.network.command
-     * @param  {String}                     ip                   Board ip.
-     * @param  {String}                     command              The command string. See {@link http://smoothieware.org/console-commands} for a complete list.
-     * @param  {Object}                     settings             See "{@link sh.network.request}.settings".
-     * @param  {Callback}                   settings.onresponse  Function called when the response is received.
-     * @param  {Callback}                   settings.onresult    Function called when the response is parsed.
-     * @param  {sh.network.parserCallback}  settings.parser      Function that parses the response.
+     * @param  {String}                       ip                   Board ip.
+     * @param  {String}                       command              The command string. See {@link http://smoothieware.org/console-commands} for a complete list.
+     * @param  {Object}                       settings             See "{@link sh.network.request}.settings".
+     * @param  {sh.network.responseCallback}  settings.onresponse  Function called when the response is received.
+     * @param  {sh.network.parserCallback}    settings.parser      Function that parses the response.
      * @return {XMLHttpRequest}
      */
     sh.network.command = function(ip, command, settings) {
@@ -215,6 +214,12 @@ var sh = sh || {};
      * @param    {String} responseText The raw response text provided by the {XMLHttpRequest}
      * @return   {Mixed}  The response parsed as an object or TRUE if no data. FALSE if an error occure.
      */
+
+     /**
+      * Callback called by {@link sh.network.command} when the response is parsed.
+      * @callback sh.network.responseCallback
+      * @param    {Object} response Arbitrary object that represents the response.
+      */
 
     /**
      * Wait until the board is online.
@@ -1545,12 +1550,12 @@ var sh = sh || {};
     /**
      * Calculate the Steinhart Hart coefficients for a thermistor.
      * @method sh.command.thermistorCalc
-     * @param  {String}   ip                Board ip.
-     * @param  {String}   values            Thermistor values separated by commas 'T1,R1,T2,R2,T3,R3'.
-     * @param  {Object}   settings          See "{@link sh.network.command}.settings".
-     * @param  {Integer}  settings.storeto  Store the results to thermistor n.
-     * @param  {Boolean}  settings.save     Save the stored results to override-config (storeto must be set).
-     * @param  {Boolean}  settings.onsave   Called when the values was saved.
+     * @param  {String}                             ip                Board ip.
+     * @param  {String}                             values            Thermistor values separated by commas 'T1,R1,T2,R2,T3,R3'.
+     * @param  {Object}                             settings          See "{@link sh.network.command}.settings".
+     * @param  {Integer}                            settings.storeto  Store the results to thermistor n.
+     * @param  {Boolean}                            settings.save     Save the stored results to override-config (storeto must be set).
+     * @param  {sh.command.thermistorSaveCallback}  settings.onsave   Called when the values was saved.
      * @return {XMLHttpRequest}
      */
     sh.command.thermistorCalc = function(ip, values, settings) {
@@ -1608,5 +1613,57 @@ var sh = sh || {};
         // send the comand
         return sh.network.command(ip, command, settings);
     };
+
+    /**
+     * Callback called by {@link sh.command.thermistorCalc} when the values was saved.
+     * @callback sh.command.thermistorSaveCallback
+     * @param    {Object} response The response object provided by the {@link sh.network.responseCallback}.
+     */
+
+     /**
+      * Get the predefined thermistors.
+      * @method sh.command.thermistors
+      * @param  {String}  ip        Board ip.
+      * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+      * @return {XMLHttpRequest}
+      */
+     sh.command.thermistors = function(ip, settings) {
+         // defaults settings
+         settings = settings || {};
+
+         // set the command
+         var command = 'thermistors';
+
+         // default response parser callback
+         settings.parser = settings.parser || function(raw) {
+             var lines   = raw.split('\n');
+             var result  = { table: {}, beta: {} };
+             var pointer = result.table;
+
+             var i, il, line, matches, name, value;
+
+             for (i = 0, il = lines.length; i < il; i++) {
+                 line    = lines[i].trim();
+                 matches = line.match(/^([0-9]+) - (.*)/);
+
+                 if (line.indexOf('Beta table') !== -1) {
+                     pointer = result.beta;
+                     continue;
+                 }
+
+                 if (matches) {
+                     name  = matches[2].trim();
+                     value = parseFloat(matches[1].trim());
+
+                     pointer[name] = value;
+                 }
+             }
+
+             return result;
+         };
+
+         // send the comand
+         return sh.network.command(ip, command, settings);
+     };
 
 })();

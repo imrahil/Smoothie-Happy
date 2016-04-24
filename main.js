@@ -294,13 +294,20 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// calculate the Steinhart Hart coefficients for a thermistor
-sh.command.thermistorCalc(ip, '25000,5,10000,25,4000,45', {
-    storeto: 0, save: true,
+// // calculate the Steinhart Hart coefficients for a thermistor
+// sh.command.thermistorCalc(ip, '25000,5,10000,25,4000,45', {
+//     storeto: 0, save: true,
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     },
+//     onsave: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// get the predefined thermistors.
+sh.command.thermistors(ip, {
     onresponse: function(response) {
-        console.log('response', response);
-    },
-    onsave: function(response) {
         console.log('response', response);
     }
 });
