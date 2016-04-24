@@ -139,6 +139,20 @@ var ip = '192.168.1.101';
 //     }
 // });
 
+// // config cache load/unload/dump/checksum
+// sh.command.configCache(ip, 'dump', {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
+
+// get input value checksum
+sh.command.checksum(ip, 'my_config_item', {
+    onresponse: function(response) {
+        console.log('response', response);
+    }
+});
+
 // // get entire config
 // sh.command.config(ip, {
 //     limit: 20,
@@ -229,12 +243,12 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// get network config
-sh.command.net(ip, {
-    onresponse: function(response) {
-        console.log('response', response);
-    }
-});
+// // get network config
+// sh.command.net(ip, {
+//     onresponse: function(response) {
+//         console.log('response', response);
+//     }
+// });
 
 //------------------------------------------------------------------------------
 

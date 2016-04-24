@@ -786,6 +786,73 @@ var sh = sh || {};
     };
 
     /**
+     * Load/unload/dump configuration cache.
+     * @method sh.command.configCache
+     * @param  {String}  ip        Board ip.
+     * @param  {String}  action    Possible values [load|unload|dump].
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.configCache = function(ip, action, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        if (action === 'dump') {
+            // set default timeout to 60s
+            settings.timeout = settings.timeout || 60000;
+        }
+
+        // set the command
+        var command = 'config-load ' + action;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('unsupported option') === 0 || action === 'checksum') {
+                return 'unsupported option: must be one of load|unload|dump';
+            }
+
+            if (action === 'load' || action === 'unload') {
+                return { message: raw };
+            }
+
+            return { lines: raw.split('\n') };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+     * Get the input value checksum.
+     * @method sh.command.checksum
+     * @param  {String}  ip        Board ip.
+     * @param  {String}  input     Input value to get checksum.
+     * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+     * @return {XMLHttpRequest}
+     */
+    sh.command.checksum = function(ip, input, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'config-load checksum ' + input;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            var checksum = raw.split('=').pop().trim();
+
+            return { checksum: checksum };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
      * Get a list of commands.
      * @method sh.command.help
      * @param  {String}  ip        Board ip.
