@@ -62,12 +62,12 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// // get the board version
-// sh.command.version(ip, {
-//     onresponse: function(response) {
-//         console.log('version', response);
-//     }
-// });
+// get the board version
+sh.command.version(ip, {
+    onresponse: function(response) {
+        console.log('version', response);
+    }
+});
 
 // // get memory usage
 // sh.command.mem(ip, {
@@ -390,6 +390,21 @@ var ip = '192.168.1.101';
 //         console.log('timeout', this);
 //     }
 // });
+
+//------------------------------------------------------------------------------
+
+// scan the network looking for some Smoothie boards
+sh.scanner.scan('192.168.1.100-105', {
+    onstart: function(queue) {
+        console.log('start', queue);
+    },
+    onprogress: function(ip, board) {
+        console.log('progress', ip, board);
+    },
+    onboard: function(board) {
+        console.log('board', board);
+    }
+});
 
 //------------------------------------------------------------------------------
 
