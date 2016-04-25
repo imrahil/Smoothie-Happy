@@ -619,7 +619,7 @@ var sh = sh || {};
     * ```
     *
     * @method sh.scanner.scan
-    * @param  {String}                 input               Ip's scan pattern.
+    * @param  {String|Array}           input               Ip's scan pattern.
     * @param  {Object}                 settings            Scan settings.
     * @param  {Integer}                settings.timeout    Scan timeout for each ip.
     * @param  {sh.scanner.onstart}     settings.onstart    ...
