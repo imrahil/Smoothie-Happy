@@ -417,6 +417,14 @@ var ip = '192.168.1.101';
 //     }
 // });
 
+// // get last edge firmware
+// sh.firmware.getLastEdgeFirmware({
+//     onresponse: function(response) {
+//         console.info('response', response);
+//         saveAs(response.result.file, response.result.name);
+//     }
+// });
+
 //------------------------------------------------------------------------------
 
 // // on file selected

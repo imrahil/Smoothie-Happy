@@ -423,6 +423,47 @@ var sh = sh || {};
         return parseInt(this.edge.commits[hash]);
     };
 
+    /**
+    * Get last edge firmware as {Blob}.
+    * @method sh.firmware.downloadEdgeFirmware
+    * @param  {Object}                       settings             See "{@link sh.network.request}.settings".
+    * @param  {sh.network.responseCallback}  settings.onresponse  Function called when the response is received.
+    */
+    sh.firmware.getLastEdgeFirmware = function(settings) {
+        var url = 'https://raw.githubusercontent.com/Smoothieware/Smoothieware/edge/FirmwareBin/firmware.bin';
+
+        // default settings
+        settings = settings || {};
+
+        // set response type
+        settings.responseType = 'blob';
+
+        // set request data
+        settings.timeout = settings.timeout || (1000 * 15);
+
+        // on response callback
+        settings.onresponse = settings.onresponse || function() {};
+
+        // response object
+        var response = { error: 'Empty response', result: null };
+
+        // onload callback
+        settings.onload = settings.onload || function() {
+            var blob = this.response || null;
+
+            if (!blob instanceof Blob) {
+                return response;
+            }
+
+            response.error  = null;
+            response.result = { name: 'firmware.bin', file: blob };
+
+            settings.onresponse.call(this, response);
+        };
+
+        return sh.network.get(url, settings);
+    };
+
     // -------------------------------------------------------------------------
 
     /**
@@ -1475,7 +1516,7 @@ var sh = sh || {};
                 // split response text on new lines
                 var lines = raw.trim().split('\n');
 
-                // remove first line ('Commands:')
+                // remove mst line ('Commands:')
                 lines.shift();
 
                 // return commands list
