@@ -15,21 +15,21 @@ var ip = '192.168.1.101';
 // // get files list on the sd card
 // sh.command.ls(ip, 'sd/', {
 //     onresponse: function(response) {
-//         console.log('ls sd/', response);
+//         console.info('ls sd/', response);
 //     }
 // });
 
 // // change the current folder
 // sh.command.cd(ip, 'sd/', {
 //     onresponse: function(response) {
-//         console.log('cd sd/', response);
+//         console.info('cd sd/', response);
 //     }
 // });
 
 // // get the first 10 lines from the config file
 // sh.command.pwd(ip, {
 //     onresponse: function(response) {
-//         console.log('pwd', response);
+//         console.info('pwd', response);
 //     }
 // });
 
@@ -37,75 +37,75 @@ var ip = '192.168.1.101';
 // sh.command.cat(ip, 'sd/config.txt', {
 //     limit     : 10,
 //     onresponse: function(response) {
-//         console.log('cat sd/config.txt', response);
+//         console.info('cat sd/config.txt', response);
 //     }
 // });
 
 // // remove a file
 // sh.command.rm(ip, '/sd/test.txt', {
 //     onresponse: function(response) {
-//         console.log('rm gcode/test.txt', response);
+//         console.info('rm gcode/test.txt', response);
 //     }
 // });
 
 // // move a file
 // sh.command.mv(ip, '/sd/gcode/test.txt', '/sd/test.txt', {
 //     onresponse: function(response) {
-//         console.log('rm gcode/test.txt', response);
+//         console.info('rm gcode/test.txt', response);
 //     }
 // });
 
 // // get the help
 // sh.command.help(ip, {
 //     onresponse: function(response) {
-//         console.log('help', response);
+//         console.info('help', response);
 //     }
 // });
 
 // get the board version
 sh.command.version(ip, {
     onresponse: function(response) {
-        console.log('version', response);
+        console.info('version', response);
     }
 });
 
 // // get memory usage
 // sh.command.mem(ip, {
 //     onresponse: function(response) {
-//         console.log('mem', response);
+//         console.info('mem', response);
 //     }
 // });
 
 // // wait until the board is online
 // sh.network.waitUntilOnline(ip, {
 //     ontry: function(trials) {
-//         console.log('ontry', trials);
+//         console.info('ontry', trials);
 //     },
 //     online: function(version) {
-//         console.log('online', version);
+//         console.info('online', version);
 //     },
 //     ontimeout: function() {
-//         console.log('ontimeout', this);
+//         console.info('ontimeout', this);
 //     }
 // });
 
 // // reset the system
 // sh.command.reset(ip, {
 //     onresponse: function(response) {
-//         console.log('reset:onresponse', response);
+//         console.info('reset:onresponse', response);
 //     },
 //     onerror: function() {
-//         console.log('reset:onerror', this);
+//         console.info('reset:onerror', this);
 //     },
 //     waitUntilOnline: {
 //         ontry: function(trials) {
-//             console.log('waitUntilOnline:ontry', trials);
+//             console.info('waitUntilOnline:ontry', trials);
 //         },
 //         online: function(version) {
-//             console.log('waitUntilOnline:online', version);
+//             console.info('waitUntilOnline:online', version);
 //         },
 //         ontimeout: function() {
-//             console.log('waitUntilOnline:offline', this);
+//             console.info('waitUntilOnline:offline', this);
 //         }
 //     }
 // });
@@ -114,7 +114,7 @@ sh.command.version(ip, {
 // sh.command.configGet(ip, 'alpha_steps_per_mm', {
 //     location: 'sd',
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
@@ -122,18 +122,18 @@ sh.command.version(ip, {
 // sh.command.configSet(ip, 'alpha_steps_per_mm', '90', {
 //     location: 'sd',
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // set config value
 // sh.command.config(ip, 'alpha_steps_per_mm', '90', {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //         // get config value
 //         sh.command.config(ip, 'alpha_steps_per_mm', {
 //             onresponse: function(response) {
-//                 console.log('response', response);
+//                 console.info('response', response);
 //             }
 //         });
 //     }
@@ -142,35 +142,35 @@ sh.command.version(ip, {
 // // config cache load/unload/dump/checksum
 // sh.command.configCache(ip, 'dump', {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // load config cache
 // sh.command.configCacheLoad(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // unload config cache
 // sh.command.configCacheUnload(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // dump config cache
 // sh.command.configCacheDump(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // get input value checksum
 // sh.command.checksum(ip, 'my_config_item', {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
@@ -178,7 +178,7 @@ sh.command.version(ip, {
 // // as specified filename or as config-override
 // sh.command.configOverrideSave(ip, '/', {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
@@ -186,7 +186,7 @@ sh.command.version(ip, {
 // // from specified filename or from config-override
 // sh.command.configOverrideLoad(ip, '/', {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
@@ -194,23 +194,23 @@ sh.command.version(ip, {
 // sh.command.config(ip, {
 //     limit: 20,
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //         var item = response.result.get('mm_per_arc_segment');
-//         console.log('mm_per_arc_segment: ', item);
+//         console.info('mm_per_arc_segment: ', item);
 //     }
 // });
 
 // // get raw [temp|pos|wcs|state|status|fk|ik]
 // sh.command.get(ip, 'temp', {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // set temperatures
 // sh.command.tempSet(ip, 'bed', 50, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
@@ -218,19 +218,19 @@ sh.command.version(ip, {
 // sh.command.tempGet(ip, {
 //     device: 'bed',
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // set temperatures
 // sh.command.temp(ip, 'bed', 80, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //         // get temperatures
 //         sh.command.temp(ip, {
 //             device: 'bed',
 //             onresponse: function(response) {
-//                 console.log('response', response);
+//                 console.info('response', response);
 //             }
 //         });
 //     }
@@ -239,28 +239,28 @@ sh.command.version(ip, {
 // // get position
 // sh.command.position(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // get work coordinate system
 // sh.command.wcs(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // get state
 // sh.command.state(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // get status
 // sh.command.status(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
@@ -269,28 +269,28 @@ sh.command.version(ip, {
 // sh.command.kinematics(ip, {
 //     //inverse: false,
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // switch
 // sh.command.switch(ip, 'fan', 'on', {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // get network config
 // sh.command.net(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // remount
 // sh.command.remount(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
@@ -298,24 +298,24 @@ sh.command.version(ip, {
 // sh.command.thermistorCalc(ip, '25000,5,10000,25,4000,45', {
 //     storeto: 0, save: true,
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     },
 //     onsave: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // get the predefined thermistors.
 // sh.command.thermistors(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // get md5 sum of the given file.
 // sh.command.md5sum(ip, '/sd/config.txt', {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
@@ -323,14 +323,14 @@ sh.command.version(ip, {
 // sh.command.play(ip, '/sd/gcode/triangle.gcode', {
 //     verbose: true,
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // remove file
 // sh.command.rm(ip, '/sd/gcode/triangle.gcode', {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
@@ -338,7 +338,7 @@ sh.command.version(ip, {
 // setTimeout(function() {
 //     sh.command.progress(ip, {
 //         onresponse: function(response) {
-//             console.log('response', response);
+//             console.info('response', response);
 //         }
 //     });
 // }, 2000);
@@ -346,48 +346,48 @@ sh.command.version(ip, {
 // // abort currently playing file
 // sh.command.abort(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // suspend a print in progress
 // sh.command.suspend(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // resume the suspended print
 // sh.command.resume(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // reset alarm
 // sh.command.resetAlarm(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     }
 // });
 
 // // send ok
 // sh.command.ok(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     },
 //     ontimeout: function() {
-//         console.log('timeout', this);
+//         console.info('timeout', this);
 //     }
 // });
 
 // // send ping
 // sh.command.ping(ip, {
 //     onresponse: function(response) {
-//         console.log('response', response);
+//         console.info('response', response);
 //     },
 //     ontimeout: function() {
-//         console.log('timeout', this);
+//         console.info('timeout', this);
 //     }
 // });
 
@@ -396,13 +396,13 @@ sh.command.version(ip, {
 // scan the network looking for some Smoothie boards
 sh.scanner.scan('192.168.1.100-105', {
     onstart: function(queue) {
-        console.log('start', queue);
+        console.info('start', queue);
     },
     onprogress: function(ip, board) {
-        console.log('progress', ip, board);
+        console.info('progress', ip, board);
     },
     onboard: function(board) {
-        console.log('board', board);
+        console.info('board', board);
     }
 });
 
@@ -418,7 +418,7 @@ $('#file').on('change', function(e) {
             onloadend: function(event) {
                 sh.command.ls(ip, 'sd/', {
                     onresponse: function(response) {
-                        console.log('files', response.data.files);
+                        console.info('files', response.data.files);
                     }
                 });
             }
@@ -429,4 +429,4 @@ $('#file').on('change', function(e) {
 //------------------------------------------------------------------------------
 
 // debug...
-//console.log('sh', sh);
+//console.info('sh', sh);
