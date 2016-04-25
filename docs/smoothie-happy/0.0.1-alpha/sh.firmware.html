@@ -206,11 +206,11 @@
             
             <span class="subtitle">Methods</span>
             
-                <li data-name="sh.firmware.downloadEdgeFirmware"><a href="sh.firmware.html#.downloadEdgeFirmware">downloadEdgeFirmware</a></li>
+                <li data-name="sh.firmware.getCommitPosition"><a href="sh.firmware.html#.getCommitPosition">getCommitPosition</a></li>
             
-                <li data-name="sh.firmware.getEdgeCommitPosition"><a href="sh.firmware.html#.getEdgeCommitPosition">getEdgeCommitPosition</a></li>
+                <li data-name="sh.firmware.getCommits"><a href="sh.firmware.html#.getCommits">getCommits</a></li>
             
-                <li data-name="sh.firmware.updateEdgeFirmwareCommits"><a href="sh.firmware.html#.updateEdgeFirmwareCommits">updateEdgeFirmwareCommits</a></li>
+                <li data-name="sh.firmware.getFirmware"><a href="sh.firmware.html#.getFirmware">getFirmware</a></li>
             
             </ul>
             <ul class="events itemMembers">
@@ -581,170 +581,9 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id=".downloadEdgeFirmware">
+        <h4 class="name" id=".getCommitPosition">
             
-            <span class="type-signature static">static</span>sh.firmware.downloadEdgeFirmware<span class="signature">(settings)</span>
-        </h4>
-    
-        
-        <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line426">line 426</a>
-        </div>
-        
-    </div>
-
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Get last edge firmware as {Blob}.</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>settings</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-            
-            
-            
-            <td class="description last">
-                
-                <p>See &quot;<a href="sh.network.html#.request"><code>sh.network.request</code></a>.settings&quot;.</p>
-                
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>onresponse</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type"><a href="sh.network.html#.responseCallback">sh.network.responseCallback</a></span>
-
-
-            
-            </td>
-            
-            
-            
-            <td class="description last">
-                
-                <p>Function called when the response is received.</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table>
-            </td>
-        </tr>
-	
-	
-	</tbody>
-</table>
-    
-    
-    
-<dl class="details">
-    
-        
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-</dd>
-
-        
-            
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id=".getEdgeCommitPosition">
-            
-            <span class="type-signature static">static</span>sh.firmware.getEdgeCommitPosition<span class="signature">(hash)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Integer}</span>
+            <span class="type-signature static">static</span>sh.firmware.getCommitPosition<span class="signature">(hash)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Integer}</span>
         </h4>
     
         
@@ -867,9 +706,9 @@
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id=".updateEdgeFirmwareCommits">
+        <h4 class="name" id=".getCommits">
             
-            <span class="type-signature static">static</span>sh.firmware.updateEdgeFirmwareCommits<span class="signature">(settings)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{XMLHttpRequest}</span>
+            <span class="type-signature static">static</span>sh.firmware.getCommits<span class="signature">(settings)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{XMLHttpRequest}</span>
         </h4>
     
         
@@ -885,7 +724,7 @@
     
     
     <div class="description">
-        <p>Update edge firmware commits from the git.</p>
+        <p>Get last (30) commits from the git.</p>
     </div>
     
 
@@ -1029,6 +868,167 @@
     
 </dd>
 
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id=".getFirmware">
+            
+            <span class="type-signature static">static</span>sh.firmware.getFirmware<span class="signature">(settings)</span>
+        </h4>
+    
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line426">line 426</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Get last (edge) firmware as {Blob}.</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>settings</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                <p>See &quot;<a href="sh.network.html#.request"><code>sh.network.request</code></a>.settings&quot;.</p>
+                
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>onresponse</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.html#.responseCallback">sh.network.responseCallback</a></span>
+
+
+            
+            </td>
+            
+            
+            
+            <td class="description last">
+                
+                <p>Function called when the response is received.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+            </td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
+</dd>
+
         </dl>
     
     
@@ -1046,7 +1046,7 @@
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Apr 25 2016 18:20:32 GMT+0200 (Europe de l’Ouest (heure d’été))
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Apr 25 2016 18:31:04 GMT+0200 (Europe de l’Ouest (heure d’été))
         </footer>
     </div>
 </div>
