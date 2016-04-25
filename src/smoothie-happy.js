@@ -345,13 +345,13 @@ var sh = sh || {};
     };
 
     /**
-    * Update edge firmware commits from the git.
-    * @method sh.firmware.updateEdgeFirmwareCommits
+    * Get last (30) commits from the git.
+    * @method sh.firmware.getCommits
     * @param  {Object}                       settings             See "{@link sh.network.request}.settings".
     * @param  {sh.network.responseCallback}  settings.onresponse  Function called when the response is received.
     * @return {XMLHttpRequest}
     */
-    sh.firmware.updateEdgeFirmwareCommits = function(settings) {
+    sh.firmware.getCommits = function(settings) {
         // firmware repo url
         var url  = 'https://api.github.com/repos/Smoothieware/Smoothieware/commits';
         var data = '?sha=edge&path=FirmwareBin/firmware.bin';
@@ -412,11 +412,11 @@ var sh = sh || {};
 
     /**
     * Get version position.
-    * @method sh.firmware.getEdgeCommitPosition
+    * @method sh.firmware.getCommitPosition
     * @param  {String}   hash  Commit hash to get position.
     * @return {Integer}  Return -1 if not found or the position if found, `[0 = firmware is up to date]`.
     */
-    sh.firmware.getEdgeCommitPosition = function(hash) {
+    sh.firmware.getCommitPosition = function(hash) {
         if (this.edge.commits[hash] === undefined) {
             return -1;
         }
@@ -424,12 +424,12 @@ var sh = sh || {};
     };
 
     /**
-    * Get last edge firmware as {Blob}.
-    * @method sh.firmware.downloadEdgeFirmware
+    * Get last (edge) firmware as {Blob}.
+    * @method sh.firmware.getFirmware
     * @param  {Object}                       settings             See "{@link sh.network.request}.settings".
     * @param  {sh.network.responseCallback}  settings.onresponse  Function called when the response is received.
     */
-    sh.firmware.getLastEdgeFirmware = function(settings) {
+    sh.firmware.getFirmware = function(settings) {
         var url = 'https://raw.githubusercontent.com/Smoothieware/Smoothieware/edge/FirmwareBin/firmware.bin';
 
         // default settings

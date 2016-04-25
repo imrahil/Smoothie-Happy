@@ -409,16 +409,16 @@ var ip = '192.168.1.101';
 //------------------------------------------------------------------------------
 
 // // update edge firmware commits from the git
-// sh.firmware.updateEdgeFirmwareCommits({
+// sh.firmware.getCommits({
 //     onresponse: function(response) {
 //         console.info('response', response);
-//         var pos = sh.firmware.getEdgeCommitPosition('087897f');
+//         var pos = sh.firmware.getCommitPosition('087897f');
 //         console.info('087897f is behind ', pos, ' commitments');
 //     }
 // });
 
 // // get last edge firmware
-// sh.firmware.getLastEdgeFirmware({
+// sh.firmware.getFirmware({
 //     onresponse: function(response) {
 //         console.info('response', response);
 //         saveAs(response.result.file, response.result.name);
