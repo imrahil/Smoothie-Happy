@@ -408,14 +408,14 @@ var ip = '192.168.1.101';
 
 //------------------------------------------------------------------------------
 
-// update edge firmware commits from the git
-sh.firmware.updateEdgeFirmwareCommits({
-    onresponse: function(response) {
-        console.info('response', response);
-        var pos = sh.firmware.getEdgeCommitPosition('087897f');
-        console.info('087897f is behind ', pos, ' commitments');
-    }
-});
+// // update edge firmware commits from the git
+// sh.firmware.updateEdgeFirmwareCommits({
+//     onresponse: function(response) {
+//         console.info('response', response);
+//         var pos = sh.firmware.getEdgeCommitPosition('087897f');
+//         console.info('087897f is behind ', pos, ' commitments');
+//     }
+// });
 
 //------------------------------------------------------------------------------
 

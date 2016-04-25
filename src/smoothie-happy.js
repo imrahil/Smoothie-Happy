@@ -675,9 +675,6 @@ var sh = sh || {};
                 // board version info
                 board = response.result;
 
-                // check if the board firmware is up to date
-                //board.upToDate = sh.firmware.getEdgeCommitPosition(board.hash);
-
                 // increment found counter
                 self.found++;
 
