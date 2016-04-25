@@ -456,18 +456,24 @@ var sh = sh || {};
 
     /**
     * Set the input and compute the scan queue.
+    *
+    * **Allowed inputs :**
+    * ```
+    * - Wildcard  : '192.168.1.*'
+    * - Single IP : '192.168.1.100'
+    * - IP Range  : '192.168.1.100-120'
+    * - Hostname  : 'my.smoothie.board'
+    * - Mixed     : '192.168.1.100, my.smoothie.board'
+    * - Array     : ['192.168.1.100-120', 'my.smoothie.board']
+    * ```
+    *
     * @method sh.scanner.setInput
-    * @param  {String}      input  Ip's scan pattern.
-    * @return {sh.scanner}  this   Chainable
+    * @param  {String|Array}  input  Ip's scan pattern.
+    * @return {sh.scanner}    this   Chainable
     */
     sh.scanner.setInput = function(input) {
         // reset queue
         this.queue = [];
-
-        // too short or not defined
-        if (!input || input.length < 3) {
-            throw new Error('Invalid input.');
-        }
 
         // input array
         var inputArray = input;
@@ -475,6 +481,11 @@ var sh = sh || {};
         // split input on comma if not an array
         if (typeof inputArray === 'string') {
             inputArray = inputArray.split(',');
+        }
+
+        // too short or not defined
+        if (inputArray.length === 0) {
+            throw new Error('Invalid input.');
         }
 
         // trim input parts
@@ -596,6 +607,17 @@ var sh = sh || {};
 
     /**
     * Scan the network looking for some Smoothie boards.
+    *
+    * **Allowed inputs :**
+    * ```
+    * - Wildcard  : '192.168.1.*'
+    * - Single IP : '192.168.1.100'
+    * - IP Range  : '192.168.1.100-120'
+    * - Hostname  : 'my.smoothie.board'
+    * - Mixed     : '192.168.1.100, my.smoothie.board'
+    * - Array     : ['192.168.1.100-120', 'my.smoothie.board']
+    * ```
+    *
     * @method sh.scanner.scan
     * @param  {String}                 input               Ip's scan pattern.
     * @param  {Object}                 settings            Scan settings.
