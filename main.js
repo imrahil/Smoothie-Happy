@@ -62,12 +62,12 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// get the board version
-sh.command.version(ip, {
-    onresponse: function(response) {
-        console.info('version', response);
-    }
-});
+// // get the board version
+// sh.command.version(ip, {
+//     onresponse: function(response) {
+//         console.info('version', response);
+//     }
+// });
 
 // // get memory usage
 // sh.command.mem(ip, {
@@ -393,38 +393,49 @@ sh.command.version(ip, {
 
 //------------------------------------------------------------------------------
 
-// scan the network looking for some Smoothie boards
-sh.scanner.scan('192.168.1.100-105', {
-    onstart: function(queue) {
-        console.info('start', queue);
-    },
-    onprogress: function(ip, board) {
-        console.info('progress', ip, board);
-    },
-    onboard: function(board) {
-        console.info('board', board);
+// // scan the network looking for some Smoothie boards
+// sh.scanner.scan('192.168.1.100-105', {
+//     onstart: function(queue) {
+//         console.info('start', queue);
+//     },
+//     onprogress: function(ip, board) {
+//         console.info('progress', ip, board);
+//     },
+//     onboard: function(board) {
+//         console.info('board', board);
+//     }
+// });
+
+//------------------------------------------------------------------------------
+
+// update edge firmware commits from the git
+sh.firmware.updateEdgeFirmwareCommits({
+    onresponse: function(response) {
+        console.info('response', response);
+        var pos = sh.firmware.getEdgeCommitPosition('087897f');
+        console.info('087897f is behind ', pos, ' commitments');
     }
 });
 
 //------------------------------------------------------------------------------
 
-// on file selected
-$('#file').on('change', function(e) {
-    var file = e.target.files[0];
-
-    // upload the file
-    sh.command.upload(ip, file, {
-        upload: {
-            onloadend: function(event) {
-                sh.command.ls(ip, 'sd/', {
-                    onresponse: function(response) {
-                        console.info('files', response.data.files);
-                    }
-                });
-            }
-        }
-    });
-});
+// // on file selected
+// $('#file').on('change', function(e) {
+//     var file = e.target.files[0];
+//
+//     // upload the file
+//     sh.command.upload(ip, file, {
+//         upload: {
+//             onloadend: function(event) {
+//                 sh.command.ls(ip, 'sd/', {
+//                     onresponse: function(response) {
+//                         console.info('files', response.data.files);
+//                     }
+//                 });
+//             }
+//         }
+//     });
+// });
 
 //------------------------------------------------------------------------------
 
