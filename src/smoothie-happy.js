@@ -329,6 +329,366 @@ var sh = sh || {};
     // -------------------------------------------------------------------------
 
     /**
+    * Configuration module.
+    * @namespace
+    */
+    sh.config = {};
+
+    /**
+    * Parse raw configuration.
+    * @method sh.config.parse
+    * @param  {String}  raw  Raw configuration.
+    * @return {Object}  ...
+    */
+    sh.config.parse = function(raw) {
+        // split response text on new lines
+        var lines = raw.trim().split('\n');
+
+        // extract sections
+        var line, section, matches, name, value, disabled, comments;
+        var sections = [], items = {};
+
+        for (var i = 0, il = lines.length; i < il; i++) {
+            // current line
+            line = lines[i];
+
+            // section comments
+            if (line[0] === '#' && line[1] === ' ') {
+                // first line
+                if (! section) {
+                    section = {
+                        comments : [],
+                        items    : {},
+                        maxLength: {
+                            name : 0,
+                            value: 0
+                        }
+                    };
+                }
+
+                // push comment line
+                section.comments.push(line.substr(2).trim());
+                continue;
+            }
+
+            // end of file or section
+            if (i == il - 1 || (lines[i + 1][0] === '#' && lines[i + 1][1] === ' ')) {
+                sections.push(section);
+                section = null;
+                continue;
+            }
+
+            // item comment, append to last item comment
+            if (name && line[0] === ' ') {
+                var item = section.items[name];
+                item.comments.push(line.trim().replace(/^# */, ''));
+                continue;
+            }
+
+            // disabled item (commented)
+            disabled = line[0] === '#';
+
+            if (disabled) {
+                line = line.replace(/^# */, '');
+            }
+
+            // extracts [name, value, comment]
+            matches = line.trim().match(/([^ ]+) +([^ ]+) *(.*)?/);
+
+            if (matches) {
+                name     = matches[1];
+                value    = matches[2];
+                comments = matches[3] ? matches[3].substr(1).trim() : '';
+
+                section.items[name] = {
+                    name    : name,
+                    value   : value,
+                    disabled: disabled,
+                    comments: [comments]
+                };
+
+                items[name] = sections.length;
+
+                section.maxLength.name  = Math.max(section.maxLength.name , name.length);
+                section.maxLength.value = Math.max(section.maxLength.value, value.length);
+            }
+
+        }
+
+        // return result
+        return {
+            sections: sections,
+            lines   : lines,
+            items   : items,
+            get     : function(name) {
+                if (items[name] === undefined
+                || sections[items[name]] === undefined
+                || sections[items[name]].items[name] === undefined) {
+                    return null;
+                }
+                return sections[items[name]].items[name];
+            }
+        };
+    };
+
+    /**
+    * Get configuration from file.
+    * @method sh.config.getAll
+    * @param  {String}  ip                 Board ip.
+    * @param  {Object}  settings           See "{@link sh.network.command}.settings".
+    * @param  {Mixed}   settings.timeout   Connexion timeout {@default 60000}.
+    * @param  {Mixed}   settings.filename  Configuration filename relative to sd card root directory {@default 'config.txt'}.
+    * @return {XMLHttpRequest}
+    */
+    sh.config.getAll = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set default timeout to 60s
+        settings.timeout = settings.timeout || 60000;
+
+        // set default filename
+        var filename = settings.filename || 'config.txt';
+
+        // default response parser callback
+        settings.parser = settings.parser || sh.config.parse;
+
+        // send the command
+        return sh.command.cat(ip, '/sd/' + filename, settings);
+    };
+
+    /**
+    * Get config value.
+    * @method sh.config.get
+    * @param  {String}  ip                 Board ip.
+    * @param  {String}  [name]             Setting name, if not set return all items (take long time).
+    * @param  {Object}  settings           See "{@link sh.network.command}.settings".
+    * @param  {String}  settings.location  Where to read the value {@default 'sd'}.
+    * @return {XMLHttpRequest}
+    */
+    sh.config.get = function(ip, name, settings) {
+        // get all
+        if (arguments.length < 3) {
+            return sh.config.getAll(ip, name); // name = settings
+        }
+
+        // defaults settings
+        settings = settings || {};
+
+        // set config location
+        var location = settings.location || 'sd';
+
+        if (location.length) {
+            location = location + ' ';
+        }
+
+        // set the command
+        var command = 'config-get ' + location + name;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('is not in config') !== -1) {
+                return raw;
+            }
+
+            if (raw.length) {
+                return { value: raw.split(' ').pop() };
+            }
+
+            return 'invalid location';
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+    * Set config value.
+    * @method sh.config.set
+    * @param  {String}  ip                 Board ip.
+    * @param  {String}  name               Setting name.
+    * @param  {String}  value              Setting value.
+    * @param  {Object}  settings           See "{@link sh.network.command}.settings".
+    * @param  {String}  settings.location  Where to write the value {@default 'sd'}.
+    * @return {XMLHttpRequest}
+    */
+    sh.config.set = function(ip, name, value, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set config location
+        var location = settings.location || 'sd';
+
+        if (location.length) {
+            location = location + ' ';
+        }
+
+        // set the command
+        var command = 'config-set ' + location + name + ' ' + value;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('not enough space to overwrite existing key/value') !== -1) {
+                return raw;
+            }
+
+            if (raw.length) {
+                return { value: raw.split(' ').pop() };
+            }
+
+            return 'invalid location';
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+    * Saves a configuration override file as specified filename or as config-override.
+    * @method sh.config.save
+    * @param  {String}  ip          Board ip.
+    * @param  {String}  [filename]  Target config-override filename.
+    * @param  {Object}  settings    See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.config.save = function(ip, filename, settings) {
+        if (arguments.length === 2) {
+            settings = filename;
+            filename = '/';
+        }
+
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'save ' + filename;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            return { message: raw.trim() };
+        };
+
+        // send the command
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+    * loads a configuration override file from specified name or config-override.
+    * @method sh.config.load
+    * @param  {String}  ip          Board ip.
+    * @param  {String}  [filename]  Target config-override filename.
+    * @param  {Object}  settings    See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.config.load = function(ip, filename, settings) {
+        if (arguments.length === 2) {
+            settings = filename;
+            filename = '/';
+        }
+
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'load ' + filename;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('File not found') === 0) {
+                return raw;
+            }
+
+            var lines   = raw.split('\n');
+            var message = lines.shift() + ' ' + lines.pop() + '.';
+
+            return { message: message, lines: lines };
+        };
+
+        // send the command
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+    * Load/unload/dump configuration cache.
+    * @method sh.config.cache
+    * @param  {String}  ip        Board ip.
+    * @param  {String}  action    Possible values [load|unload|dump].
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.config.cache = function(ip, action, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        if (action === 'dump') {
+            // set default timeout to 60s
+            settings.timeout = settings.timeout || 60000;
+        }
+
+        // set the command
+        var command = 'config-load ' + action;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('unsupported option') === 0 || action === 'checksum') {
+                return 'unsupported option: must be one of load|unload|dump';
+            }
+
+            if (action === 'load' || action === 'unload') {
+                return { message: raw };
+            }
+
+            return { lines: raw.split('\n') };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+    * Load configuration cache.
+    * @method sh.config.cacheLoad
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.config.cacheLoad = function(ip, settings) {
+        return sh.config.cache(ip, 'load', settings);
+    };
+
+    /**
+    * Unload configuration cache.
+    * @method sh.config.cacheUnload
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.config.cacheUnload = function(ip, settings) {
+        return sh.config.cache(ip, 'unload', settings);
+    };
+
+    /**
+    * Dump configuration cache.
+    * @method sh.config.cacheDump
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.config.cacheDump = function(ip, settings) {
+        return sh.config.cache(ip, 'dump', settings);
+    };
+
+    // -------------------------------------------------------------------------
+
+    /**
     * Firmware module.
     * @namespace
     */
@@ -341,6 +701,12 @@ var sh = sh || {};
         edge: {
             update : 0,
             commits: {}
+        },
+        git: {
+            url: {
+                api: 'https://api.github.com/repos/Smoothieware/Smoothieware/',
+                raw: 'https://raw.githubusercontent.com/Smoothieware/Smoothieware/'
+            }
         }
     };
 
@@ -353,7 +719,7 @@ var sh = sh || {};
     */
     sh.firmware.getCommits = function(settings) {
         // firmware repo url
-        var url  = 'https://api.github.com/repos/Smoothieware/Smoothieware/commits';
+        var url  = sh.firmware.git.url.api + 'commits';
         var data = '?sha=edge&path=FirmwareBin/firmware.bin';
 
         // commits collection
@@ -431,7 +797,7 @@ var sh = sh || {};
     * @return {XMLHttpRequest}
     */
     sh.firmware.getFirmware = function(settings) {
-        var url = 'https://raw.githubusercontent.com/Smoothieware/Smoothieware/edge/FirmwareBin/firmware.bin';
+        var url = sh.firmware.git.url.raw + 'edge/FirmwareBin/firmware.bin';
 
         // default settings
         settings = settings || {};
@@ -1176,43 +1542,28 @@ var sh = sh || {};
         // send the comand
         return sh.network.command(ip, command, settings);
     };
-
     /**
-    * Get config value.
-    * @method sh.command.configGet
-    * @param  {String}  ip                 Board ip.
-    * @param  {String}  name               Setting name.
-    * @param  {Object}  settings           See "{@link sh.network.command}.settings".
-    * @param  {String}  settings.location  Where to read the value {@default 'sd'}.
+    * Get the input value checksum.
+    * @method sh.command.checksum
+    * @param  {String}  ip        Board ip.
+    * @param  {String}  input     Input value to get checksum.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
     * @return {XMLHttpRequest}
     */
-    sh.command.configGet = function(ip, name, settings) {
+    sh.command.checksum = function(ip, input, settings) {
         // defaults settings
         settings = settings || {};
 
-        // set config location
-        var location = settings.location || 'sd';
-
-        if (location.length) {
-            location = location + ' ';
-        }
-
         // set the command
-        var command = 'config-get ' + location + name;
+        var command = 'config-load checksum ' + input;
 
         // default response parser callback
         settings.parser = settings.parser || function(raw) {
             raw = raw.trim();
 
-            if (raw.indexOf('is not in config') !== -1) {
-                return raw;
-            }
+            var checksum = raw.split('=').pop().trim();
 
-            if (raw.length) {
-                return { value: raw.split(' ').pop() };
-            }
-
-            return 'invalid location';
+            return { checksum: checksum };
         };
 
         // send the comand
@@ -1220,1374 +1571,1028 @@ var sh = sh || {};
     };
 
     /**
-    * Set config value.
-    * @method sh.command.configSet
-    * @param  {String}  ip                 Board ip.
-    * @param  {String}  name               Setting name.
-    * @param  {String}  value              Setting value.
-    * @param  {Object}  settings           See "{@link sh.network.command}.settings".
-    * @param  {String}  settings.location  Where to write the value {@default 'sd'}.
+    * Get a list of commands.
+    * @method sh.command.help
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
     * @return {XMLHttpRequest}
     */
-    sh.command.configSet = function(ip, name, value, settings) {
+    sh.command.help = function(ip, settings) {
         // defaults settings
         settings = settings || {};
-
-        // set config location
-        var location = settings.location || 'sd';
-
-        if (location.length) {
-            location = location + ' ';
-        }
 
         // set the command
-        var command = 'config-set ' + location + name + ' ' + value;
-
-        // default response parser callback
-        settings.parser = settings.parser || function(raw) {
-            raw = raw.trim();
-
-            if (raw.indexOf('not enough space to overwrite existing key/value') !== -1) {
-                return raw;
-            }
-
-            if (raw.length) {
-                return { value: raw.split(' ').pop() };
-            }
-
-            return 'invalid location';
-        };
-
-        // send the comand
-        return sh.network.command(ip, command, settings);
-    };
-
-    /**
-    * Get configuration from file.
-    * @method sh.command.configFile
-    * @param  {String}  ip                 Board ip.
-    * @param  {Object}  settings           See "{@link sh.network.command}.settings".
-    * @param  {Mixed}   settings.timeout   Connexion timeout {@default 60000}.
-    * @param  {Mixed}   settings.filename  Configuration filename relative to sd card root directory {@default 'config.txt'}.
-    * @return {XMLHttpRequest}
-    */
-    sh.command.configFile = function(ip, settings) {
-
-        // defaults settings
-        settings = settings || {};
-
-        // set default timeout to 60s
-        settings.timeout = settings.timeout || 60000;
-
-        // set default filename
-        var filename = settings.filename || 'config.txt';
+        var command = 'help';
 
         // default response parser callback
         settings.parser = settings.parser || function(raw) {
             // split response text on new lines
             var lines = raw.trim().split('\n');
 
-            // extract sections
-            var line, section, matches, name, value, disabled, comments;
-            var sections = [], items = {};
+            // remove mst line ('Commands:')
+            lines.shift();
 
-            for (var i = 0, il = lines.length; i < il; i++) {
-                // current line
-                line = lines[i];
+            // return commands list
+            return lines;
+        };
 
-                // section comments
-                if (line[0] === '#' && line[1] === ' ') {
-                    // first line
-                    if (! section) {
-                        section = {
-                            comments : [],
-                            items    : {},
-                            maxLength: {
-                                name : 0,
-                                value: 0
-                            }
-                        };
-                    }
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
 
-                    // push comment line
-                    section.comments.push(line.substr(2).trim());
-                    continue;
-                }
+    /**
+    * Get the board/firmware version.
+    * @method sh.command.version
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.version = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
 
-                // end of file or section
-                if (i == il - 1 || (lines[i + 1][0] === '#' && lines[i + 1][1] === ' ')) {
-                    sections.push(section);
-                    section = null;
-                    continue;
-                }
+        // set the command
+        var command = 'version';
 
-                // item comment, append to last item comment
-                if (name && line[0] === ' ') {
-                    var item = section.items[name];
-                    item.comments.push(line.trim().replace(/^# */, ''));
-                    continue;
-                }
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            // version pattern
+            // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
+            var pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
 
-                // disabled item (commented)
-                disabled = line[0] === '#';
+            // test the pattern
+            var matches = raw.match(pattern);
 
-                if (disabled) {
-                    line = line.substr(1);
-                }
+            if (matches) {
+                // split branch-hash on dash
+                var branch = matches[1].split('-');
 
-                // extracts [name, value, comment]
-                matches = line.trim().match(/([^ ]+) +([^ ]+) *(.*)?/);
-
-                if (matches) {
-                    name     = matches[1];
-                    value    = matches[2];
-                    comments = matches[3] ? matches[3].substr(1).trim() : '';
-
-                    section.items[name] = {
-                        name    : name,
-                        value   : value,
-                        disabled: disabled,
-                        comments: [comments]
-                    };
-
-                    items[name] = sections.length;
-
-                    section.maxLength.name  = Math.max(section.maxLength.name , name.length);
-                    section.maxLength.value = Math.max(section.maxLength.value, value.length);
-                }
-
-            }
-
-            // return result
-            return {
-                sections: sections,
-                lines   : lines,
-                items   : items,
-                get     : function(name) {
-                    if (items[name] === undefined
-                        || sections[items[name]] === undefined
-                        || sections[items[name]].items[name] === undefined) {
-                            return null;
-                        }
-                        return sections[items[name]].items[name];
-                    }
+                // response object
+                return {
+                    branch: branch[0],
+                    hash  : branch[1],
+                    date  : matches[2],
+                    mcu   : matches[3],
+                    clock : matches[4]
                 };
-            };
-
-            // send the command
-            return sh.command.cat(ip, '/sd/' + filename, settings);
-        };
-
-        /**
-        * Set/Get configuration.
-        * @method sh.command.config
-        * @param  {String}  ip        Board ip.
-        * @param  {String}  [name]    Setting name.
-        * @param  {String}  [value]   Setting value.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.config = function(ip, name, value, settings) {
-            var args   = Array.prototype.slice.call(arguments);
-            var method = 'configFile';
-
-            if (args.length > 2) {
-                var method = args.length > 3 ? 'configSet' : 'configGet';
             }
 
-            return sh.command[method].apply(this, args);
+            // not found
+            return 'No version found';
         };
 
-        /**
-        * Saves a configuration override file as specified filename or as config-override.
-        * @method sh.command.configOverrideSave
-        * @param  {String}  ip          Board ip.
-        * @param  {String}  [filename]  Target config-override filename.
-        * @param  {Object}  settings    See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.configOverrideSave = function(ip, filename, settings) {
-            if (arguments.length === 2) {
-                settings = filename;
-                filename = '/';
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+    * Get information about RAM usage.
+    * @method sh.command.mem
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.mem = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set verbosity
+        var verbose = settings.verbose ? ' -v' : '';
+
+        // set the command
+        var command = 'mem' + verbose;
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+    * Get [temp|pos|wcs|state|status|fk|ik].
+    * @method sh.command.get
+    * @param  {String} ip        Board ip.
+    * @param  {String} what      Possible value [temp|pos|wcs|state|status|fk|ik].
+    * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.get = function(ip, what, settings) {
+        return sh.network.command(ip, 'get ' + what, settings || {});
+    };
+
+    /**
+    * Get current temperature.
+    * @method sh.command.tempGet
+    * @param  {String}  ip               Board ip.
+    * @param  {Object}  settings         See "{@link sh.network.command}.settings".
+    * @param  {Mixed}   settings.device  Possible values: [all, bed, hotend] {@default all}.
+    * @return {XMLHttpRequest}
+    */
+    sh.command.tempGet = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set default device
+        var device = settings.device || 'all';
+        device = device === 'all' ? '' : ' ' + device;
+
+        // set the command
+        var what = 'temp' + device;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('no heaters found') === 0) {
+                return raw;
+            }
+            else if (raw.indexOf('is not a known temperature device') !== -1) {
+                return raw;
             }
 
-            // defaults settings
-            settings = settings || {};
+            // split response on new lines
+            var lines = raw.split('\n');
 
-            // set the command
-            var command = 'save ' + filename;
+            var i, il, line, temp, temps = [];
 
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                return { message: raw.trim() };
-            };
+            for (i = 0, il = lines.length; i < il; i++) {
+                line = lines[i].split(' ');
 
-            // send the command
-            return sh.network.command(ip, command, settings);
-        };
-
-        /**
-        * loads a configuration override file from specified name or config-override.
-        * @method sh.command.configOverrideLoad
-        * @param  {String}  ip          Board ip.
-        * @param  {String}  [filename]  Target config-override filename.
-        * @param  {Object}  settings    See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.configOverrideLoad = function(ip, filename, settings) {
-            if (arguments.length === 2) {
-                settings = filename;
-                filename = '/';
-            }
-
-            // defaults settings
-            settings = settings || {};
-
-            // set the command
-            var command = 'load ' + filename;
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
-
-                if (raw.indexOf('File not found') === 0) {
-                    return raw;
+                // %s (%d) temp: %f/%f @%d
+                // designator, id, current_temperature, target_temperature, pwm
+                if (device === '') {
+                    temp = line[3].split('/');
+                    temps.push({
+                        type      : line[0] === 'B' ? 'bed' : 'hotend',
+                        designator: line[0],
+                        id        : line[1].substr(1, line[1].length-2),
+                        current   : parseFloat(temp[0] === 'inf' ? Infinity : temp[0]),
+                        target    : parseFloat(temp[1]),
+                        pwm       : parseFloat(line[4].substr(1))
+                    });
                 }
-
-                var lines   = raw.split('\n');
-                var message = lines.shift() + ' ' + lines.pop() + '.';
-
-                return { message: message, lines: lines };
-            };
-
-            // send the command
-            return sh.network.command(ip, command, settings);
-        };
-
-        /**
-        * Load/unload/dump configuration cache.
-        * @method sh.command.configCache
-        * @param  {String}  ip        Board ip.
-        * @param  {String}  action    Possible values [load|unload|dump].
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.configCache = function(ip, action, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            if (action === 'dump') {
-                // set default timeout to 60s
-                settings.timeout = settings.timeout || 60000;
-            }
-
-            // set the command
-            var command = 'config-load ' + action;
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
-
-                if (raw.indexOf('unsupported option') === 0 || action === 'checksum') {
-                    return 'unsupported option: must be one of load|unload|dump';
-                }
-
-                if (action === 'load' || action === 'unload') {
-                    return { message: raw };
-                }
-
-                return { lines: raw.split('\n') };
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
-        };
-
-        /**
-        * Load configuration cache.
-        * @method sh.command.configCacheLoad
-        * @param  {String}  ip        Board ip.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.configCacheLoad = function(ip, settings) {
-            return sh.command.configCache(ip, 'load', settings);
-        };
-
-        /**
-        * Unload configuration cache.
-        * @method sh.command.configCacheUnload
-        * @param  {String}  ip        Board ip.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.configCacheUnload = function(ip, settings) {
-            return sh.command.configCache(ip, 'unload', settings);
-        };
-
-        /**
-        * Dump configuration cache.
-        * @method sh.command.configCacheDump
-        * @param  {String}  ip        Board ip.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.configCacheDump = function(ip, settings) {
-            return sh.command.configCache(ip, 'dump', settings);
-        };
-
-        /**
-        * Get the input value checksum.
-        * @method sh.command.checksum
-        * @param  {String}  ip        Board ip.
-        * @param  {String}  input     Input value to get checksum.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.checksum = function(ip, input, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // set the command
-            var command = 'config-load checksum ' + input;
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
-
-                var checksum = raw.split('=').pop().trim();
-
-                return { checksum: checksum };
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
-        };
-
-        /**
-        * Get a list of commands.
-        * @method sh.command.help
-        * @param  {String}  ip        Board ip.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.help = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // set the command
-            var command = 'help';
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                // split response text on new lines
-                var lines = raw.trim().split('\n');
-
-                // remove mst line ('Commands:')
-                lines.shift();
-
-                // return commands list
-                return lines;
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
-        };
-
-        /**
-        * Get the board/firmware version.
-        * @method sh.command.version
-        * @param  {String}  ip        Board ip.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.version = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // set the command
-            var command = 'version';
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                // version pattern
-                // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
-                var pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
-
-                // test the pattern
-                var matches = raw.match(pattern);
-
-                if (matches) {
-                    // split branch-hash on dash
-                    var branch = matches[1].split('-');
-
-                    // response object
-                    return {
-                        branch: branch[0],
-                        hash  : branch[1],
-                        date  : matches[2],
-                        mcu   : matches[3],
-                        clock : matches[4]
+                // %s temp: %f/%f @%d
+                // designator, id, current_temperature, target_temperature, pwm
+                else {
+                    temp  = line[2].split('/');
+                    temps = {
+                        type   : line[0],
+                        current: parseFloat(temp[0] === 'inf' ? Infinity : temp[0]),
+                        target : parseFloat(temp[1]),
+                        pwm    : parseFloat(line[3].substr(1))
                     };
                 }
+            }
 
-                // not found
-                return 'No version found';
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
+            return temps;
         };
 
-        /**
-        * Get information about RAM usage.
-        * @method sh.command.mem
-        * @param  {String}  ip        Board ip.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.mem = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
+        // send the comand
+        return sh.command.get(ip, what, settings);
+    };
 
-            // set verbosity
-            var verbose = settings.verbose ? ' -v' : '';
+    /**
+    * Set temperature.
+    * @method sh.command.tempSet
+    * @param  {String}  ip        Board ip.
+    * @param  {String}  device    Device [bed|hotend].
+    * @param  {Integer} temp      Target tempertaure.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.tempSet = function(ip, device, temp, settings) {
+        // defaults settings
+        settings = settings || {};
 
-            // set the command
-            var command = 'mem' + verbose;
+        // set the command
+        var command = 'set_temp ' + device + ' ' + temp;
 
-            // send the comand
-            return sh.network.command(ip, command, settings);
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('is not a known temperature device') !== -1) {
+                return raw;
+            }
+
+            // return message
+            return { message: raw };
         };
 
-        /**
-        * Get [temp|pos|wcs|state|status|fk|ik].
-        * @method sh.command.get
-        * @param  {String} ip        Board ip.
-        * @param  {String} what      Possible value [temp|pos|wcs|state|status|fk|ik].
-        * @param  {Mixed}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.get = function(ip, what, settings) {
-            return sh.network.command(ip, 'get ' + what, settings || {});
-        };
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
 
-        /**
-        * Get current temperature.
-        * @method sh.command.tempGet
-        * @param  {String}  ip               Board ip.
-        * @param  {Object}  settings         See "{@link sh.network.command}.settings".
-        * @param  {Mixed}   settings.device  Possible values: [all, bed, hotend] {@default all}.
-        * @return {XMLHttpRequest}
-        */
-        sh.command.tempGet = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
+    /**
+    * Set/Get temperature.
+    * @method sh.command.temp
+    * @param  {String}  ip        Board ip.
+    * @param  {String}  [device]  Device [bed|hotend].
+    * @param  {Integer} [temp]    Target tempertaure.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.temp = function(ip, device, temp, settings) {
+        var args   = Array.prototype.slice.call(arguments);
+        var method = args.length > 2 ? 'tempSet' : 'tempGet';
+        return sh.command[method].apply(this, args);
+    };
 
-            // set default device
-            var device = settings.device || 'all';
-            device = device === 'all' ? '' : ' ' + device;
+    /**
+    * Do forward or inverse kinematics on the given cartesian position,
+    * optionally moves the actuators and finaly display the coordinates.
+    * @method sh.command.kinematics
+    * @param  {String}   ip                Board ip.
+    * @param  {Object}   settings          See "{@link sh.network.command}.settings".
+    * @param  {Boolean}  settings.move     Move to the calculated or given XYZ coords {@default false}.
+    * @param  {Boolean}  settings.inverse  Do inverse kinematics {@default false}.
+    * @return {XMLHttpRequest}
+    */
+    sh.command.kinematics = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
 
-            // set the command
-            var what = 'temp' + device;
+        // inverse or forward
+        var type = settings.inverse ? 'ik' : 'fk';
 
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
+        // move to the calculated or given XYZ coords ?
+        var move = settings.move ? ' -m' : '';
 
-                if (raw.indexOf('no heaters found') === 0) {
-                    return raw;
-                }
-                else if (raw.indexOf('is not a known temperature device') !== -1) {
-                    return raw;
-                }
+        // positions
+        var position = settings.position || 0;
 
-                // split response on new lines
-                var lines = raw.split('\n');
+        // set coords
+        var x, y, z;
 
-                var i, il, line, temp, temps = [];
+        if (typeof position !== 'object') {
+            x = y = z = parseFloat(position);
+        }
+        else {
+            x = position.x || 0;
+            y = position.y || x;
+            z = position.z || y;
+        }
 
-                for (i = 0, il = lines.length; i < il; i++) {
-                    line = lines[i].split(' ');
+        // set the command
+        var what = type + move + ' ' + x + ',' + y + ',' + z;
 
-                    // %s (%d) temp: %f/%f @%d
-                    // designator, id, current_temperature, target_temperature, pwm
-                    if (device === '') {
-                        temp = line[3].split('/');
-                        temps.push({
-                            type      : line[0] === 'B' ? 'bed' : 'hotend',
-                            designator: line[0],
-                            id        : line[1].substr(1, line[1].length-2),
-                            current   : parseFloat(temp[0] === 'inf' ? Infinity : temp[0]),
-                            target    : parseFloat(temp[1]),
-                            pwm       : parseFloat(line[4].substr(1))
-                        });
-                    }
-                    // %s temp: %f/%f @%d
-                    // designator, id, current_temperature, target_temperature, pwm
-                    else {
-                        temp  = line[2].split('/');
-                        temps = {
-                            type   : line[0],
-                            current: parseFloat(temp[0] === 'inf' ? Infinity : temp[0]),
-                            target : parseFloat(temp[1]),
-                            pwm    : parseFloat(line[3].substr(1))
-                        };
-                    }
-                }
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
 
-                return temps;
-            };
+            if (raw.indexOf('error:') === 0) {
+                return raw.substr(6);
+            }
 
-            // send the comand
-            return sh.command.get(ip, what, settings);
-        };
-
-        /**
-        * Set temperature.
-        * @method sh.command.tempSet
-        * @param  {String}  ip        Board ip.
-        * @param  {String}  device    Device [bed|hotend].
-        * @param  {Integer} temp      Target tempertaure.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.tempSet = function(ip, device, temp, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // set the command
-            var command = 'set_temp ' + device + ' ' + temp;
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
-
-                if (raw.indexOf('is not a known temperature device') !== -1) {
-                    return raw;
-                }
-
-                // return message
-                return { message: raw };
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
-        };
-
-        /**
-        * Set/Get temperature.
-        * @method sh.command.temp
-        * @param  {String}  ip        Board ip.
-        * @param  {String}  [device]  Device [bed|hotend].
-        * @param  {Integer} [temp]    Target tempertaure.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.temp = function(ip, device, temp, settings) {
-            var args   = Array.prototype.slice.call(arguments);
-            var method = args.length > 2 ? 'tempSet' : 'tempGet';
-            return sh.command[method].apply(this, args);
-        };
-
-        /**
-        * Do forward or inverse kinematics on the given cartesian position,
-        * optionally moves the actuators and finaly display the coordinates.
-        * @method sh.command.kinematics
-        * @param  {String}   ip                Board ip.
-        * @param  {Object}   settings          See "{@link sh.network.command}.settings".
-        * @param  {Boolean}  settings.move     Move to the calculated or given XYZ coords {@default false}.
-        * @param  {Boolean}  settings.inverse  Do inverse kinematics {@default false}.
-        * @return {XMLHttpRequest}
-        */
-        sh.command.kinematics = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // inverse or forward
-            var type = settings.inverse ? 'ik' : 'fk';
-
-            // move to the calculated or given XYZ coords ?
-            var move = settings.move ? ' -m' : '';
-
-            // positions
-            var position = settings.position || 0;
-
-            // set coords
-            var x, y, z;
-
-            if (typeof position !== 'object') {
-                x = y = z = parseFloat(position);
+            if (type === 'ik') {
+                var pattern = /(.*)= A (.*), B (.*), C (.*)/;
             }
             else {
-                x = position.x || 0;
-                y = position.y || x;
-                z = position.z || y;
+                var pattern = /(.*)= X (.*), Y (.*), Z (.*), Steps= A (.*), B (.*), C (.*)/;
             }
 
-            // set the command
-            var what = type + move + ' ' + x + ',' + y + ',' + z;
+            var matches = raw.match(pattern);
 
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
-
-                if (raw.indexOf('error:') === 0) {
-                    return raw.substr(6);
-                }
-
-                if (type === 'ik') {
-                    var pattern = /(.*)= A (.*), B (.*), C (.*)/;
-                }
-                else {
-                    var pattern = /(.*)= X (.*), Y (.*), Z (.*), Steps= A (.*), B (.*), C (.*)/;
-                }
-
-                var matches = raw.match(pattern);
-
-                if (matches) {
-                    if (type == 'ik') {
-                        return {
-                            type: matches[1],
-                            coords: {
-                                a: parseFloat(matches[2]),
-                                b: parseFloat(matches[3]),
-                                c: parseFloat(matches[4]),
-                            }
-                        }
-                    }
-
+            if (matches) {
+                if (type == 'ik') {
                     return {
                         type: matches[1],
                         coords: {
-                            x: parseFloat(matches[2]),
-                            y: parseFloat(matches[3]),
-                            z: parseFloat(matches[4]),
-                        },
-                        steps: {
-                            a: parseFloat(matches[5]),
-                            b: parseFloat(matches[6]),
-                            c: parseFloat(matches[7]),
+                            a: parseFloat(matches[2]),
+                            b: parseFloat(matches[3]),
+                            c: parseFloat(matches[4]),
                         }
                     }
                 }
 
-                return 'unknown error';
-            };
-
-            // send the comand
-            return sh.command.get(ip, what, settings);
-        };
-
-        /**
-        * Get current position.
-        * @method sh.command.position
-        * @param  {String}  ip        Board ip.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.position = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // set the command
-            var what = 'pos';
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
-
-                // split on new lines
-                var lines = raw.split('\n');
-
-                var i, il, line, key, positions = {};
-
-                for (i = 0, il = lines.length; i < il; i++) {
-                    line = lines[i].split(':');
-                    key  = line.shift().replace(' ', '_').toLowerCase();
-                    line = line.join(':').trim().split(' ');
-
-                    positions[key] = {
-                        x: parseFloat(line[0].substr(2)),
-                        y: parseFloat(line[1].substr(2)),
-                        z: parseFloat(line[2].substr(2))
-                    };
-                }
-
-                // split response text on new lines
-                return positions;
-            };
-
-            // send the comand
-            return sh.command.get(ip, what, settings);
-        };
-
-        /**
-        * Get work coordinate system.
-        * @method sh.command.wcs
-        * @param  {String}  ip        Board ip.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.wcs = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // set the command
-            var what = 'wcs';
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
-
-                // split on new lines
-                var lines = raw.split('\n');
-
-                var i, il, line, key, wcs = {};
-
-                // extract the first line as current wcs
-                wcs.current = lines.shift().split(':').pop().replace(']', '').trim();
-
-                for (i = 0, il = lines.length; i < il; i++) {
-                    line = lines[i].substr(1, lines[i].length - 2).split(/[:,]/);
-                    key  = line.shift();
-
-                    if (key === 'PRB') {
-                        key = 'prob';
-                    }
-                    else if (key[0] !== 'G') {
-                        key = key.replace(' ', '_').toLowerCase();
-                    }
-
-                    wcs[key] = {
-                        x: parseFloat(line[0]),
-                        y: parseFloat(line[1]),
-                        z: parseFloat(line[2])
-                    };
-
-                    if (key === 'prob') {
-                        wcs[key].ok = !!parseInt(line[3]);
-                    }
-                }
-
-                return wcs;
-            };
-
-            // send the comand
-            return sh.command.get(ip, what, settings);
-        };
-
-        /**
-        * Get system state.
-        * @method sh.command.state
-        * @param  {String}  ip        Board ip.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.state = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // set the command
-            var what = 'state';
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
-
-                // remove brackets and split on spaces
-                var parts = raw.substr(1, raw.length - 2).split(' ');
-                var state = {};
-
-                // [G0 G54 G17 G21 G90 G94 M0 M5 M9 T0 F0.]
-                state.move      = parts[0];
-                state.rapid     = state.move === 'G0';
-                state.arc_cw    = state.move === 'G2';
-                state.arc_ccw   = state.move === 'G3';
-                state.wcs       = parts[1];
-                state.plane     = parts[2] === 'G17' ? 'XY' : (parts[2] === 'G18' ? 'ZX' : (parts[2] === 'G19' ? 'YZ' : '--'));
-                state.units     = parts[3] === 'G20' ? 'in' : 'mm';
-                state.mode      = parts[4] === 'G90' ? 'absolute' : 'relative';
-                state.absolute  = state.mode === 'absolute';
-                state.relative  = state.mode === 'relative';
-                state.tool      = parseInt(parts[9].substr(1));
-                state.feed_rate = parseFloat(parts[10].substr(1));
-
-                return state;
-            };
-
-            // send the comand
-            return sh.command.get(ip, what, settings);
-        };
-
-        /**
-        * Get system status.
-        * @method sh.command.status
-        * @param  {String}  ip        Board ip.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.status = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // set the command
-            var what = 'status';
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
-                raw = raw.substr(1, raw.length - 2);
-                raw = raw.replace('MPos:', '').replace('WPos:', '');
-
-                var parts  = raw.split(',');
-                var status = {
-                    state: parts[0],
-                    machine: {
-                        x: parseFloat(parts[1]),
-                        y: parseFloat(parts[2]),
-                        z: parseFloat(parts[3]),
+                return {
+                    type: matches[1],
+                    coords: {
+                        x: parseFloat(matches[2]),
+                        y: parseFloat(matches[3]),
+                        z: parseFloat(matches[4]),
                     },
-                    world: {
-                        x: parseFloat(parts[4]),
-                        y: parseFloat(parts[5]),
-                        z: parseFloat(parts[6]),
-                    }
-                };
-
-                return status;
-            };
-
-            // send the comand
-            return sh.command.get(ip, what, settings);
-        };
-
-        /**
-        * Switch.
-        * @method sh.command.switch
-        * @param  {String}  ip        Board ip.
-        * @param  {String}  device    Device ex.: 'fan' or 'misc'.
-        * @param  {String}  value     State [on|off] or value.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.switch = function(ip, device, value, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // set the command
-            var command = 'switch ' + device + ' ' + value;
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
-
-                if (raw.indexOf('is not a known switch device') !== -1) {
-                    return raw;
-                }
-
-                // return message
-                return { message: raw };
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
-        };
-
-        /**
-        * Get network config.
-        * @method sh.command.net
-        * @param  {String}  ip        Board ip.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.net = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // set the command
-            var command = 'net';
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
-
-                var matches = raw.match(/IP Addr:([^\n]+)\nIP GW:([^\n]+)\nIP mask:([^\n]+)\nMAC Address:([^\n]+)/);
-
-                if (matches) {
-                    return {
-                        ip     : matches[1].trim(),
-                        gateway: matches[2].trim(),
-                        mask   : matches[3].trim(),
-                        mac    : matches[4].trim()
+                    steps: {
+                        a: parseFloat(matches[5]),
+                        b: parseFloat(matches[6]),
+                        c: parseFloat(matches[7]),
                     }
                 }
-
-                // return message
-                return { message: raw };
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
-        };
-
-        /**
-        * Remount...
-        * @method sh.command.remount
-        * @param  {String}  ip        Board ip.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.remount = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // set the command
-            var command = 'remount';
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                return { message: raw.trim() };
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
-        };
-
-        /**
-        * Calculate the Steinhart Hart coefficients for a thermistor.
-        * @method sh.command.thermistorCalc
-        * @param  {String}                             ip                Board ip.
-        * @param  {String}                             values            Thermistor values separated by commas 'T1,R1,T2,R2,T3,R3'.
-        * @param  {Object}                             settings          See "{@link sh.network.command}.settings".
-        * @param  {Integer}                            settings.storeto  Store the results to thermistor n.
-        * @param  {Boolean}                            settings.save     Save the stored results to override-config (storeto must be set).
-        * @param  {sh.command.thermistorSaveCallback}  settings.onsave   Called when the values was saved.
-        * @return {XMLHttpRequest}
-        */
-        sh.command.thermistorCalc = function(ip, values, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // store to thermistor n
-            var storeto = '';
-
-            if (settings.storeto || settings.storeto === 0) {
-                storeto = '-s' + settings.storeto + ' ';
             }
 
-            // set the command
-            var command = 'calc_thermistor ' + storeto + values;
+            return 'unknown error';
+        };
 
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
+        // send the comand
+        return sh.command.get(ip, what, settings);
+    };
 
-                if (raw.indexOf('Usage: calc_thermistor') === 0) {
-                    return raw;
+    /**
+    * Get current position.
+    * @method sh.command.position
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.position = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var what = 'pos';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            // split on new lines
+            var lines = raw.split('\n');
+
+            var i, il, line, key, positions = {};
+
+            for (i = 0, il = lines.length; i < il; i++) {
+                line = lines[i].split(':');
+                key  = line.shift().replace(' ', '_').toLowerCase();
+                line = line.join(':').trim().split(' ');
+
+                positions[key] = {
+                    x: parseFloat(line[0].substr(2)),
+                    y: parseFloat(line[1].substr(2)),
+                    z: parseFloat(line[2].substr(2))
+                };
+            }
+
+            // split response text on new lines
+            return positions;
+        };
+
+        // send the comand
+        return sh.command.get(ip, what, settings);
+    };
+
+    /**
+    * Get work coordinate system.
+    * @method sh.command.wcs
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.wcs = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var what = 'wcs';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            // split on new lines
+            var lines = raw.split('\n');
+
+            var i, il, line, key, wcs = {};
+
+            // extract the first line as current wcs
+            wcs.current = lines.shift().split(':').pop().replace(']', '').trim();
+
+            for (i = 0, il = lines.length; i < il; i++) {
+                line = lines[i].substr(1, lines[i].length - 2).split(/[:,]/);
+                key  = line.shift();
+
+                if (key === 'PRB') {
+                    key = 'prob';
+                }
+                else if (key[0] !== 'G') {
+                    key = key.replace(' ', '_').toLowerCase();
                 }
 
-                var lines   = raw.split('\n');
-                var result  = lines.shift().trim();
-                var message = lines.shift().trim();
-                var matches = result.match(/Steinhart Hart coefficients: *I(.*)J(.*)K(.*)/);
+                wcs[key] = {
+                    x: parseFloat(line[0]),
+                    y: parseFloat(line[1]),
+                    z: parseFloat(line[2])
+                };
+
+                if (key === 'prob') {
+                    wcs[key].ok = !!parseInt(line[3]);
+                }
+            }
+
+            return wcs;
+        };
+
+        // send the comand
+        return sh.command.get(ip, what, settings);
+    };
+
+    /**
+    * Get system state.
+    * @method sh.command.state
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.state = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var what = 'state';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            // remove brackets and split on spaces
+            var parts = raw.substr(1, raw.length - 2).split(' ');
+            var state = {};
+
+            // [G0 G54 G17 G21 G90 G94 M0 M5 M9 T0 F0.]
+            state.move      = parts[0];
+            state.rapid     = state.move === 'G0';
+            state.arc_cw    = state.move === 'G2';
+            state.arc_ccw   = state.move === 'G3';
+            state.wcs       = parts[1];
+            state.plane     = parts[2] === 'G17' ? 'XY' : (parts[2] === 'G18' ? 'ZX' : (parts[2] === 'G19' ? 'YZ' : '--'));
+            state.units     = parts[3] === 'G20' ? 'in' : 'mm';
+            state.mode      = parts[4] === 'G90' ? 'absolute' : 'relative';
+            state.absolute  = state.mode === 'absolute';
+            state.relative  = state.mode === 'relative';
+            state.tool      = parseInt(parts[9].substr(1));
+            state.feed_rate = parseFloat(parts[10].substr(1));
+
+            return state;
+        };
+
+        // send the comand
+        return sh.command.get(ip, what, settings);
+    };
+
+    /**
+    * Get system status.
+    * @method sh.command.status
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.status = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var what = 'status';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+            raw = raw.substr(1, raw.length - 2);
+            raw = raw.replace('MPos:', '').replace('WPos:', '');
+
+            var parts  = raw.split(',');
+            var status = {
+                state: parts[0],
+                machine: {
+                    x: parseFloat(parts[1]),
+                    y: parseFloat(parts[2]),
+                    z: parseFloat(parts[3]),
+                },
+                world: {
+                    x: parseFloat(parts[4]),
+                    y: parseFloat(parts[5]),
+                    z: parseFloat(parts[6]),
+                }
+            };
+
+            return status;
+        };
+
+        // send the comand
+        return sh.command.get(ip, what, settings);
+    };
+
+    /**
+    * Switch.
+    * @method sh.command.switch
+    * @param  {String}  ip        Board ip.
+    * @param  {String}  device    Device ex.: 'fan' or 'misc'.
+    * @param  {String}  value     State [on|off] or value.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.switch = function(ip, device, value, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'switch ' + device + ' ' + value;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('is not a known switch device') !== -1) {
+                return raw;
+            }
+
+            // return message
+            return { message: raw };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+    * Get network config.
+    * @method sh.command.net
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.net = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'net';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            var matches = raw.match(/IP Addr:([^\n]+)\nIP GW:([^\n]+)\nIP mask:([^\n]+)\nMAC Address:([^\n]+)/);
+
+            if (matches) {
+                return {
+                    ip     : matches[1].trim(),
+                    gateway: matches[2].trim(),
+                    mask   : matches[3].trim(),
+                    mac    : matches[4].trim()
+                }
+            }
+
+            // return message
+            return { message: raw };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+    * Remount...
+    * @method sh.command.remount
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.remount = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'remount';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            return { message: raw.trim() };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+    * Calculate the Steinhart Hart coefficients for a thermistor.
+    * @method sh.command.thermistorCalc
+    * @param  {String}                             ip                Board ip.
+    * @param  {String}                             values            Thermistor values separated by commas 'T1,R1,T2,R2,T3,R3'.
+    * @param  {Object}                             settings          See "{@link sh.network.command}.settings".
+    * @param  {Integer}                            settings.storeto  Store the results to thermistor n.
+    * @param  {Boolean}                            settings.save     Save the stored results to override-config (storeto must be set).
+    * @param  {sh.command.thermistorSaveCallback}  settings.onsave   Called when the values was saved.
+    * @return {XMLHttpRequest}
+    */
+    sh.command.thermistorCalc = function(ip, values, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // store to thermistor n
+        var storeto = '';
+
+        if (settings.storeto || settings.storeto === 0) {
+            storeto = '-s' + settings.storeto + ' ';
+        }
+
+        // set the command
+        var command = 'calc_thermistor ' + storeto + values;
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (raw.indexOf('Usage: calc_thermistor') === 0) {
+                return raw;
+            }
+
+            var lines   = raw.split('\n');
+            var result  = lines.shift().trim();
+            var message = lines.shift().trim();
+            var matches = result.match(/Steinhart Hart coefficients: *I(.*)J(.*)K(.*)/);
+
+            if (matches) {
+                var I = matches[1].trim();
+                var J = matches[2].trim();
+                var K = matches[3].trim();
+
+                if (I === 'nan' || J === 'nan' || K === 'nan') {
+                    return 'invalid input values';
+                }
+
+                result = { I: parseFloat(I), J: parseFloat(J), K: parseFloat(K) };
+            }
+
+            if (settings.save && storeto !== '') {
+                sh.network.command(ip, 'M500', {
+                    onresponse: function(response) {
+                        if (settings.onsave) {
+                            settings.onsave.call(this, response);
+                        }
+                    }
+                });
+            }
+
+            return { message: message, result: result };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+    * Callback called by {@link sh.command.thermistorCalc} when the values was saved.
+    * @callback sh.command.thermistorSaveCallback
+    * @param    {Object} response The response object provided by the {@link sh.network.responseCallback}.
+    */
+
+    /**
+    * Get the predefined thermistors.
+    * @method sh.command.thermistors
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.thermistors = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'thermistors';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            var lines   = raw.split('\n');
+            var result  = { table: {}, beta: {} };
+            var pointer = result.table;
+
+            var i, il, line, matches, name, value;
+
+            for (i = 0, il = lines.length; i < il; i++) {
+                line    = lines[i].trim();
+                matches = line.match(/^([0-9]+) - (.*)/);
+
+                if (line.indexOf('Beta table') !== -1) {
+                    pointer = result.beta;
+                    continue;
+                }
 
                 if (matches) {
-                    var I = matches[1].trim();
-                    var J = matches[2].trim();
-                    var K = matches[3].trim();
+                    name  = matches[2].trim();
+                    value = parseFloat(matches[1].trim());
 
-                    if (I === 'nan' || J === 'nan' || K === 'nan') {
-                        return 'invalid input values';
-                    }
-
-                    result = { I: parseFloat(I), J: parseFloat(J), K: parseFloat(K) };
+                    pointer[name] = value;
                 }
+            }
 
-                if (settings.save && storeto !== '') {
-                    sh.network.command(ip, 'M500', {
-                        onresponse: function(response) {
-                            if (settings.onsave) {
-                                settings.onsave.call(this, response);
-                            }
-                        }
-                    });
-                }
-
-                return { message: message, result: result };
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
+            return result;
         };
 
-        /**
-        * Callback called by {@link sh.command.thermistorCalc} when the values was saved.
-        * @callback sh.command.thermistorSaveCallback
-        * @param    {Object} response The response object provided by the {@link sh.network.responseCallback}.
-        */
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
 
-        /**
-        * Get the predefined thermistors.
-        * @method sh.command.thermistors
-        * @param  {String}  ip        Board ip.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.thermistors = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
+    /**
+    * Get md5 sum of the given file.
+    * @method sh.command.md5sum
+    * @param  {String}  ip        Board ip.
+    * @param  {String}  path      Relative or absolute path to file.
+    * @param  {Object}  settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.md5sum = function(ip, path, settings) {
+        // defaults settings
+        settings = settings || {};
 
-            // set the command
-            var command = 'thermistors';
+        // set the command
+        var command = 'md5sum ' + path;
 
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                var lines   = raw.split('\n');
-                var result  = { table: {}, beta: {} };
-                var pointer = result.table;
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
 
-                var i, il, line, matches, name, value;
+            if (raw.indexOf('File not found') !== -1) {
+                return raw;
+            }
 
-                for (i = 0, il = lines.length; i < il; i++) {
-                    line    = lines[i].trim();
-                    matches = line.match(/^([0-9]+) - (.*)/);
+            var parts = raw.split(' ');
 
-                    if (line.indexOf('Beta table') !== -1) {
-                        pointer = result.beta;
-                        continue;
-                    }
-
-                    if (matches) {
-                        name  = matches[2].trim();
-                        value = parseFloat(matches[1].trim());
-
-                        pointer[name] = value;
-                    }
-                }
-
-                return result;
+            return {
+                md5 : parts.shift().trim(),
+                file: parts.shift().trim()
             };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
         };
 
-        /**
-        * Get md5 sum of the given file.
-        * @method sh.command.md5sum
-        * @param  {String}  ip        Board ip.
-        * @param  {String}  path      Relative or absolute path to file.
-        * @param  {Object}  settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.md5sum = function(ip, path, settings) {
-            // defaults settings
-            settings = settings || {};
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
 
-            // set the command
-            var command = 'md5sum ' + path;
+    /**
+    * Play a gcode file.
+    * @method sh.command.play
+    * @param  {String}   ip                Board ip.
+    * @param  {String}   path              Relative or absolute path to file.
+    * @param  {Object}   settings          See "{@link sh.network.command}.settings".
+    * @param  {Boolean}  settings.verbose  Verbose output {@default false}.
+    * @return {XMLHttpRequest}
+    */
+    sh.command.play = function(ip, path, settings) {
+        // defaults settings
+        settings = settings || {};
 
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
+        var verbose = settings.verbose ? ' -v' : '';
 
-                if (raw.indexOf('File not found') !== -1) {
-                    return raw;
-                }
+        // set the command
+        var command = 'play ' + path + verbose;
 
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (! raw.length) {
+                return 'Alarm';
+            }
+
+            if (raw.indexOf('File not found') !== -1) {
+                return raw;
+            }
+
+            if (raw.indexOf('Currently printing') !== -1) {
+                return raw;
+            }
+
+            var lines = raw.split('\n');
+            var file  = lines.shift().split(' ').pop().trim();
+            var size  = -1;
+
+            if (raw.indexOf('WARNING') === -1) {
+                size = parseFloat(lines.shift().split(' ').pop().trim());
+            }
+
+            return { file: file, size: size };
+        };
+
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
+
+    /**
+    * Get progress of current play.
+    * @method sh.command.progress
+    * @param  {String}   ip        Board ip.
+    * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.progress = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
+
+        // set the command
+        var command = 'progress';
+
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
+
+            if (! raw.length) {
+                return 'Alarm';
+            }
+
+            if (raw.indexOf('Not currently playing') !== -1) {
+                return raw;
+            }
+
+            if (raw.indexOf('File size is unknown') !== -1) {
+                return raw;
+            }
+
+            if (raw.indexOf('SD print is paused at') !== -1) {
                 var parts = raw.split(' ');
 
                 return {
-                    md5 : parts.shift().trim(),
-                    file: parts.shift().trim()
+                    paused: true,
+                    total : parseFloat(parts.pop().trim()),
+                    played: parseFloat(parts.pop().trim())
                 };
-            };
+            }
 
-            // send the comand
-            return sh.network.command(ip, command, settings);
+            // file: %s, %u %% complete, elapsed time: %lu s, est time: %lu s
+            if (raw.indexOf('file:') === 0) {
+                var parts = raw.split(' ');
+
+                return {
+                    paused  : false,
+                    file    : parts[2].substr(0, parts[2].length - 2),
+                    complete: parseFloat(parts[3]),
+                    elapsed : parseFloat(parts[8]),
+                    esteemed: parts[12] ? parseFloat(parts[12]) : Infinity,
+                };
+            }
         };
 
-        /**
-        * Play a gcode file.
-        * @method sh.command.play
-        * @param  {String}   ip                Board ip.
-        * @param  {String}   path              Relative or absolute path to file.
-        * @param  {Object}   settings          See "{@link sh.network.command}.settings".
-        * @param  {Boolean}  settings.verbose  Verbose output {@default false}.
-        * @return {XMLHttpRequest}
-        */
-        sh.command.play = function(ip, path, settings) {
-            // defaults settings
-            settings = settings || {};
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
 
-            var verbose = settings.verbose ? ' -v' : '';
+    /**
+    * Abort currently playing file.
+    * @method sh.command.abort
+    * @param  {String}   ip        Board ip.
+    * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.abort = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
 
-            // set the command
-            var command = 'play ' + path + verbose;
+        // set the command
+        var command = 'abort';
 
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
 
-                if (! raw.length) {
-                    return 'Alarm';
-                }
+            if (! raw.length) {
+                return 'Alarm';
+            }
 
-                if (raw.indexOf('File not found') !== -1) {
-                    return raw;
-                }
+            if (raw.indexOf('Not currently playing') !== -1) {
+                return raw;
+            }
 
-                if (raw.indexOf('Currently printing') !== -1) {
-                    return raw;
-                }
-
-                var lines = raw.split('\n');
-                var file  = lines.shift().split(' ').pop().trim();
-                var size  = -1;
-
-                if (raw.indexOf('WARNING') === -1) {
-                    size = parseFloat(lines.shift().split(' ').pop().trim());
-                }
-
-                return { file: file, size: size };
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
+            return { message: raw };
         };
 
-        /**
-        * Get progress of current play.
-        * @method sh.command.progress
-        * @param  {String}   ip        Board ip.
-        * @param  {Object}   settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.progress = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
 
-            // set the command
-            var command = 'progress';
+    /**
+    * Suspend a print in progress.
+    * @method sh.command.suspend
+    * @param  {String}   ip        Board ip.
+    * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.suspend = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
 
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
+        // set the command
+        var command = 'suspend';
 
-                if (! raw.length) {
-                    return 'Alarm';
-                }
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
 
-                if (raw.indexOf('Not currently playing') !== -1) {
-                    return raw;
-                }
+            if (! raw.length) {
+                return 'Alarm';
+            }
 
-                if (raw.indexOf('File size is unknown') !== -1) {
-                    return raw;
-                }
+            if (raw.indexOf('Already suspended') !== -1) {
+                return raw;
+            }
 
-                if (raw.indexOf('SD print is paused at') !== -1) {
-                    var parts = raw.split(' ');
-
-                    return {
-                        paused: true,
-                        total : parseFloat(parts.pop().trim()),
-                        played: parseFloat(parts.pop().trim())
-                    };
-                }
-
-                // file: %s, %u %% complete, elapsed time: %lu s, est time: %lu s
-                if (raw.indexOf('file:') === 0) {
-                    var parts = raw.split(' ');
-
-                    return {
-                        paused  : false,
-                        file    : parts[2].substr(0, parts[2].length - 2),
-                        complete: parseFloat(parts[3]),
-                        elapsed : parseFloat(parts[8]),
-                        esteemed: parts[12] ? parseFloat(parts[12]) : Infinity,
-                    };
-                }
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
+            return { message: raw };
         };
 
-        /**
-        * Abort currently playing file.
-        * @method sh.command.abort
-        * @param  {String}   ip        Board ip.
-        * @param  {Object}   settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.abort = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
 
-            // set the command
-            var command = 'abort';
+    /**
+    * Resume the suspended print.
+    * @method sh.command.resume
+    * @param  {String}   ip        Board ip.
+    * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.resume = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
 
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
+        // set the command
+        var command = 'resume';
 
-                if (! raw.length) {
-                    return 'Alarm';
-                }
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            raw = raw.trim();
 
-                if (raw.indexOf('Not currently playing') !== -1) {
-                    return raw;
-                }
+            if (! raw.length) {
+                return 'Alarm';
+            }
 
-                return { message: raw };
-            };
+            if (raw.indexOf('Not suspended') !== -1) {
+                return raw;
+            }
 
-            // send the comand
-            return sh.network.command(ip, command, settings);
+            if (raw.indexOf('Resume aborted by kill') !== -1) {
+                return 'Resume aborted by kill';
+            }
+
+            var lines = raw.split('\n');
+
+            // TODO: parse response
+            // REF: https://github.com/Smoothieware/Smoothieware/blob/8cbd981e85c918e059a6e68d70fbf3cdad0f8ca5/src/modules/utils/player/Player.cpp#L614
+
+            return { lines: lines };
         };
 
-        /**
-        * Suspend a print in progress.
-        * @method sh.command.suspend
-        * @param  {String}   ip        Board ip.
-        * @param  {Object}   settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.suspend = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
 
-            // set the command
-            var command = 'suspend';
+    /**
+    * Reset alarm.
+    * @method sh.command.resetAlarm
+    * @param  {String}   ip        Board ip.
+    * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.resetAlarm = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
 
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
+        // set the command
+        var command = '$X';
 
-                if (! raw.length) {
-                    return 'Alarm';
-                }
-
-                if (raw.indexOf('Already suspended') !== -1) {
-                    return raw;
-                }
-
-                return { message: raw };
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            return { message: 'unlocked' };
         };
 
-        /**
-        * Resume the suspended print.
-        * @method sh.command.resume
-        * @param  {String}   ip        Board ip.
-        * @param  {Object}   settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.resume = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
 
-            // set the command
-            var command = 'resume';
+    /**
+    * Send ok (ping).
+    * @method sh.command.ok
+    * @param  {String}   ip        Board ip.
+    * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.ok = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
 
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                raw = raw.trim();
+        // set the command
+        var command = 'ok';
 
-                if (! raw.length) {
-                    return 'Alarm';
-                }
-
-                if (raw.indexOf('Not suspended') !== -1) {
-                    return raw;
-                }
-
-                if (raw.indexOf('Resume aborted by kill') !== -1) {
-                    return 'Resume aborted by kill';
-                }
-
-                var lines = raw.split('\n');
-
-                // TODO: parse response
-                // REF: https://github.com/Smoothieware/Smoothieware/blob/8cbd981e85c918e059a6e68d70fbf3cdad0f8ca5/src/modules/utils/player/Player.cpp#L614
-
-                return { lines: lines };
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            return { message: raw.trim() };
         };
 
-        /**
-        * Reset alarm.
-        * @method sh.command.resetAlarm
-        * @param  {String}   ip        Board ip.
-        * @param  {Object}   settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.resetAlarm = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
+        // send the comand
+        return sh.network.command(ip, command, settings);
+    };
 
-            // set the command
-            var command = '$X';
+    /**
+    * Ping.
+    * @method sh.command.ping
+    * @param  {String}   ip        Board ip.
+    * @param  {Object}   settings  See "{@link sh.network.command}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.command.ping = function(ip, settings) {
+        // defaults settings
+        settings = settings || {};
 
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                return { message: 'unlocked' };
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
+        // default response parser callback
+        settings.parser = settings.parser || function(raw) {
+            return { message: 'pong' };
         };
 
-        /**
-        * Send ok (ping).
-        * @method sh.command.ok
-        * @param  {String}   ip        Board ip.
-        * @param  {Object}   settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.ok = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
+        // send the comand
+        return sh.command.ok(ip, settings);
+    };
 
-            // set the command
-            var command = 'ok';
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                return { message: raw.trim() };
-            };
-
-            // send the comand
-            return sh.network.command(ip, command, settings);
-        };
-
-        /**
-        * Ping.
-        * @method sh.command.ping
-        * @param  {String}   ip        Board ip.
-        * @param  {Object}   settings  See "{@link sh.network.command}.settings".
-        * @return {XMLHttpRequest}
-        */
-        sh.command.ping = function(ip, settings) {
-            // defaults settings
-            settings = settings || {};
-
-            // default response parser callback
-            settings.parser = settings.parser || function(raw) {
-                return { message: 'pong' };
-            };
-
-            // send the comand
-            return sh.command.ok(ip, settings);
-        };
-
-    })();
+})();

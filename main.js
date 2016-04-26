@@ -118,7 +118,7 @@ var ip = '192.168.1.101';
 // });
 
 // // get config value
-// sh.command.configGet(ip, 'alpha_steps_per_mm', {
+// sh.config.get(ip, 'alpha_steps_per_mm', {
 //     location: 'sd',
 //     onresponse: function(response) {
 //         console.info('response', response);
@@ -126,56 +126,36 @@ var ip = '192.168.1.101';
 // });
 
 // // set config value
-// sh.command.configSet(ip, 'alpha_steps_per_mm', '90', {
+// sh.config.set(ip, 'alpha_steps_per_mm', '90', {
 //     location: 'sd',
 //     onresponse: function(response) {
 //         console.info('response', response);
 //     }
 // });
 
-// // set config value
-// sh.command.config(ip, 'alpha_steps_per_mm', '90', {
-//     onresponse: function(response) {
-//         console.info('response', response);
-//         // get config value
-//         sh.command.config(ip, 'alpha_steps_per_mm', {
-//             onresponse: function(response) {
-//                 console.info('response', response);
-//             }
-//         });
-//     }
-// });
-
-// // config cache load/unload/dump/checksum
-// sh.command.configCache(ip, 'dump', {
+// // config cache load/unload/dump
+// sh.config.cache(ip, 'dump', {
 //     onresponse: function(response) {
 //         console.info('response', response);
 //     }
 // });
 
 // // load config cache
-// sh.command.configCacheLoad(ip, {
+// sh.config.cacheLoad(ip, {
 //     onresponse: function(response) {
 //         console.info('response', response);
 //     }
 // });
 
 // // unload config cache
-// sh.command.configCacheUnload(ip, {
+// sh.config.cacheUnload(ip, {
 //     onresponse: function(response) {
 //         console.info('response', response);
 //     }
 // });
 
 // // dump config cache
-// sh.command.configCacheDump(ip, {
-//     onresponse: function(response) {
-//         console.info('response', response);
-//     }
-// });
-
-// // get input value checksum
-// sh.command.checksum(ip, 'my_config_item', {
+// sh.config.cacheDump(ip, {
 //     onresponse: function(response) {
 //         console.info('response', response);
 //     }
@@ -183,7 +163,7 @@ var ip = '192.168.1.101';
 
 // // saves a configuration override file
 // // as specified filename or as config-override
-// sh.command.configOverrideSave(ip, '/', {
+// sh.config.save(ip, '/', {
 //     onresponse: function(response) {
 //         console.info('response', response);
 //     }
@@ -191,19 +171,26 @@ var ip = '192.168.1.101';
 
 // // load a configuration override file
 // // from specified filename or from config-override
-// sh.command.configOverrideLoad(ip, '/', {
+// sh.config.load(ip, '/', {
 //     onresponse: function(response) {
 //         console.info('response', response);
 //     }
 // });
 
-// // get entire config
-// sh.command.config(ip, {
-//     limit: 20,
+// get entire config
+// sh.config.getAll(ip, {
+//     //limit: 20,
 //     onresponse: function(response) {
 //         console.info('response', response);
 //         var item = response.result.get('mm_per_arc_segment');
 //         console.info('mm_per_arc_segment: ', item);
+//     }
+// });
+
+// // get input value checksum
+// sh.command.checksum(ip, 'my_config_item', {
+//     onresponse: function(response) {
+//         console.info('response', response);
 //     }
 // });
 
@@ -453,6 +440,13 @@ var ip = '192.168.1.101';
 //         ontimeout: function() {
 //             console.info('waitUntilOnline:offline', this);
 //         }
+//     }
+// });
+
+// // upgrade the configuration file
+// sh.firmware.upgradeConfig(ip, {
+//     onresponse: function(response) {
+//         console.info('response', response.result);
 //     }
 // });
 
