@@ -389,7 +389,7 @@ var sh = sh || {};
             disabled = line[0] === '#';
 
             if (disabled) {
-                line = line.replace(/^# */, '');
+                line = line.replace(/^#+ */, '');
             }
 
             // extracts [name, value, comment]
