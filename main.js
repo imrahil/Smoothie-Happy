@@ -19,12 +19,12 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// get files list on the sd card
-sh.command.ls(ip, '/sd/', {
-    onresponse: function(response) {
-        console.info('ls sd/', response);
-    }
-});
+// // get files list on the sd card
+// sh.command.ls(ip, '/sd/', {
+//     onresponse: function(response) {
+//         console.info('ls sd/', response);
+//     }
+// });
 
 // // change the current folder
 // sh.command.cd(ip, 'sd/', {
