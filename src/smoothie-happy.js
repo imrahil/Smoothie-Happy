@@ -941,6 +941,9 @@ var sh = sh || {};
         // set the command
         var command = 'ls -s ' + path;
 
+        // hack to by sure to get the right file size when filename contains spaces
+        command += '\nok\nls ' + path;
+
         // default filename filter callback
         settings.filter = settings.filter  || null;
 
@@ -951,23 +954,26 @@ var sh = sh || {};
                 return raw;
             }
 
-            // split file on new line
-            var files = raw.trim().split('\n');
+            // split the two ls response
+            var results = raw.split('\nok\n');
+            var sizes   = results[0].split('\n');
+            var names   = results[1].split('\n');
+
+            var i, il, name, type, size, files = [];
+
+            for (i = 0, il = sizes.length; i < il; i++) {
+                name = names[i].trim();
+                type = names[i] === sizes[i] ? 'folder' : 'file';
+                size = sizes[i];
+                size = parseFloat(size.replace(name, '').trim());
+
+                files.push({ path: path, name: name, type: type, size: size });
+            }
 
             // filter files
             if (settings.filter) {
                 files = files.filter(settings.filter);
             }
-
-            // extract file name/size
-            files = files.map(function(value) {
-                value = value.split(' ');
-                return {
-                    path: path,
-                    name: value[0],
-                    size: value[1]
-                }
-            });
 
             // return files
             return files;
