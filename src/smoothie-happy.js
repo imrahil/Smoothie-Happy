@@ -428,6 +428,7 @@ var sh = sh || {};
     * @method sh.firmware.getFirmware
     * @param  {Object}                       settings             See "{@link sh.network.request}.settings".
     * @param  {sh.network.responseCallback}  settings.onresponse  Function called when the response is received.
+    * @return {XMLHttpRequest}
     */
     sh.firmware.getFirmware = function(settings) {
         var url = 'https://raw.githubusercontent.com/Smoothieware/Smoothieware/edge/FirmwareBin/firmware.bin';
@@ -456,12 +457,73 @@ var sh = sh || {};
             }
 
             response.error  = null;
-            response.result = { name: 'firmware.bin', file: blob };
+            response.result = { name: 'firmware.bin', data: blob };
 
             settings.onresponse.call(this, response);
         };
 
         return sh.network.get(url, settings);
+    };
+
+    /**
+    * Update the firmware.
+    * @method sh.firmware.update
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.request}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.firmware.update = function(ip, settings) {
+        // defauls settings
+        settings = settings || {};
+
+        // first action name
+        var action = 'download';
+
+        // old user defined timeout
+        var timeout = settings.timeout || 2000;
+
+        // user callback
+        var onresponse = settings.onresponse || function() {};
+
+        // on response
+        settings.onresponse = function(response) {
+            // set action name
+            response.action = action;
+
+            // call user callback
+            onresponse.call(this, response);
+
+            // call next action
+            if (action === 'download') {
+                // next action name
+                action = 'upload';
+
+                // file to upload
+                var file = response.result;
+
+                // set bigger timeout for upload
+                settings.timeout = 60000;
+
+                // upload the firmware
+                sh.command.upload(ip, file, settings);
+            }
+            else if (action === 'upload') {
+                // next action name
+                action = 'reset';
+
+                // reset default timeout
+                settings.timeout = timeout;
+
+                // reset responseType (set to 'blob' by upload command)
+                settings.responseType = 'text';
+
+                // reset the board
+                sh.command.reset(ip, settings);
+            }
+        };
+
+        // download last firmware
+        return sh.firmware.getFirmware(settings);
     };
 
     // -------------------------------------------------------------------------

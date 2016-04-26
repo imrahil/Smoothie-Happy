@@ -421,7 +421,31 @@ var ip = '192.168.1.101';
 // sh.firmware.getFirmware({
 //     onresponse: function(response) {
 //         console.info('response', response);
-//         saveAs(response.result.file, response.result.name);
+//         saveAs(response.result.data, response.result.name);
+//     }
+// });
+
+// // update the firmware
+// sh.firmware.update(ip, {
+//     onresponse: function(response) {
+//         console.info('response', response);
+//     },
+//     onerror: function() {
+//         console.info('error', this);
+//     },
+//     ontimeout: function() {
+//         console.info('timeout', this);
+//     },
+//     waitUntilOnline: {
+//         ontry: function(trials) {
+//             console.info('waitUntilOnline:ontry', trials);
+//         },
+//         online: function(version) {
+//             console.info('waitUntilOnline:online', version);
+//         },
+//         ontimeout: function() {
+//             console.info('waitUntilOnline:offline', this);
+//         }
 //     }
 // });
 
