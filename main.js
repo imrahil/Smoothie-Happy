@@ -85,6 +85,7 @@ var ip = '192.168.1.101';
 function parseAndFormatConfig() {
     var rawConfig      = $('#config').text();
     var parsedConfig   = sh.config.parse(rawConfig);
+    parsedConfig.set('gamma_steps_per_mm', 1000); // force to fixed value
     var formatedConfig = sh.config.format(parsedConfig);
     $('#formatedConfig').text(formatedConfig);
     console.log(parsedConfig);

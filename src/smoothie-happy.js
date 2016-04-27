@@ -420,13 +420,21 @@ var sh = sh || {};
             sections: sections,
             lines   : lines,
             items   : items,
-            get     : function(name) {
+
+            get: function(name) {
                 if (items[name] === undefined
                 || sections[items[name]] === undefined
                 || sections[items[name]].items[name] === undefined) {
                     return null;
                 }
                 return sections[items[name]].items[name];
+            },
+
+            set: function(name, value) {
+                if (! this.get(name)) {
+                    throw new Error('Undefined config item: ' + name);
+                }
+                return sections[items[name]].items[name].value = value + '';
             }
         };
     };
