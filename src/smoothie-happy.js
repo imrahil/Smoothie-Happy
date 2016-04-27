@@ -427,6 +427,7 @@ var sh = sh || {};
                 || sections[items[name]].items[name] === undefined) {
                     return null;
                 }
+
                 return sections[items[name]].items[name];
             },
 
@@ -434,7 +435,19 @@ var sh = sh || {};
                 if (! this.get(name)) {
                     throw new Error('Undefined config item: ' + name);
                 }
-                return sections[items[name]].items[name].value = value + '';
+
+                var section = sections[items[name]];
+
+                section.maxLength.value   = 0;
+                section.items[name].value = value + '';
+
+                for (var n in section.items) {
+                    section.maxLength.value = Math.max(
+                        section.maxLength.value, section.items[n].value.length
+                    );
+                }
+
+                return section.items[name].value;
             }
         };
     };

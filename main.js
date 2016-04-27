@@ -88,12 +88,11 @@ function parseAndFormatConfig() {
     parsedConfig.set('gamma_steps_per_mm', 1000); // force to fixed value
     var formatedConfig = sh.config.format(parsedConfig);
     $('#formatedConfig').text(formatedConfig);
-    console.log(parsedConfig);
+    return parsedConfig;
 }
 
 $('#config').on('keyup', parseAndFormatConfig);
-
-parseAndFormatConfig();
+console.log(parseAndFormatConfig());
 
 //------------------------------------------------------------------------------
 
