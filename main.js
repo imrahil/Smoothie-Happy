@@ -12,6 +12,86 @@ var ip = '192.168.1.101';
 
 //------------------------------------------------------------------------------
 
+// // get config value
+// sh.config.get(ip, 'alpha_steps_per_mm', {
+//     location: 'sd',
+//     onresponse: function(response) {
+//         console.info('response', response);
+//     }
+// });
+
+// // set config value
+// sh.config.set(ip, 'alpha_steps_per_mm', '90', {
+//     location: 'sd',
+//     onresponse: function(response) {
+//         console.info('response', response);
+//     }
+// });
+
+// // config cache load/unload/dump
+// sh.config.cache(ip, 'dump', {
+//     onresponse: function(response) {
+//         console.info('response', response);
+//     }
+// });
+
+// // load config cache
+// sh.config.cacheLoad(ip, {
+//     onresponse: function(response) {
+//         console.info('response', response);
+//     }
+// });
+
+// // unload config cache
+// sh.config.cacheUnload(ip, {
+//     onresponse: function(response) {
+//         console.info('response', response);
+//     }
+// });
+
+// // dump config cache
+// sh.config.cacheDump(ip, {
+//     onresponse: function(response) {
+//         console.info('response', response);
+//     }
+// });
+
+// // saves a configuration override file
+// // as specified filename or as config-override
+// sh.config.save(ip, '/', {
+//     onresponse: function(response) {
+//         console.info('response', response);
+//     }
+// });
+
+// // load a configuration override file
+// // from specified filename or from config-override
+// sh.config.load(ip, '/', {
+//     onresponse: function(response) {
+//         console.info('response', response);
+//     }
+// });
+
+// get entire config
+// sh.config.getAll(ip, {
+//     //limit: 20,
+//     onresponse: function(response) {
+//         console.info('response', response);
+//         var item = response.result.get('mm_per_arc_segment');
+//         console.info('mm_per_arc_segment: ', item);
+//     }
+// });
+
+var rawConfig      = $('#config').text();
+var parsedConfig   = sh.config.parse(rawConfig);
+var formatedConfig = sh.config.format(parsedConfig);
+
+$('#formatedConfig').text(formatedConfig);
+
+console.log(parsedConfig);
+
+//------------------------------------------------------------------------------
+
 // // get files list on the sd card
 // sh.command.ls(ip, 'sd/', {
 //     onresponse: function(response) {
@@ -33,7 +113,7 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-// // get the first 10 lines from the config file
+// // get working directory
 // sh.command.pwd(ip, {
 //     onresponse: function(response) {
 //         console.info('pwd', response);
@@ -114,76 +194,6 @@ var ip = '192.168.1.101';
 //         ontimeout: function() {
 //             console.info('waitUntilOnline:offline', this);
 //         }
-//     }
-// });
-
-// // get config value
-// sh.config.get(ip, 'alpha_steps_per_mm', {
-//     location: 'sd',
-//     onresponse: function(response) {
-//         console.info('response', response);
-//     }
-// });
-
-// // set config value
-// sh.config.set(ip, 'alpha_steps_per_mm', '90', {
-//     location: 'sd',
-//     onresponse: function(response) {
-//         console.info('response', response);
-//     }
-// });
-
-// // config cache load/unload/dump
-// sh.config.cache(ip, 'dump', {
-//     onresponse: function(response) {
-//         console.info('response', response);
-//     }
-// });
-
-// // load config cache
-// sh.config.cacheLoad(ip, {
-//     onresponse: function(response) {
-//         console.info('response', response);
-//     }
-// });
-
-// // unload config cache
-// sh.config.cacheUnload(ip, {
-//     onresponse: function(response) {
-//         console.info('response', response);
-//     }
-// });
-
-// // dump config cache
-// sh.config.cacheDump(ip, {
-//     onresponse: function(response) {
-//         console.info('response', response);
-//     }
-// });
-
-// // saves a configuration override file
-// // as specified filename or as config-override
-// sh.config.save(ip, '/', {
-//     onresponse: function(response) {
-//         console.info('response', response);
-//     }
-// });
-
-// // load a configuration override file
-// // from specified filename or from config-override
-// sh.config.load(ip, '/', {
-//     onresponse: function(response) {
-//         console.info('response', response);
-//     }
-// });
-
-// get entire config
-// sh.config.getAll(ip, {
-//     //limit: 20,
-//     onresponse: function(response) {
-//         console.info('response', response);
-//         var item = response.result.get('mm_per_arc_segment');
-//         console.info('mm_per_arc_segment: ', item);
 //     }
 // });
 
