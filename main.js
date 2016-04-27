@@ -82,13 +82,17 @@ var ip = '192.168.1.101';
 //     }
 // });
 
-var rawConfig      = $('#config').text();
-var parsedConfig   = sh.config.parse(rawConfig);
-var formatedConfig = sh.config.format(parsedConfig);
+function parseAndFormatConfig() {
+    var rawConfig      = $('#config').text();
+    var parsedConfig   = sh.config.parse(rawConfig);
+    var formatedConfig = sh.config.format(parsedConfig);
+    $('#formatedConfig').text(formatedConfig);
+    console.log(parsedConfig);
+}
 
-$('#formatedConfig').text(formatedConfig);
+$('#config').on('keyup', parseAndFormatConfig);
 
-console.log(parsedConfig);
+parseAndFormatConfig();
 
 //------------------------------------------------------------------------------
 
