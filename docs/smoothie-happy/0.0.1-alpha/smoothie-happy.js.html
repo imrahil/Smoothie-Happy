@@ -190,6 +190,8 @@
             
                 <li data-name="sh.config.cacheUnload"><a href="sh.config.html#.cacheUnload">cacheUnload</a></li>
             
+                <li data-name="sh.config.format"><a href="sh.config.html#.format">format</a></li>
+            
                 <li data-name="sh.config.get"><a href="sh.config.html#.get">get</a></li>
             
                 <li data-name="sh.config.getAll"><a href="sh.config.html#.getAll">getAll</a></li>
@@ -201,6 +203,8 @@
                 <li data-name="sh.config.save"><a href="sh.config.html#.save">save</a></li>
             
                 <li data-name="sh.config.set"><a href="sh.config.html#.set">set</a></li>
+            
+                <li data-name="sh.config.upgrade"><a href="sh.config.html#.upgrade">upgrade</a></li>
             
             </ul>
             <ul class="events itemMembers">
@@ -764,7 +768,7 @@ var sh = sh || {};
             disabled = line[0] === '#';
 
             if (disabled) {
-                line = line.replace(/^# */, '');
+                line = line.replace(/^#+ */, '');
             }
 
             // extracts [name, value, comment]
@@ -804,6 +808,190 @@ var sh = sh || {};
                 return sections[items[name]].items[name];
             }
         };
+    };
+
+    function wordwrap (str, int_width, str_break, cut) {
+        //  discuss at: http://phpjs.org/functions/wordwrap/
+        // original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
+        // improved by: Nick Callen
+        // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+        // improved by: Sakimori
+        //  revised by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
+        // bugfixed by: Michael Grier
+        // bugfixed by: Feras ALHAEK
+        //   example 1: wordwrap('Kevin van Zonneveld', 6, '|', true);
+        //   returns 1: 'Kevin |van |Zonnev|eld'
+        //   example 2: wordwrap('The quick brown fox jumped over the lazy dog.', 20, '&lt;br />\n');
+        //   returns 2: 'The quick brown fox &lt;br />\njumped over the lazy&lt;br />\n dog.'
+        //   example 3: wordwrap('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.');
+        //   returns 3: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod \ntempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim \nveniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea \ncommodo consequat.'
+
+        var m = ((arguments.length >= 2) ? arguments[1] : 75)
+        var b = ((arguments.length >= 3) ? arguments[2] : '\n')
+        var c = ((arguments.length >= 4) ? arguments[3] : false)
+
+        var i, j, l, s, r
+
+        str += ''
+
+        if (m &lt; 1) {
+            return str
+        }
+
+        for (i = -1, l = (r = str.split(/\r\n|\n|\r/)).length; ++i &lt; l; r[i] += s) {
+            for (s = r[i], r[i] = ''; s.length > m; r[i] += s.slice(0, j) + ((s = s.slice(j)).length ? b : '')) {
+                j = c == 2 || (j = s.slice(0, m + 1).match(/\S*(\s)?$/))[1] ? m : j.input.length - j[0].length || c == 1 &amp;&amp; m || j.input.length + (j = s.slice(m).match(/^\S*/))[0].length
+            }
+        }
+
+        return r.join('\n')
+    }
+
+    /**
+    * Format parsed configuration.
+    * @method sh.config.format
+    * @param  {Object}  config  Configuration object provided by {@link sh.config.parse}.
+    * @return {String}  Formatted configuration file.
+    */
+    sh.config.format = function(config, settings) {
+        // default settings
+        settings = settings || {};
+
+        // maximum line length
+        var maxLineLength = (settings.maxLineLength || 132) - 3;
+
+        // extra paddings
+        var paddings = settings.paddings || {};
+
+        paddings.afterName  = paddings.afterName  || 5;
+        paddings.afterValue = paddings.afterValue || 5;
+
+        // align disabled item
+        var alignDisabledComments = settings.alignDisabledComments || true;
+
+        // add title spacers
+        var titleSpacers = settings.titleSpacers || true;
+
+        if (titleSpacers) {
+            if (typeof titleSpacers !== 'string') {
+                titleSpacers = '-';
+            }
+            titleSpacers = '# ' + Array(maxLineLength + 1).join(titleSpacers) + '\n';
+        }
+
+        // for each section
+        var i, il, j, jl, section, comment, maxLength, name, line, item, pads, buffer = '';
+
+        for (i = 0, il = config.sections.length; i &lt; il; i++) {
+            // current section
+            section = config.sections[i];
+
+            // maximum item name length
+            maxLength = section.maxLength;
+
+            // title spacers
+            if (titleSpacers) {
+                // append title spacers
+                buffer += titleSpacers;
+            }
+
+            // for each comments line
+            for (j = 0, jl = section.comments.length; j &lt; jl; j++) {
+                // word wrap comment
+                comment = section.comments[j];
+                comment = wordwrap(comment, maxLineLength, '\n# ', true);
+
+                // append comment line to buffer
+                buffer += '# ' + comment + '\n';
+            }
+
+            // title spacers
+            if (titleSpacers) {
+                // append title spacers
+                buffer += titleSpacers;
+            }
+
+            // for each item
+            for (name in section.items) {
+                // current item line
+                line = '';
+
+                // current item
+                item = section.items[name];
+
+                // disabled item
+                if (item.disabled) {
+                    // append comment char to buffer
+                    line += '#';
+                }
+
+                // append item name to buffer
+                line += item.name;
+
+                // [name &lt;--> value] padding
+                pads  = maxLength.name - item.name.length + paddings.afterName;
+                pads += maxLength.value - item.value.length + 1;
+
+                if (item.disabled &amp;&amp; alignDisabledComments) {
+                    pads--;
+                }
+
+                // append padding spaces
+                line += Array(pads).join(' ');
+
+                // append item value to buffer
+                line += item.value;
+
+                // value paddings
+                pads = paddings.afterValue + 1;
+
+                // append padding spaces
+                line += Array(pads).join(' ');
+
+                // comment
+                comment = item.comments.join(' ');
+
+                // wordwrap
+                pads    = maxLength.name + paddings.afterName;
+                pads   += maxLength.value + paddings.afterValue + 1;
+                comment = wordwrap(comment, maxLineLength - pads, '\n' + Array(pads).join(' ') + '# ', true);
+
+                // append item comment to buffer
+                line += '# ' + comment + '\n';
+
+                // end of item
+                buffer += line;
+            }
+
+            // end of section
+            buffer += '\n';
+        }
+
+        return buffer;
+    };
+
+    /**
+    * Upgrade the configuration file.
+    * @method sh.config.upgrade
+    * @param  {String}  ip        Board ip.
+    * @param  {Object}  settings  See "{@link sh.network.request}.settings".
+    * @return {XMLHttpRequest}
+    */
+    sh.config.upgrade = function(ip, settings) {
+        // defauls settings
+        settings = settings || {};
+
+        // local and remote file path
+        var localFilename  = settings.filename       || '/sd/config.txt';
+        var remoteFilename = settings.remoteFilename || 'config';
+        var remoteBaseUrl  = settings.remoteUrl      || sh.firmware.git.url.raw + 'edge/ConfigSamples/Smoothieboard/';
+
+        settings.onresponse = function(response) {
+            console.log(response);
+        };
+
+        // get the configuration from sd card
+        return sh.config.getAll(ip, settings);
     };
 
     /**
@@ -2983,7 +3171,7 @@ var sh = sh || {};
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Apr 26 2016 16:28:28 GMT+0200 (Europe de l’Ouest (heure d’été))
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Wed Apr 27 2016 11:37:40 GMT+0200 (Europe de l’Ouest (heure d’été))
         </footer>
     </div>
 </div>
