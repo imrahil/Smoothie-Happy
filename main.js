@@ -92,26 +92,26 @@
 
 // -----------------------------------------------------------------------------
 
-// @example sh.network.Scanner - Scanne the network
-// create the scanner instance
-var scanner = sh.network.Scanner();
-
-// register events callbacks
-scanner.on('start', function(scan) {
-    console.log('scan:', 'start:', scan.total);
-});
-
-scanner.on('progress', function(scan) {
-    console.log('scan:', 'progress:', scan.scanned);
-});
-
-scanner.on('board', function(scan, board) {
-    console.log('scan:', 'board:', board);
-});
-
-scanner.on('end', function(scan) {
-    console.log('scan:', 'end:', scan.found);
-});
-
-// start scan
-scanner.start('192.168.1.100-105');
+// // @example sh.network.Scanner - Scanne the network
+// // create the scanner instance
+// var scanner = sh.network.Scanner();
+//
+// // register events callbacks
+// scanner.on('start', function(scan) {
+//     console.log('scan:', 'start:', scan.total);
+// });
+//
+// scanner.on('progress', function(scan) {
+//     console.log('scan:', 'progress:', scan.scanned);
+// });
+//
+// scanner.on('board', function(scan, board) {
+//     console.log('scan:', 'board:', board);
+// });
+//
+// scanner.on('end', function(scan) {
+//     console.log('scan:', 'end:', scan.found);
+// });
+//
+// // start scan
+// scanner.start('192.168.1.100-105');

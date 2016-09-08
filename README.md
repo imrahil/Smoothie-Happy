@@ -2,4 +2,4 @@
 A SmoothieBoard network communication API.
 
 - Work In Progress...
-- [Documentation](http://lautr3k.github.io/Smoothie-Happy/docs/smoothie-happy/0.1.0-alpha/)
+- [Documentation](http://lautr3k.github.io/Smoothie-Happy/docs/smoothie-happy/0.2.0-dev/)

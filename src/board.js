@@ -54,25 +54,36 @@
         this.info = null;
 
         // Check the board version
-        this.version(callback);
+        this.Version(callback);
+    };
+
+    /**
+    * Send command line and return a Promise.
+    *
+    * @method
+    * @param   {String}           command  Command line.
+    * @return  {sh.network.Post}  Promise
+    */
+    sh.Board.prototype.Command = function(command) {
+        return sh.network.Post({
+            url : 'http://' + this.address + '/command',
+            data: command.trim() + '\n'
+        });
     };
 
     /**
     * Get the board version.
     *
-    * @class
-    * @param  {sh.Board~onResponse}  callback  Function to call on request result.
+    * @method
+    * @param   {sh.Board~onResponse}  callback  Function to call on request result.
+    * @return  {sh.network.Post}      Promise
     */
-    sh.Board.prototype.version = function(callback) {
+    sh.Board.prototype.Version = function(callback) {
         // Self alias
         var self = this;
 
         // Make the request
-        var promise = sh.network.Post({
-            url : 'http://' + this.address + '/command',
-            data: 'version\n'
-        })
-        .then(function(event) {
+        var promise = this.Command('version').then(function(event) {
             // error flag true by default
             var error = true;
 

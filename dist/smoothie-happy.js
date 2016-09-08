@@ -2,7 +2,7 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    a709fc8b53a95601f4a815dd111ceb1f
+* @build    549874ae038809e576321e75bdb80d83
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -24,7 +24,7 @@ var sh = sh || {};
     * @readonly
     * @property {String} build API build hash.
     */
-    sh.build = 'a709fc8b53a95601f4a815dd111ceb1f';
+    sh.build = '549874ae038809e576321e75bdb80d83';
 
     /**
     * @default
@@ -635,25 +635,36 @@ var sh = sh || {};
         this.info = null;
 
         // Check the board version
-        this.version(callback);
+        this.Version(callback);
+    };
+
+    /**
+    * Send command line and return a Promise.
+    *
+    * @method
+    * @param   {String}           command  Command line.
+    * @return  {sh.network.Post}  Promise
+    */
+    sh.Board.prototype.Command = function(command) {
+        return sh.network.Post({
+            url : 'http://' + this.address + '/command',
+            data: command.trim() + '\n'
+        });
     };
 
     /**
     * Get the board version.
     *
-    * @class
-    * @param  {sh.Board~onResponse}  callback  Function to call on request result.
+    * @method
+    * @param   {sh.Board~onResponse}  callback  Function to call on request result.
+    * @return  {sh.network.Post}      Promise
     */
-    sh.Board.prototype.version = function(callback) {
+    sh.Board.prototype.Version = function(callback) {
         // Self alias
         var self = this;
 
         // Make the request
-        var promise = sh.network.Post({
-            url : 'http://' + this.address + '/command',
-            data: 'version\n'
-        })
-        .then(function(event) {
+        var promise = this.Command('version').then(function(event) {
             // error flag true by default
             var error = true;
 
