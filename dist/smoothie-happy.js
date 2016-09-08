@@ -2,7 +2,7 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    bdd79214d6f8bb5cd135ae1e759a949e
+* @build    330d371c7fa8e216ffd82be37c5748c9
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -24,7 +24,7 @@ var sh = sh || {};
     * @readonly
     * @property {String} build API build hash.
     */
-    sh.build = 'bdd79214d6f8bb5cd135ae1e759a949e';
+    sh.build = '330d371c7fa8e216ffd82be37c5748c9';
 
     /**
     * @default
@@ -265,6 +265,44 @@ var sh = sh || {};
     *          console.error('Not a smoothieboard!');
     *      }
     *  });
+    * 
+    * 
+    *  // @example sh.network.Scanner - Scanne the network
+    *  // create the scanner instance
+    *  var scanner = sh.network.Scanner();
+    * 
+    *  // register events callbacks
+    *  scanner.on('start', function(scan) {
+    *      console.log('scan:', 'start:', scan.total);
+    *  });
+    * 
+    *  scanner.on('pause', function(scan) {
+    *      console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
+    *  });
+    * 
+    *  scanner.on('resume', function(scan) {
+    *      console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
+    *  });
+    * 
+    *  scanner.on('stop', function(scan) {
+    *      console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
+    *  });
+    * 
+    *  scanner.on('progress', function(scan) {
+    *      console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
+    *  });
+    * 
+    *  scanner.on('board', function(scan, board) {
+    *      console.log('scan:', 'board:', board);
+    *  });
+    * 
+    *  scanner.on('end', function(scan) {
+    *      console.log('scan:', 'end:', scan.scanned, '/', scan.total);
+    *      console.log('scan:', 'found:', scan.found, '/', scan.total);
+    *  });
+    * 
+    *  // start scan
+    *  scanner.start('192.168.1.100-115');
     * ```
     */
     sh.network.Request = function(settings) {

@@ -92,47 +92,39 @@
 
 // -----------------------------------------------------------------------------
 
-// @example sh.network.Scanner - Scanne the network
-// create the scanner instance
-var scanner = sh.network.Scanner();
-
-// register events callbacks
-scanner.on('start', function(scan) {
-    console.log('scan:', 'start:', scan.total);
-});
-
-scanner.on('pause', function(scan) {
-    console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
-});
-
-scanner.on('resume', function(scan) {
-    console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
-});
-
-scanner.on('stop', function(scan) {
-    console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
-});
-
-scanner.on('progress', function(scan) {
-    console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
-});
-
-scanner.on('board', function(scan, board) {
-    console.log('scan:', 'board:', board);
-});
-
-scanner.on('end', function(scan) {
-    console.log('scan:', 'end:', scan.scanned, '/', scan.total);
-    console.log('scan:', 'found:', scan.found, '/', scan.total);
-});
-
-// start scan
-scanner.start('192.168.1.100-115');
-
-setTimeout(function() {
-    scanner.pause();
-
-    setTimeout(function() {
-        scanner.resume();
-    }, 2000);
-}, 5000);
+// // @example sh.network.Scanner - Scanne the network
+// // create the scanner instance
+// var scanner = sh.network.Scanner();
+//
+// // register events callbacks
+// scanner.on('start', function(scan) {
+//     console.log('scan:', 'start:', scan.total);
+// });
+//
+// scanner.on('pause', function(scan) {
+//     console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
+// });
+//
+// scanner.on('resume', function(scan) {
+//     console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
+// });
+//
+// scanner.on('stop', function(scan) {
+//     console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
+// });
+//
+// scanner.on('progress', function(scan) {
+//     console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
+// });
+//
+// scanner.on('board', function(scan, board) {
+//     console.log('scan:', 'board:', board);
+// });
+//
+// scanner.on('end', function(scan) {
+//     console.log('scan:', 'end:', scan.scanned, '/', scan.total);
+//     console.log('scan:', 'found:', scan.found, '/', scan.total);
+// });
+//
+// // start scan
+// scanner.start('192.168.1.100-115');
