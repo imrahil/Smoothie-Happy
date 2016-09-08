@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Smoothie-Happy</title>
+    
+    <meta name="description" content="A SmoothieBoard network communication API" />
+    
+        <meta name="keywords" content="SmoothieBoard, SmoothieWare, Smoothie Firmware, Network, API, js, JavaScript" />
+        <meta name="keyword" content="SmoothieBoard, SmoothieWare, Smoothie Firmware, Network, API, js, JavaScript" />
+    
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/jaguar.css">
+    
+    
+    <script>
+    var config = {"monospaceLinks":true,"cleverLinks":true,"default":{"outputSourceFiles":true},"applicationName":"smoothie-happy","meta":{"title":"Smoothie-Happy","description":"A SmoothieBoard network communication API","keyword":"SmoothieBoard, SmoothieWare, Smoothie Firmware, Network, API, js, JavaScript"},"linenums":true};
+    </script>
+    
+
+    
+</head>
+<body>
+<div id="wrap" class="clearfix">
+    
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html">smoothie-happy</a></h3>
+
+    <div class="search">
+        <input id="search" type="text" class="form-control input-sm" placeholder="Search Documentations">
+    </div>
+    <ul class="list">
+    
+        <li class="item" data-name="sh">
+            <span class="title">
+                <a href="sh.html">sh</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.build"><a href="sh.html#.build">build</a></li>
+            
+                <li data-name="sh.description"><a href="sh.html#.description">description</a></li>
+            
+                <li data-name="sh.gitURL"><a href="sh.html#.gitURL">gitURL</a></li>
+            
+                <li data-name="sh.id"><a href="sh.html#.id">id</a></li>
+            
+                <li data-name="sh.name"><a href="sh.html#.name">name</a></li>
+            
+                <li data-name="sh.version"><a href="sh.html#.version">version</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network">
+            <span class="title">
+                <a href="sh.network.html">sh.network</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.Board">
+            <span class="title">
+                <a href="sh.Board.html">sh.Board</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.Board#address"><a href="sh.Board.html#address">address</a></li>
+            
+                <li data-name="sh.Board#info"><a href="sh.Board.html#info">info</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Type Definitions</span>
+            
+                <li data-name="sh.Board~onResponse"><a href="sh.Board.html#~onResponse">onResponse</a></li>
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.Board#version">
+            <span class="title">
+                <a href="sh.Board_version.html">sh.Board#version</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.Get">
+            <span class="title">
+                <a href="sh.network.Get.html">sh.network.Get</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.Get#_data"><a href="sh.network.Get.html#_data">_data</a></li>
+            
+                <li data-name="sh.network.Get#_headers"><a href="sh.network.Get.html#_headers">_headers</a></li>
+            
+                <li data-name="sh.network.Get#_method"><a href="sh.network.Get.html#_method">_method</a></li>
+            
+                <li data-name="sh.network.Get#_promise"><a href="sh.network.Get.html#_promise">_promise</a></li>
+            
+                <li data-name="sh.network.Get#_timeout"><a href="sh.network.Get.html#_timeout">_timeout</a></li>
+            
+                <li data-name="sh.network.Get#_url"><a href="sh.network.Get.html#_url">_url</a></li>
+            
+                <li data-name="sh.network.Get#_xhr"><a href="sh.network.Get.html#_xhr">_xhr</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.network.Get#_execute"><a href="sh.network.Get.html#_execute">_execute</a></li>
+            
+                <li data-name="sh.network.Get#catch"><a href="sh.network.Get.html#catch">catch</a></li>
+            
+                <li data-name="sh.network.Get#onProgress"><a href="sh.network.Get.html#onProgress">onProgress</a></li>
+            
+                <li data-name="sh.network.Get#onUploadProgress"><a href="sh.network.Get.html#onUploadProgress">onUploadProgress</a></li>
+            
+                <li data-name="sh.network.Get#then"><a href="sh.network.Get.html#then">then</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.Post">
+            <span class="title">
+                <a href="sh.network.Post.html">sh.network.Post</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.Post#_data"><a href="sh.network.Post.html#_data">_data</a></li>
+            
+                <li data-name="sh.network.Post#_headers"><a href="sh.network.Post.html#_headers">_headers</a></li>
+            
+                <li data-name="sh.network.Post#_method"><a href="sh.network.Post.html#_method">_method</a></li>
+            
+                <li data-name="sh.network.Post#_promise"><a href="sh.network.Post.html#_promise">_promise</a></li>
+            
+                <li data-name="sh.network.Post#_timeout"><a href="sh.network.Post.html#_timeout">_timeout</a></li>
+            
+                <li data-name="sh.network.Post#_url"><a href="sh.network.Post.html#_url">_url</a></li>
+            
+                <li data-name="sh.network.Post#_xhr"><a href="sh.network.Post.html#_xhr">_xhr</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.network.Post#_execute"><a href="sh.network.Post.html#_execute">_execute</a></li>
+            
+                <li data-name="sh.network.Post#catch"><a href="sh.network.Post.html#catch">catch</a></li>
+            
+                <li data-name="sh.network.Post#onProgress"><a href="sh.network.Post.html#onProgress">onProgress</a></li>
+            
+                <li data-name="sh.network.Post#onUploadProgress"><a href="sh.network.Post.html#onUploadProgress">onUploadProgress</a></li>
+            
+                <li data-name="sh.network.Post#then"><a href="sh.network.Post.html#then">then</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.ProgressEvent">
+            <span class="title">
+                <a href="sh.network.ProgressEvent.html">sh.network.ProgressEvent</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.ProgressEvent#computable"><a href="sh.network.ProgressEvent.html#computable">computable</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#loaded"><a href="sh.network.ProgressEvent.html#loaded">loaded</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#name"><a href="sh.network.ProgressEvent.html#name">name</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#percent"><a href="sh.network.ProgressEvent.html#percent">percent</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#request"><a href="sh.network.ProgressEvent.html#request">request</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#response"><a href="sh.network.ProgressEvent.html#response">response</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#source"><a href="sh.network.ProgressEvent.html#source">source</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#total"><a href="sh.network.ProgressEvent.html#total">total</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.Request">
+            <span class="title">
+                <a href="sh.network.Request.html">sh.network.Request</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.Request#_data"><a href="sh.network.Request.html#_data">_data</a></li>
+            
+                <li data-name="sh.network.Request#_headers"><a href="sh.network.Request.html#_headers">_headers</a></li>
+            
+                <li data-name="sh.network.Request#_method"><a href="sh.network.Request.html#_method">_method</a></li>
+            
+                <li data-name="sh.network.Request#_promise"><a href="sh.network.Request.html#_promise">_promise</a></li>
+            
+                <li data-name="sh.network.Request#_timeout"><a href="sh.network.Request.html#_timeout">_timeout</a></li>
+            
+                <li data-name="sh.network.Request#_url"><a href="sh.network.Request.html#_url">_url</a></li>
+            
+                <li data-name="sh.network.Request#_xhr"><a href="sh.network.Request.html#_xhr">_xhr</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.network.Request#_execute"><a href="sh.network.Request.html#_execute">_execute</a></li>
+            
+                <li data-name="sh.network.Request#catch"><a href="sh.network.Request.html#catch">catch</a></li>
+            
+                <li data-name="sh.network.Request#onProgress"><a href="sh.network.Request.html#onProgress">onProgress</a></li>
+            
+                <li data-name="sh.network.Request#onUploadProgress"><a href="sh.network.Request.html#onUploadProgress">onUploadProgress</a></li>
+            
+                <li data-name="sh.network.Request#then"><a href="sh.network.Request.html#then">then</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.RequestEvent">
+            <span class="title">
+                <a href="sh.network.RequestEvent.html">sh.network.RequestEvent</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.RequestEvent#name"><a href="sh.network.RequestEvent.html#name">name</a></li>
+            
+                <li data-name="sh.network.RequestEvent#request"><a href="sh.network.RequestEvent.html#request">request</a></li>
+            
+                <li data-name="sh.network.RequestEvent#response"><a href="sh.network.RequestEvent.html#response">response</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.Response">
+            <span class="title">
+                <a href="sh.network.Response.html">sh.network.Response</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.Response#code"><a href="sh.network.Response.html#code">code</a></li>
+            
+                <li data-name="sh.network.Response#message"><a href="sh.network.Response.html#message">message</a></li>
+            
+                <li data-name="sh.network.Response#raw"><a href="sh.network.Response.html#raw">raw</a></li>
+            
+                <li data-name="sh.network.Response#text"><a href="sh.network.Response.html#text">text</a></li>
+            
+                <li data-name="sh.network.Response#type"><a href="sh.network.Response.html#type">type</a></li>
+            
+                <li data-name="sh.network.Response#url"><a href="sh.network.Response.html#url">url</a></li>
+            
+                <li data-name="sh.network.Response#xml"><a href="sh.network.Response.html#xml">xml</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.Scanner">
+            <span class="title">
+                <a href="sh.network.Scanner.html">sh.network.Scanner</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.Scanner#_on"><a href="sh.network.Scanner.html#_on">_on</a></li>
+            
+                <li data-name="sh.network.Scanner#aborted"><a href="sh.network.Scanner.html#aborted">aborted</a></li>
+            
+                <li data-name="sh.network.Scanner#boards"><a href="sh.network.Scanner.html#boards">boards</a></li>
+            
+                <li data-name="sh.network.Scanner#found"><a href="sh.network.Scanner.html#found">found</a></li>
+            
+                <li data-name="sh.network.Scanner#input"><a href="sh.network.Scanner.html#input">input</a></li>
+            
+                <li data-name="sh.network.Scanner#queue"><a href="sh.network.Scanner.html#queue">queue</a></li>
+            
+                <li data-name="sh.network.Scanner#scanned"><a href="sh.network.Scanner.html#scanned">scanned</a></li>
+            
+                <li data-name="sh.network.Scanner#scanning"><a href="sh.network.Scanner.html#scanning">scanning</a></li>
+            
+                <li data-name="sh.network.Scanner#timeout"><a href="sh.network.Scanner.html#timeout">timeout</a></li>
+            
+                <li data-name="sh.network.Scanner#total"><a href="sh.network.Scanner.html#total">total</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Type Definitions</span>
+            
+                <li data-name="sh.network.Scanner~onBoard"><a href="sh.network.Scanner.html#~onBoard">onBoard</a></li>
+            
+                <li data-name="sh.network.Scanner~onEnd"><a href="sh.network.Scanner.html#~onEnd">onEnd</a></li>
+            
+                <li data-name="sh.network.Scanner~onPause"><a href="sh.network.Scanner.html#~onPause">onPause</a></li>
+            
+                <li data-name="sh.network.Scanner~onResume"><a href="sh.network.Scanner.html#~onResume">onResume</a></li>
+            
+                <li data-name="sh.network.Scanner~onStart"><a href="sh.network.Scanner.html#~onStart">onStart</a></li>
+            
+                <li data-name="sh.network.Scanner~onStop"><a href="sh.network.Scanner.html#~onStop">onStop</a></li>
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.network.Scanner#_processQueue"><a href="sh.network.Scanner.html#_processQueue">_processQueue</a></li>
+            
+                <li data-name="sh.network.Scanner#_trigger"><a href="sh.network.Scanner.html#_trigger">_trigger</a></li>
+            
+                <li data-name="sh.network.Scanner#on"><a href="sh.network.Scanner.html#on">on</a></li>
+            
+                <li data-name="sh.network.Scanner#pause"><a href="sh.network.Scanner.html#pause">pause</a></li>
+            
+                <li data-name="sh.network.Scanner#resume"><a href="sh.network.Scanner.html#resume">resume</a></li>
+            
+                <li data-name="sh.network.Scanner#setInput"><a href="sh.network.Scanner.html#setInput">setInput</a></li>
+            
+                <li data-name="sh.network.Scanner#setTimeout"><a href="sh.network.Scanner.html#setTimeout">setTimeout</a></li>
+            
+                <li data-name="sh.network.Scanner#start"><a href="sh.network.Scanner.html#start">start</a></li>
+            
+                <li data-name="sh.network.Scanner#stop"><a href="sh.network.Scanner.html#stop">stop</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+    </ul>
+</div>
+
+    <div class="main">
+        <h1 class="page-title" data-filename="sh.network.RequestEvent.html">Class: RequestEvent</h1>
+        
+
+
+
+<section>
+
+<header>
+    <h2>
+        <span class="ancestors"><a href="sh.html">sh</a><a href="sh.network.html">.network</a>.</span>
+    
+    RequestEvent
+    </h2>
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+
+    
+        
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="RequestEvent">
+            
+             new sh.network.RequestEvent<span class="signature">(name, request)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line104">line 104</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Custom request event.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Event name, possible values is <code>[upload.]load</code>, <code>[upload.]timeout</code>, <code>[upload.]abort</code> or <code>[upload.]error</code>.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>request</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.Request.html">sh.network.Request</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Original <code>sh.network.Request</code> instance.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="name"> name</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Possible values is <code>[upload.]load</code>, <code>[upload.]timeout</code>, <code>[upload.]abort</code> or <code>[upload.]error</code>.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="request"> request</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.Request.html">sh.network.Request</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Request instance.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="response"> response</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.Response.html">sh.network.Response</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Response instance.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+        
+
+        <footer>
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Sep 08 2016 16:59:24 GMT+0200 (Europe de l’Ouest (heure d’été))
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>
