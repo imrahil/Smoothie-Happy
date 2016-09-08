@@ -17,8 +17,15 @@
     *
     * {$examples sh.Board}
     */
-    sh.Board = function(address, callback) {
-        // invalid adress type
+    sh.Board = function(settings) {
+        // defaults settings
+        settings = settings || {};
+
+        var address  = settings.address;
+        var timeout  = settings.timeout;
+        var callback = settings.callback;
+
+        // invalid address type
         if (typeof address !== 'string') {
             throw new Error('Invalid address type.');
         }
@@ -26,14 +33,14 @@
         // Trim whitespaces
         address = address.trim();
 
-        // adress not provided or too short
+        // address not provided or too short
         if (address.length <= 4) {
             throw new Error('Address too short.');
         }
 
         // instance factory
         if (! (this instanceof sh.Board)) {
-            return new sh.Board(address, callback);
+            return new sh.Board(settings);
         }
 
         /**
@@ -41,6 +48,13 @@
         * @property  {String}  address  Board ip or hostname.
         */
         this.address = address;
+
+        /**
+        * @readonly
+        * @property  {Integer}  timeout  Default response timeout in milliseconds.
+        * @default   null
+        */
+        this.timeout = timeout;
 
         /**
         * @readonly
@@ -53,6 +67,9 @@
         */
         this.info = null;
 
+        // self alias
+        var self = this;
+
         // Check the board version
         this.Version(callback);
     };
@@ -62,12 +79,15 @@
     *
     * @method
     * @param   {String}           command  Command line.
+    * @param   {Integer}          timeout  Connection timeout in milliseconds.
     * @return  {sh.network.Post}  Promise
     */
-    sh.Board.prototype.Command = function(command) {
+    sh.Board.prototype.Command = function(command, timeout) {
+        timeout = timeout === undefined ? this.timeout : timeout;
         return sh.network.Post({
-            url : 'http://' + this.address + '/command',
-            data: command.trim() + '\n'
+            url    : 'http://' + this.address + '/command',
+            data   : command.trim() + '\n',
+            timeout: timeout
         });
     };
 

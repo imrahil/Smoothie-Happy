@@ -5,7 +5,9 @@
     * Network scanner.
     *
     * @class
-    * @param  {Object}  settings  Request settings.
+    * @param  {Object}        settings          Scanner settings.
+    * @param  {String|Array}  settings.input    Ip's scan pattern. See {@link sh.network.Scanner#setInput|setInput} for details.
+    * @param  {Integer}       settings.timeout  Scan timeout in milliseconds. See {@link sh.network.Scanner#setTimeout|setTimeout} for details.
     *
     * {$examples sh.network.Scanner}
     */
@@ -14,6 +16,9 @@
         if (! (this instanceof sh.network.Scanner)) {
             return new sh.network.Scanner(settings);
         }
+
+        // defaults settings
+        settings = settings || {};
 
         /**
         * @protected
@@ -26,7 +31,7 @@
         * @property  {String}  input  Input to scan.
         * @default   192.168.1.*.
         */
-        this.input = '192.168.1.*';
+        this.input = settings.input || '192.168.1.*';
 
         /**
         * @readonly
@@ -39,7 +44,14 @@
         * @property  {Integer}  timeout  Default response timeout in milliseconds.
         * @default 1000
         */
-        this.timeout = 1000;
+        this.timeout = settings.timeout === undefined ? 1000 : settings.timeout;
+
+        /**
+        * @readonly
+        * @property  {Integer}  timeout  Default response timeout in milliseconds.
+        * @default 1000
+        */
+        this.board_timeout = settings.board_timeout === undefined ? 5000 : settings.board_timeout;
 
         /**
         * @readonly
@@ -296,11 +308,11 @@
             return false;
         }
 
-        // shift first ip from the queue
-        var ip = this.queue.shift();
+        // shift first address from the queue
+        var address = this.queue.shift();
 
         // end of queue
-        if (! ip) {
+        if (! address) {
             this._trigger('end', [this]);
             this.scanning = false;
             return true;
@@ -310,27 +322,34 @@
         var self  = this;
 
         // board object
-        var board = sh.Board(ip, function(result) {
-            // increment scanned counter
-            self.scanned++;
+        var board = sh.Board({
+            address : address,
+            timeout : this.timeout,
+            callback: function(result) {
+                // increment scanned counter
+                self.scanned++;
 
-            // no error
-            if (! result.error) {
-                // increment found counter
-                self.found++;
+                // no error
+                if (! result.error) {
+                    // increment found counter
+                    self.found++;
 
-                // add the board
-                self.boards[ip] = board;
+                    // add the board
+                    self.boards[address] = board;
 
-                // trigger board event
-                self._trigger('board', [self, board]);
+                    // set timeout to infinity
+                    board.timeout = self.board_timeout;
+
+                    // trigger board event
+                    self._trigger('board', [self, board]);
+                }
+
+                // trigger progress event
+                self._trigger('progress', [self]);
+
+                // process queue
+                self._processQueue();
             }
-
-            // trigger progress event
-            self._trigger('progress', [self]);
-
-            // process queue
-            self._processQueue();
         });
 
         // return null
@@ -348,13 +367,13 @@
     * @return {self}
     */
     sh.network.Scanner.prototype.start = function(input, timeout) {
-        // Set the input
+        // set the input
         this.setInput(input || this.input);
 
-        // Set the timeout
+        // set the timeout
         timeout && this.setTimeout(timeout);
 
-        // reset scan status
+        // set scan status
         this.scanning = true;
         this.aborted  = false;
         this.total    = this.queue.length;
@@ -373,18 +392,43 @@
     };
 
     /**
+    * Stop current scan.
+    *
+    * @method
+    * @return {self}
+    */
+    sh.network.Scanner.prototype.stop = function() {
+        if (this.scanning || this.aborted) {
+            // set scan status
+            this.scanning = false;
+            this.aborted  = false;
+
+            // call user callback
+            this._trigger('stop', [this]);
+        }
+
+        // chainable
+        return this;
+    };
+
+    /**
     * Pause current scan.
     *
     * @method
     * @return {self}
     */
     sh.network.Scanner.prototype.pause = function() {
-        // call user callback
-        this._trigger('pause', [this]);
+        if (this.scanning) {
+            // set scan status
+            this.scanning = false;
+            this.aborted  = true;
+
+            // call user callback
+            this._trigger('pause', [this]);
+       }
 
         // chainable
         return this;
-
     };
 
     /**
@@ -394,23 +438,17 @@
     * @return {self}
     */
     sh.network.Scanner.prototype.resume = function() {
-        // call user callback
-        this._trigger('resume', [this]);
+        if (this.aborted) {
+            // set scan status
+            this.aborted  = false;
+            this.scanning = true;
 
-        // chainable
-        return this;
+            // call user callback
+            this._trigger('resume', [this]);
 
-    };
-
-    /**
-    * Stop current scan.
-    *
-    * @method
-    * @return {self}
-    */
-    sh.network.Scanner.prototype.stop = function() {
-        // call user callback
-        this._trigger('stop', [this]);
+            // process queue
+            this._processQueue();
+        }
 
         // chainable
         return this;

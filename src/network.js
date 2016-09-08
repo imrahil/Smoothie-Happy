@@ -190,7 +190,7 @@
         * @property  {Integer}  -  Request timeout in milliseconds.
         * @default   5000
         */
-        this._timeout = settings.timeout || 5000;
+        this._timeout = settings.timeout === undefined ? 5000 : settings.timeout;
 
         /**
         * @protected

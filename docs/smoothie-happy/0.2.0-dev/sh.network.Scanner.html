@@ -109,6 +109,8 @@
             
                 <li data-name="sh.Board#info"><a href="sh.Board.html#info">info</a></li>
             
+                <li data-name="sh.Board#timeout"><a href="sh.Board.html#timeout">timeout</a></li>
+            
             </ul>
             <ul class="typedefs itemMembers">
             
@@ -384,6 +386,8 @@
             
                 <li data-name="sh.network.Scanner#aborted"><a href="sh.network.Scanner.html#aborted">aborted</a></li>
             
+                <li data-name="sh.network.Scanner#board_timeout"><a href="sh.network.Scanner.html#board_timeout">board_timeout</a></li>
+            
                 <li data-name="sh.network.Scanner#boards"><a href="sh.network.Scanner.html#boards">boards</a></li>
             
                 <li data-name="sh.network.Scanner#found"><a href="sh.network.Scanner.html#found">found</a></li>
@@ -481,7 +485,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line768">line 768</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line782">line 782</a>
         </div>
         
     </div>
@@ -539,7 +543,79 @@
 
             <td class="description last">
                 
-                <p>Request settings.</p></td>
+                <p>Scanner settings.</p>
+                
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>input</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+|
+
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Ip's scan pattern. See <a href="sh.network.Scanner.html#setInput"><code>setInput</code></a> for details.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>timeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Scan timeout in milliseconds. See <a href="sh.network.Scanner.html#setTimeout"><code>setTimeout</code></a> for details.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+            </td>
         </tr>
 
 	
@@ -598,8 +674,20 @@ scanner.on('start', function(scan) {
     console.log('scan:', 'start:', scan.total);
 });
 
+scanner.on('pause', function(scan) {
+    console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
+});
+
+scanner.on('resume', function(scan) {
+    console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
+});
+
+scanner.on('stop', function(scan) {
+    console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
+});
+
 scanner.on('progress', function(scan) {
-    console.log('scan:', 'progress:', scan.scanned);
+    console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
 });
 
 scanner.on('board', function(scan, board) {
@@ -607,11 +695,16 @@ scanner.on('board', function(scan, board) {
 });
 
 scanner.on('end', function(scan) {
-    console.log('scan:', 'end:', scan.found);
+    console.log('scan:', 'end:', scan.scanned, '/', scan.total);
+    console.log('scan:', 'found:', scan.found, '/', scan.total);
 });
 
 // start scan
-scanner.start('192.168.1.100-105');</code></pre>
+scanner.start('192.168.1.100-105');
+
+setTimeout(function() {
+    scanner.stop();
+}, 10000);</code></pre>
 
 
     
@@ -786,6 +879,92 @@ scanner.start('192.168.1.100-105');</code></pre>
 
     
 
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="board_timeout"><span class="type-signature ">readonly</span> board_timeout</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Default response timeout in milliseconds.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>1000</li></ul></dd>
     
 
     
@@ -1486,7 +1665,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1049">line 1049</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1073">line 1073</a>
         </div>
         
     </div>
@@ -1564,7 +1743,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line920">line 920</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line944">line 944</a>
         </div>
         
     </div>
@@ -1711,7 +1890,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line903">line 903</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line927">line 927</a>
         </div>
         
     </div>
@@ -1905,7 +2084,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1137">line 1137</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1188">line 1188</a>
         </div>
         
     </div>
@@ -1983,7 +2162,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1152">line 1152</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1208">line 1208</a>
         </div>
         
     </div>
@@ -2061,7 +2240,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line947">line 947</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line971">line 971</a>
         </div>
         
     </div>
@@ -2195,7 +2374,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1028">line 1028</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1052">line 1052</a>
         </div>
         
     </div>
@@ -2319,7 +2498,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1106">line 1106</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1137">line 1137</a>
         </div>
         
     </div>
@@ -2469,7 +2648,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1167">line 1167</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1168">line 1168</a>
         </div>
         
     </div>
@@ -2553,7 +2732,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line868">line 868</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line892">line 892</a>
         </div>
         
     </div>
@@ -2695,7 +2874,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line876">line 876</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line900">line 900</a>
         </div>
         
     </div>
@@ -2814,7 +2993,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line847">line 847</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line871">line 871</a>
         </div>
         
     </div>
@@ -2933,7 +3112,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line854">line 854</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line878">line 878</a>
         </div>
         
     </div>
@@ -3052,7 +3231,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line840">line 840</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line864">line 864</a>
         </div>
         
     </div>
@@ -3171,7 +3350,7 @@ scanner.start('192.168.1.100-105');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line861">line 861</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line885">line 885</a>
         </div>
         
     </div>
@@ -3294,7 +3473,7 @@ scanner.start('192.168.1.100-105');</code></pre>
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Sep 08 2016 17:43:42 GMT+0200 (Europe de l’Ouest (heure d’été))
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Sep 08 2016 19:03:16 GMT+0200 (Europe de l’Ouest (heure d’été))
         </footer>
     </div>
 </div>
