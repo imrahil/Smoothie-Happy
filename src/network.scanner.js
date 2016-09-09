@@ -322,35 +322,47 @@
         var self  = this;
 
         // board object
-        var board = sh.Board({
-            address : address,
-            timeout : this.timeout,
-            callback: function(result) {
-                // increment scanned counter
-                self.scanned++;
+        try {
+            var board = sh.Board({
+                address : address,
+                timeout : this.timeout,
+                callback: function(result) {
+                    // increment scanned counter
+                    self.scanned++;
 
-                // no error
-                if (! result.error) {
-                    // increment found counter
-                    self.found++;
+                    // no error
+                    if (! result.error) {
+                        // increment found counter
+                        self.found++;
 
-                    // add the board
-                    self.boards[address] = board;
+                        // add the board
+                        self.boards[address] = board;
 
-                    // set timeout to infinity
-                    board.timeout = self.board_timeout;
+                        // set timeout to infinity
+                        board.timeout = self.board_timeout;
 
-                    // trigger board event
-                    self._trigger('board', [self, board]);
+                        // trigger board event
+                        self._trigger('board', [self, board]);
+                    }
+
+                    // trigger progress event
+                    self._trigger('progress', [self]);
+
+                    // process queue
+                    self._processQueue();
                 }
+            });
+        }
+        catch(error) {
+            // increment scanned counter
+            self.scanned++;
 
-                // trigger progress event
-                self._trigger('progress', [self]);
+            // trigger progress event
+            self._trigger('progress', [self]);
 
-                // process queue
-                self._processQueue();
-            }
-        });
+            // process queue
+            self._processQueue();
+        }
 
         // return null
         return null;
