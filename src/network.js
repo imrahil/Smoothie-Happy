@@ -225,9 +225,6 @@
             }
         }
 
-        // force timeout
-        this._xhr.timeout = this._timeout;
-
         /**
         * @protected
         * @property  {Promise}  -  Promise instance.
@@ -250,6 +247,9 @@
         return new Promise(function(resolve, reject) {
             // open the request (async)
             self._xhr.open(self._method, self._url, true);
+
+            // force timeout
+            self._xhr.timeout = self._timeout;
 
             // on load
             self._xhr.onload = function () {
