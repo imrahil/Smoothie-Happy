@@ -323,7 +323,7 @@
 
         // board object
         try {
-            var board = sh.Board({
+            sh.Board({
                 address : address,
                 timeout : this.timeout,
                 callback: function(result) {
@@ -336,13 +336,13 @@
                         self.found++;
 
                         // add the board
-                        self.boards[address] = board;
+                        self.boards[address] = this;
 
                         // set timeout to infinity
-                        board.timeout = self.boardTimeout;
+                        this.timeout = self.boardTimeout;
 
                         // trigger board event
-                        self._trigger('board', [self, board]);
+                        self._trigger('board', [self, this]);
                     }
 
                     // trigger progress event
