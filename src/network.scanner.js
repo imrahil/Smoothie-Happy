@@ -318,45 +318,46 @@
             return true;
         }
 
+        // increment scanned counter
+        this.scanned++;
+
         // self alias
         var self  = this;
 
-        // board object
         try {
-            sh.Board({
-                address : address,
-                timeout : this.timeout,
-                callback: function(result) {
-                    // increment scanned counter
-                    self.scanned++;
+            // create board instance
+            var board = sh.Board({
+                address: address,
+                timeout: this.timeout
+            });
 
-                    // no error
-                    if (! result.error) {
-                        // increment found counter
-                        self.found++;
+            // get board version
+            board.Version().then(function(event) {
+                // increment counters
+                self.found++;
 
-                        // add the board
-                        self.boards[address] = this;
+                // add the board
+                self.boards[address] = event.board;
 
-                        // set timeout to infinity
-                        this.timeout = self.boardTimeout;
+                // set board default timeout
+                event.board.timeout = self.boardTimeout;
 
-                        // trigger board event
-                        self._trigger('board', [self, this]);
-                    }
+                // trigger board event
+                self._trigger('board', [self, event.board]);
+            })
+            .catch(function(event) {
+                // return event
+                return event;
+            })
+            .then(function(event) {
+                // trigger progress event
+                self._trigger('progress', [self]);
 
-                    // trigger progress event
-                    self._trigger('progress', [self]);
-
-                    // process queue
-                    self._processQueue();
-                }
+                // process queue
+                self._processQueue();
             });
         }
         catch(error) {
-            // increment scanned counter
-            self.scanned++;
-
             // trigger progress event
             self._trigger('progress', [self]);
 
