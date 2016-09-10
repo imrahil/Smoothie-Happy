@@ -41,17 +41,17 @@
 
         /**
         * @readonly
-        * @property  {Integer}  timeout  Default response timeout in milliseconds.
+        * @property  {Integer}  timeout  Default scan response timeout in milliseconds.
         * @default 1000
         */
         this.timeout = settings.timeout === undefined ? 1000 : settings.timeout;
 
         /**
         * @readonly
-        * @property  {Integer}  timeout  Default response timeout in milliseconds.
+        * @property  {Integer}  boardTimeout  Default board response timeout in milliseconds.
         * @default 1000
         */
-        this.board_timeout = settings.board_timeout === undefined ? 5000 : settings.board_timeout;
+        this.boardTimeout = settings.boardTimeout === undefined ? 5000 : settings.boardTimeout;
 
         /**
         * @readonly
@@ -339,7 +339,7 @@
                         self.boards[address] = board;
 
                         // set timeout to infinity
-                        board.timeout = self.board_timeout;
+                        board.timeout = self.boardTimeout;
 
                         // trigger board event
                         self._trigger('board', [self, board]);
