@@ -77,22 +77,31 @@
 
 // -----------------------------------------------------------------------------
 
-// // @example sh.Board - Board class usage :
-// // create the board instance
-// var board = sh.Board('192.168.1.102', function(result) {
-//     if (! result.error) {
-//         // log board info
-//         console.log(board.info);
-//     }
-//     else {
-//         // log error message
-//         console.error('Not a smoothieboard!');
-//     }
-// });
+//// @example sh.Board - Board class usage
+// create the board instance
+var board = sh.Board('192.168.1.102');
+
+// get board version (raw)
+board.Command('version').then(function(event) {
+    console.info('board:', event.board);
+    console.info('version:', event.originalEvent.response.raw);
+})
+.catch(function(event) {
+    console.error('version:', event.name, event);
+});
+
+// get board version (parsed)
+board.Version().then(function(event) {
+    console.info('board:', event.board);
+    console.info('info:', event.data);
+})
+.catch(function(event) {
+    console.error('version:', event.name, event);
+});
 
 // -----------------------------------------------------------------------------
 
-// // @example sh.network.Scanner - Scanne the network
+//// @example sh.network.Scanner - Scanne the network
 // // create the scanner instance
 // var scanner = sh.network.Scanner();
 //
