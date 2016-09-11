@@ -147,14 +147,14 @@
     * @return {self}
     *
     * @callbacks
-    * | Name    | Type | Description |
-    * | ------- | ---- | ----------- |
-    * | start   | {@link sh.network.Scanner~onStart|onStart}   | Called before scan start.  |
-    * | pause   | {@link sh.network.Scanner~onPause|onPause}   | Called after scan pause.   |
-    * | resume  | {@link sh.network.Scanner~onResume|onResume} | Called before scan resume. |
-    * | stop    | {@link sh.network.Scanner~onStop|onStop}     | Called after scan stop.    |
-    * | stop    | {@link sh.network.Scanner~onBoard|onBoard}   | Called after board found.  |
-    * | stop    | {@link sh.network.Scanner~onEnd|onEnd}       | Called after scan end.     |
+    * | Name | Type | Description |
+    * | -----| ---- | ----------- |
+    * | start  | {@link sh.network.Scanner~onStart|onStart}   | Called before scan start.  |
+    * | pause  | {@link sh.network.Scanner~onPause|onPause}   | Called after scan pause.   |
+    * | resume | {@link sh.network.Scanner~onResume|onResume} | Called before scan resume. |
+    * | stop   | {@link sh.network.Scanner~onStop|onStop}     | Called after scan stop.    |
+    * | stop   | {@link sh.network.Scanner~onBoard|onBoard}   | Called after board found.  |
+    * | stop   | {@link sh.network.Scanner~onEnd|onEnd}       | Called after scan end.     |
     */
     sh.network.Scanner.prototype.on = function(event, callback) {
         // register callback
