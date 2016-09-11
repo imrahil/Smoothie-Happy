@@ -107,25 +107,19 @@
             
                 <li data-name="sh.Board#address"><a href="sh.Board.html#address">address</a></li>
             
+                <li data-name="sh.Board#id"><a href="sh.Board.html#id">id</a></li>
+            
                 <li data-name="sh.Board#info"><a href="sh.Board.html#info">info</a></li>
+            
+                <li data-name="sh.Board#online"><a href="sh.Board.html#online">online</a></li>
             
                 <li data-name="sh.Board#timeout"><a href="sh.Board.html#timeout">timeout</a></li>
             
             </ul>
             <ul class="typedefs itemMembers">
             
-            <span class="subtitle">Type Definitions</span>
-            
-                <li data-name="sh.Board~onResponse"><a href="sh.Board.html#~onResponse">onResponse</a></li>
-            
             </ul>
             <ul class="methods itemMembers">
-            
-            <span class="subtitle">Methods</span>
-            
-                <li data-name="sh.Board#Command"><a href="sh.Board.html#Command">Command</a></li>
-            
-                <li data-name="sh.Board#Version"><a href="sh.Board.html#Version">Version</a></li>
             
             </ul>
             <ul class="events itemMembers">
@@ -386,9 +380,9 @@
             
                 <li data-name="sh.network.Scanner#aborted"><a href="sh.network.Scanner.html#aborted">aborted</a></li>
             
-                <li data-name="sh.network.Scanner#board_timeout"><a href="sh.network.Scanner.html#board_timeout">board_timeout</a></li>
-            
                 <li data-name="sh.network.Scanner#boards"><a href="sh.network.Scanner.html#boards">boards</a></li>
+            
+                <li data-name="sh.network.Scanner#boardTimeout"><a href="sh.network.Scanner.html#boardTimeout">boardTimeout</a></li>
             
                 <li data-name="sh.network.Scanner#found"><a href="sh.network.Scanner.html#found">found</a></li>
             
@@ -465,7 +459,7 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) &lt;sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    330d371c7fa8e216ffd82be37c5748c9
+* @build    4dec0d34bfb30763ff42d06a8c4192a3
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -487,7 +481,7 @@ var sh = sh || {};
     * @readonly
     * @property {String} build API build hash.
     */
-    sh.build = '330d371c7fa8e216ffd82be37c5748c9';
+    sh.build = '4dec0d34bfb30763ff42d06a8c4192a3';
 
     /**
     * @default
@@ -714,58 +708,6 @@ var sh = sh || {};
     * 
     *      console[logType](event.request._url, '>>', logLabel, '>>', event.response);
     *  });
-    * 
-    * 
-    *  // @example sh.Board - Board class usage :
-    *  // create the board instance
-    *  var board = sh.Board('192.168.1.102', function(result) {
-    *      if (! result.error) {
-    *          // log board info
-    *          console.log(board.info);
-    *      }
-    *      else {
-    *          // log error message
-    *          console.error('Not a smoothieboard!');
-    *      }
-    *  });
-    * 
-    * 
-    *  // @example sh.network.Scanner - Scanne the network
-    *  // create the scanner instance
-    *  var scanner = sh.network.Scanner();
-    * 
-    *  // register events callbacks
-    *  scanner.on('start', function(scan) {
-    *      console.log('scan:', 'start:', scan.total);
-    *  });
-    * 
-    *  scanner.on('pause', function(scan) {
-    *      console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
-    *  });
-    * 
-    *  scanner.on('resume', function(scan) {
-    *      console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
-    *  });
-    * 
-    *  scanner.on('stop', function(scan) {
-    *      console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
-    *  });
-    * 
-    *  scanner.on('progress', function(scan) {
-    *      console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
-    *  });
-    * 
-    *  scanner.on('board', function(scan, board) {
-    *      console.log('scan:', 'board:', board);
-    *  });
-    * 
-    *  scanner.on('end', function(scan) {
-    *      console.log('scan:', 'end:', scan.scanned, '/', scan.total);
-    *      console.log('scan:', 'found:', scan.found, '/', scan.total);
-    *  });
-    * 
-    *  // start scan
-    *  scanner.start('192.168.1.100-115');
     * ```
     */
     sh.network.Request = function(settings) {
@@ -872,9 +814,6 @@ var sh = sh || {};
             }
         }
 
-        // force timeout
-        this._xhr.timeout = this._timeout;
-
         /**
         * @protected
         * @property  {Promise}  -  Promise instance.
@@ -897,6 +836,9 @@ var sh = sh || {};
         return new Promise(function(resolve, reject) {
             // open the request (async)
             self._xhr.open(self._method, self._url, true);
+
+            // force timeout
+            self._xhr.timeout = self._timeout;
 
             // on load
             self._xhr.onload = function () {
@@ -1084,40 +1026,43 @@ var sh = sh || {};
     sh.network.Post.prototype.constructor = sh.network.Post;
 
     /**
-    * On board response.
-    *
-    * @callback sh.Board~onResponse
-    * @param  {object}  result  Request result.
-    */
-
-    /**
     * Board class.
     *
     * @class
-    * @param  {String}               address   Board ip or hostname.
-    * @param  {sh.Board~onResponse}  callback  Function to call on request result.
+    * @param  {String|Object}  address|settings  Board ip or hostname.
+    * @param  {Object}         [settings]          Board settings.
+    * @param  {String}         [settings.address]  Board ip or hostname.
+    * @param  {Integer}        [settings.timeout]  Default response timeout in milliseconds.
     *
-    * 
+    * @example
+    * ### Board class usage
+    * ```
+    * create the board instance
+    * var board1 = sh.Board('192.168.1.101');
+    * var board2 = sh.Board('192.168.1.102');
+    * ```
     */
-    sh.Board = function(settings) {
+    sh.Board = function(address, settings) {
         // defaults settings
         settings = settings || {};
 
-        var address  = settings.address;
-        var timeout  = settings.timeout;
-        var callback = settings.callback;
+        // settings provided on first argument
+        if (typeof address === 'object') {
+            settings = address;
+            address  = settings.address;
+        }
 
         // invalid address type
         if (typeof address !== 'string') {
-            throw new Error('Invalid address type.');
+            throw new Error('Address must be a string.');
         }
 
         // Trim whitespaces
         address = address.trim();
 
         // address not provided or too short
-        if (address.length &lt;= 4) {
-            throw new Error('Address too short.');
+        if (!address || address.length &lt;= 4) {
+            throw new Error('Address too short [min.: 4].');
         }
 
         // instance factory
@@ -1130,6 +1075,12 @@ var sh = sh || {};
         * @property  {String}  address  Board ip or hostname.
         */
         this.address = address;
+
+        /**
+        * @readonly
+        * @property  {String}  id  Board ip or hostname as DOM id.
+        */
+        this.id = address.replace(/[^0-9a-z_\-]+/gi, '-');
 
         /**
         * @readonly
@@ -1149,83 +1100,15 @@ var sh = sh || {};
         */
         this.info = null;
 
-        // self alias
-        var self = this;
+        /**
+        * @readonly
+        * @property  {Boolean}  online  Is online.
+        * @default   null
+        */
+        this.online = false;
 
-        // Check the board version
-        this.Version(callback);
-    };
-
-    /**
-    * Send command line and return a Promise.
-    *
-    * @method
-    * @param   {String}           command  Command line.
-    * @param   {Integer}          timeout  Connection timeout in milliseconds.
-    * @return  {sh.network.Post}  Promise
-    */
-    sh.Board.prototype.Command = function(command, timeout) {
-        timeout = timeout === undefined ? this.timeout : timeout;
-        return sh.network.Post({
-            url    : 'http://' + this.address + '/command',
-            data   : command.trim() + '\n',
-            timeout: timeout
-        });
-    };
-
-    /**
-    * Get the board version.
-    *
-    * @method
-    * @param   {sh.Board~onResponse}  callback  Function to call on request result.
-    * @return  {sh.network.Post}      Promise
-    */
-    sh.Board.prototype.Version = function(callback) {
-        // Self alias
-        var self = this;
-
-        // Make the request
-        var promise = this.Command('version').then(function(event) {
-            // error flag true by default
-            var error = true;
-
-            // version pattern
-            // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
-            var pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
-
-            // test the pattern
-            var matches = event.response.raw.match(pattern);
-
-            if (matches) {
-                // split branch-hash on dash
-                var branch = matches[1].split('-');
-
-                // no error
-                error = false;
-
-                // response object
-                self.info = {
-                    branch: branch[0],
-                    hash  : branch[1],
-                    date  : matches[2],
-                    mcu   : matches[3],
-                    clock : matches[4]
-                };
-            }
-
-            // return result for final then
-            return { event: event, error: error, data: self.info };
-        })
-        .catch(function(event) {
-            // return error for final then
-            return { event: event, error: true, data: null };
-        });
-
-        // If final user callback
-        callback &amp;&amp; promise.then(callback);
-
-        // Return the promise
-        return promise;
+        // ...
+        console.log(this);
     };
 
     /**
@@ -1240,44 +1123,40 @@ var sh = sh || {};
     * ### Scanne the network
     * ```
     * // create the scanner instance
-    * var scanner = sh.network.Scanner();
+    *  var scanner = sh.network.Scanner();
     * 
-    * // register events callbacks
-    * scanner.on('start', function(scan) {
-    *     console.log('scan:', 'start:', scan.total);
-    * });
+    *  // register events callbacks
+    *  scanner.on('start', function(scan) {
+    *      console.log('scan:', 'start:', scan.total);
+    *  });
     * 
-    * scanner.on('pause', function(scan) {
-    *     console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
-    * });
+    *  scanner.on('pause', function(scan) {
+    *      console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
+    *  });
     * 
-    * scanner.on('resume', function(scan) {
-    *     console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
-    * });
+    *  scanner.on('resume', function(scan) {
+    *      console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
+    *  });
     * 
-    * scanner.on('stop', function(scan) {
-    *     console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
-    * });
+    *  scanner.on('stop', function(scan) {
+    *      console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
+    *  });
     * 
-    * scanner.on('progress', function(scan) {
-    *     console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
-    * });
+    *  scanner.on('progress', function(scan) {
+    *      console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
+    *  });
     * 
-    * scanner.on('board', function(scan, board) {
-    *     console.log('scan:', 'board:', board);
-    * });
+    *  scanner.on('board', function(scan, board) {
+    *      console.log('scan:', 'board:', board);
+    *  });
     * 
-    * scanner.on('end', function(scan) {
-    *     console.log('scan:', 'end:', scan.scanned, '/', scan.total);
-    *     console.log('scan:', 'found:', scan.found, '/', scan.total);
-    * });
+    *  scanner.on('end', function(scan) {
+    *      console.log('scan:', 'end:', scan.scanned, '/', scan.total);
+    *      console.log('scan:', 'found:', scan.found, '/', scan.total);
+    *  });
     * 
-    * // start scan
-    * scanner.start('192.168.1.100-105');
-    * 
-    * setTimeout(function() {
-    *     scanner.stop();
-    * }, 10000);
+    *  // start scan
+    *  scanner.start('192.168.1.100-115');
     * ```
     */
     sh.network.Scanner = function(settings) {
@@ -1310,17 +1189,17 @@ var sh = sh || {};
 
         /**
         * @readonly
-        * @property  {Integer}  timeout  Default response timeout in milliseconds.
+        * @property  {Integer}  timeout  Default scan response timeout in milliseconds.
         * @default 1000
         */
         this.timeout = settings.timeout === undefined ? 1000 : settings.timeout;
 
         /**
         * @readonly
-        * @property  {Integer}  timeout  Default response timeout in milliseconds.
+        * @property  {Integer}  boardTimeout  Default board response timeout in milliseconds.
         * @default 1000
         */
-        this.board_timeout = settings.board_timeout === undefined ? 5000 : settings.board_timeout;
+        this.boardTimeout = settings.boardTimeout === undefined ? 5000 : settings.boardTimeout;
 
         /**
         * @readonly
@@ -1591,35 +1470,47 @@ var sh = sh || {};
         var self  = this;
 
         // board object
-        var board = sh.Board({
-            address : address,
-            timeout : this.timeout,
-            callback: function(result) {
-                // increment scanned counter
-                self.scanned++;
+        try {
+            sh.Board({
+                address : address,
+                timeout : this.timeout,
+                callback: function(result) {
+                    // increment scanned counter
+                    self.scanned++;
 
-                // no error
-                if (! result.error) {
-                    // increment found counter
-                    self.found++;
+                    // no error
+                    if (! result.error) {
+                        // increment found counter
+                        self.found++;
 
-                    // add the board
-                    self.boards[address] = board;
+                        // add the board
+                        self.boards[address] = this;
 
-                    // set timeout to infinity
-                    board.timeout = self.board_timeout;
+                        // set timeout to infinity
+                        this.timeout = self.boardTimeout;
 
-                    // trigger board event
-                    self._trigger('board', [self, board]);
+                        // trigger board event
+                        self._trigger('board', [self, this]);
+                    }
+
+                    // trigger progress event
+                    self._trigger('progress', [self]);
+
+                    // process queue
+                    self._processQueue();
                 }
+            });
+        }
+        catch(error) {
+            // increment scanned counter
+            self.scanned++;
 
-                // trigger progress event
-                self._trigger('progress', [self]);
+            // trigger progress event
+            self._trigger('progress', [self]);
 
-                // process queue
-                self._processQueue();
-            }
-        });
+            // process queue
+            self._processQueue();
+        }
 
         // return null
         return null;
@@ -1736,7 +1627,7 @@ var sh = sh || {};
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Sep 08 2016 19:08:29 GMT+0200 (Europe de l’Ouest (heure d’été))
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Sep 10 2016 09:41:55 GMT+0200 (Europe de l’Ouest (heure d’été))
         </footer>
     </div>
 </div>

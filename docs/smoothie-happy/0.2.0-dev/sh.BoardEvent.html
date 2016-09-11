@@ -118,6 +118,47 @@
             </ul>
             <ul class="typedefs itemMembers">
             
+            <span class="subtitle">Type Definitions</span>
+            
+                <li data-name="sh.Board~onResponse"><a href="sh.Board.html#~onResponse">onResponse</a></li>
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.Board#Command"><a href="sh.Board.html#Command">Command</a></li>
+            
+                <li data-name="sh.Board#Connect"><a href="sh.Board.html#Connect">Connect</a></li>
+            
+                <li data-name="sh.Board#Version"><a href="sh.Board.html#Version">Version</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.BoardEvent">
+            <span class="title">
+                <a href="sh.BoardEvent.html">sh.BoardEvent</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.BoardEvent#board"><a href="sh.BoardEvent.html#board">board</a></li>
+            
+                <li data-name="sh.BoardEvent#data"><a href="sh.BoardEvent.html#data">data</a></li>
+            
+                <li data-name="sh.BoardEvent#event"><a href="sh.BoardEvent.html#event">event</a></li>
+            
+                <li data-name="sh.BoardEvent#name"><a href="sh.BoardEvent.html#name">name</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
             </ul>
             <ul class="methods itemMembers">
             
@@ -448,7 +489,7 @@
 </div>
 
     <div class="main">
-        <h1 class="page-title" data-filename="sh.Board.html">Class: Board</h1>
+        <h1 class="page-title" data-filename="sh.BoardEvent.html">Class: BoardEvent</h1>
         
 
 
@@ -459,7 +500,7 @@
     <h2>
         <span class="ancestors"><a href="sh.html">sh</a>.</span>
     
-    Board
+    BoardEvent
     </h2>
     
 </header>
@@ -472,14 +513,14 @@
         
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="Board">
+        <h4 class="name" id="BoardEvent">
             
-             new sh.Board<span class="signature">(address|settings, <span class="optional">settings</span>)</span>
+             new sh.BoardEvent<span class="signature">(name, board, event, data)</span>
         </h4>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line588">line 588</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line580">line 580</a>
         </div>
         
     </div>
@@ -490,7 +531,7 @@
 
     
     <div class="description">
-        <p>Board class.</p>
+        <p>Custom board event.</p>
     </div>
     
 
@@ -521,16 +562,85 @@
 
         <tr>
             
-                <td class="name"><code>address|settings</code></td>
+                <td class="name"><code>name</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Event name.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>board</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.Board.html">sh.Board</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board instance.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.RequestEvent.html">sh.network.RequestEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Original <code>sh.network.RequestEvent</code> instance.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
 |
 
-<span class="param-type">Object</span>
+<span class="param-type">null</span>
 
 
             
@@ -540,125 +650,7 @@
 
             <td class="description last">
                 
-                    
-                    
-
-                    
-                
-                <p>Board ip or hostname.</p></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>settings</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            <td class="description last">
-                
-                    
-                        <span class="optional">optional</span>
-                    
-                    
-
-                    
-                
-                <p>Board settings.</p>
-                
-
-<table class="params">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            
-                <td class="name"><code>address</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            <td class="description last">
-                
-                    
-                        <span class="optional">optional</span>
-                    
-                    
-
-                    
-                
-                <p>Board ip or hostname.</p></td>
-        </tr>
-
-	
-
-        <tr>
-            
-                <td class="name"><code>timeout</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Integer</span>
-
-
-            
-            </td>
-
-            
-
-            <td class="description last">
-                
-                    
-                        <span class="optional">optional</span>
-                    
-                    
-
-                    
-                
-                <p>Default response timeout in milliseconds.</p></td>
-        </tr>
-
-	
-	</tbody>
-</table>
-
-            </td>
+                <p>Event data (depending on the command).</p></td>
         </tr>
 
 	
@@ -704,15 +696,6 @@
     
 
     
-
-    
-        <h5>Example</h5>
-        
-
-    <h3>Board class usage</h3><pre class="prettyprint source"><code>create the board instance
-var board1 = sh.Board('192.168.1.101');
-var board2 = sh.Board('192.168.1.102');</code></pre>
-
 
     
 </dd>
@@ -737,7 +720,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="address"><span class="type-signature ">readonly</span> address</h4>
+        <h4 class="name" id="board"> board</h4>
     </div>
 
     
@@ -771,7 +754,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
             <td class="type">
             
                 
-<span class="param-type">String</span>
+<span class="param-type"><a href="sh.Board.html">sh.Board</a></span>
 
 
             
@@ -781,7 +764,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
 
             
 
-            <td class="description last"><p>Board ip or hostname.</p></td>
+            <td class="description last"><p>Board instance.</p></td>
         </tr>
 
 	
@@ -820,90 +803,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="id"><span class="type-signature ">readonly</span> id</h4>
-    </div>
-
-    
-</dt>
-<dd>
-    
-
-    
-<dl class="details">
-    
-
-        <dl>
-
-<table class="props">
-    <thead>
-	<tr>
-		<th>Type</th>
-
-		
-
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Board ip or hostname as DOM id.</p></td>
-        </tr>
-
-	
-	</tbody>
-</table>
-</dl>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-</dd>
-
-        
-            
-<dt>
-    <div class="nameContainer">
-        <h4 class="name" id="info"><span class="type-signature ">readonly</span> info</h4>
+        <h4 class="name" id="data"> data</h4>
     </div>
 
     
@@ -938,6 +838,9 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
             
                 
 <span class="param-type">Object</span>
+|
+
+<span class="param-type">null</span>
 
 
             
@@ -947,146 +850,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
 
             
 
-            <td class="description last"><p>Board info parsed from version command.</p>
-                <h6>Properties</h6>
-
-<table class="props">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-		
-		<th>Type</th>
-		
-		
-		
-		
-		
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-	
-	<tbody>
-	
-	
-        <tr>
-            
-                <td class="name"><code>branch</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>Firmware branch.</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>hash</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>Firmware hash.</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>date</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>Firmware date.</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>mcu</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>Board MCU.</p></td>
-        </tr>
-	
-	
-	
-        <tr>
-            
-                <td class="name"><code>clock</code></td>
-            
-            
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-            
-            
-            
-            
-            
-            <td class="description last"><p>Board clock freqency.</p></td>
-        </tr>
-	
-	
-	</tbody>
-</table>
-            </td>
+            <td class="description last"><p>Event data (depending on the command).</p></td>
         </tr>
 
 	
@@ -1125,7 +889,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="online"><span class="type-signature ">readonly</span> online</h4>
+        <h4 class="name" id="event"> event</h4>
     </div>
 
     
@@ -1159,7 +923,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
             <td class="type">
             
                 
-<span class="param-type">Boolean</span>
+<span class="param-type"><a href="sh.network.RequestEvent.html">sh.network.RequestEvent</a></span>
 
 
             
@@ -1169,7 +933,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
 
             
 
-            <td class="description last"><p>Is online.</p></td>
+            <td class="description last"><p>Original <code>sh.network.RequestEvent</code> instance.</p></td>
         </tr>
 
 	
@@ -1191,9 +955,6 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
 
     
 
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy"><li>null</li></ul></dd>
     
 
     
@@ -1211,7 +972,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
             
 <dt>
     <div class="nameContainer">
-        <h4 class="name" id="timeout"><span class="type-signature ">readonly</span> timeout</h4>
+        <h4 class="name" id="name"> name</h4>
     </div>
 
     
@@ -1245,7 +1006,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
             <td class="type">
             
                 
-<span class="param-type">Integer</span>
+<span class="param-type">String</span>
 
 
             
@@ -1255,7 +1016,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
 
             
 
-            <td class="description last"><p>Default response timeout in milliseconds.</p></td>
+            <td class="description last"><p>Event name.</p></td>
         </tr>
 
 	
@@ -1277,9 +1038,6 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
 
     
 
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy"><li>null</li></ul></dd>
     
 
     
@@ -1312,7 +1070,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Sep 10 2016 09:41:55 GMT+0200 (Europe de l’Ouest (heure d’été))
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Sep 10 2016 09:05:03 GMT+0200 (Europe de l’Ouest (heure d’été))
         </footer>
     </div>
 </div>
