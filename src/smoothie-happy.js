@@ -3,6 +3,7 @@
 * @author   {$author}
 * @see      {@link {$src_url}}
 * @build    {$build}
+* @date     {$date}
 * @version  {$version}
 * @license  {$license}
 * @namespace

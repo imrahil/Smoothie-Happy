@@ -9,6 +9,7 @@ $modules = ['network', 'board', 'network.scanner'];
 $settings = [
     'version'     => '0.2.0-dev',
     'build'       => 'auto',
+    'date'        => date(DATE_RSS),
     'id'          => 'smoothie-happy',
     'name'        => 'Smoothie-Happy',
     'description' => 'A SmoothieBoard network communication API',
