@@ -1,4 +1,4 @@
-//// @example sh.network.Request - Single request
+// // @example sh.network.Request - Single request
 // sh.network.Request({
 //     url: 'index.html'
 // })
@@ -31,7 +31,7 @@
 
 // -----------------------------------------------------------------------------
 
-//// @example sh.network.Request - Chaining requests
+// // @example sh.network.Request - Chaining requests
 // sh.network.Request({
 //     url: 'index.html'
 // })
@@ -77,7 +77,7 @@
 
 // -----------------------------------------------------------------------------
 
-//// @example sh.Board - Board class usage
+// // @example sh.Board - Board class usage
 // // create the board instance
 // var board = sh.Board('192.168.1.102');
 //
@@ -99,52 +99,52 @@
 //     console.error('version:', event.name, event);
 // });
 
-//// @example sh.Board - Board connection
-// create the board instance
-var board = sh.Board('192.168.1.102');
-
-// register some callbacks
-board.on('connect', function(event) {
-    console.info('on.connect:', event.board);
-})
-.on('disconnect', function(event) {
-    console.info('on.disconnect:', event.board);
-})
-.on('reconnect', function(event) {
-    console.info('on.reconnect:', event.board);
-})
-.on('redisconnect', function(event) {
-    console.info('on.redisconnect:', event.board);
-})
-.on('reconnectAttempt', function(event) {
-    console.info('on.reconnectAttempt:', event.data.attempts, event.board);
-    // disconnect the board after 5 attempts
-    if (this.reconnectAttempts == 2) {
-        this.Disconnect().then(function(event) {
-            console.info('disconnect:', event.board);
-        })
-        .catch(function(event) {
-            console.error('disconnect:', event.name, event);
-        });
-    }
-})
-.on('watch', function(event) {
-    console.info('on.watch:', event.board);
-})
-.on('response', function(event) {
-    console.info('on.response:', event.board);
-})
-.on('error', function(event) {
-    console.error('on.error:', event.board);
-});
-
-// connect the board
-board.Connect().then(function(event) {
-    console.info('connect:', event.board);
-})
-.catch(function(event) {
-    console.error('connect:', event.name, event);
-});
+// // @example sh.Board - Board connection
+// // create the board instance
+// var board = sh.Board('192.168.1.102');
+//
+// // register some callbacks
+// board.on('connect', function(event) {
+//     console.info('on.connect:', event.board);
+// })
+// .on('disconnect', function(event) {
+//     console.info('on.disconnect:', event.board);
+// })
+// .on('reconnect', function(event) {
+//     console.info('on.reconnect:', event.board);
+// })
+// .on('redisconnect', function(event) {
+//     console.info('on.redisconnect:', event.board);
+// })
+// .on('reconnectAttempt', function(event) {
+//     console.info('on.reconnectAttempt:', event.data.attempts, event.board);
+//     // disconnect the board after 5 attempts
+//     if (this.reconnectAttempts == 2) {
+//         this.Disconnect().then(function(event) {
+//             console.info('disconnect:', event.board);
+//         })
+//         .catch(function(event) {
+//             console.error('disconnect:', event.name, event);
+//         });
+//     }
+// })
+// .on('watch', function(event) {
+//     console.info('on.watch:', event.board);
+// })
+// .on('response', function(event) {
+//     console.info('on.response:', event.board);
+// })
+// .on('error', function(event) {
+//     console.error('on.error:', event.board);
+// });
+//
+// // connect the board
+// board.Connect().then(function(event) {
+//     console.info('connect:', event.board);
+// })
+// .catch(function(event) {
+//     console.error('connect:', event.name, event);
+// });
 
 // // disconnect the board after 15 seconds
 // setTimeout(function() {
@@ -160,7 +160,7 @@ board.Connect().then(function(event) {
 
 // -----------------------------------------------------------------------------
 
-//// @example sh.network.Scanner - Scanne the network
+// // @example sh.network.Scanner - Scanne the network
 // // create the scanner instance
 // var scanner = sh.network.Scanner();
 //

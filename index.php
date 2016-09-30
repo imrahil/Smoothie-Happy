@@ -31,7 +31,7 @@ $index_template = './index.tpl';
 $index_file     = './index.html';
 
 // examples file
-$example_file = './main.js';
+$example_file = './examples.js';
 
 // docs directory
 $docs_directory = './docs';
@@ -143,30 +143,94 @@ $examples_modules = [];
 // no cache or modified
 if (! $examples) {
     // examples collection
-    $examples    = [];
-    $example     = null;
-    $section     = null;
-    $lastSection = null;
-    $commented   = false;
+    $examples  = [];
+    $example   = null;
+    $path      = null;
+    $lastPath  = null;
+    $commented = false;
 
     // get the file contents
     $examples_contents = file_get_contents($example_file);
     $example_lines     = preg_split("/\r\n|\n|\r/", $examples_contents);
 
     foreach ($example_lines as $line) {
+        // skip examples spacers "//---"
+        if (preg_match('/\/\/ ?\-{3,}/', $line)) {
+            continue;
+        }
+
+        // catch @example tag
+        if (preg_match('/^\/\/ *(\/\/)? +\@example +([^ ]+) +\- +([^\n]+)/', $line, $matches)) {
+            // is commented
+            $commented = $matches[1] == '//';
+
+            // get the last path
+            $lastPath = $path or trim($matches[2]);
+
+            // get the section path and title
+            $path  = trim($matches[2]);
+            $title = trim($matches[3]);
+
+            // get the namespace from path
+            $namespace = explode('.', $path)[1];
+
+            // set module to be rebuilded
+            $examples_modules[$namespace] = true;
+
+            // create example collection for this path
+            if (! isset($examples[$path])) {
+                $examples[$path] = [];
+            }
+
+            // we hare in section...
+            if (is_array($example)) {
+                // add the last example found
+                $example[1] = trim($example[1]);
+                $examples[$lastPath][] = $example;
+            }
+
+            // set example title
+            $example = [$title, ''];
+
+            // go to next line
+            continue;
+        }
+
+        // we hare in section...
+        if (is_array($example)) {
+            if ($commented) {
+                // remove comments
+                $line = preg_replace('/^\/\/ ?/', '', $line);
+            }
+
+            // set example contents
+            $example[1] .= $line . "\n";
+        }
+    }
+
+    // add the last example found
+    if (is_array($example)) {
+        $example[1] = trim($example[1]);
+        $examples[$path][] = $example;
+    }
+
+    /*
+    foreach ($example_lines as $line) {
+        // skip spacers
         if (preg_match('/\/\/ ?\-{70,}/', $line)) {
+            var_dump($line);
             continue;
         }
 
         if (preg_match('/^\/\/(\/\/)? +\@example +([^ ]+) +\- +([^\n]+)/', $line, $matches)) {
-            $lastSection = $section or $matches[2];
+            $lastPath = $section or $matches[2];
             $section     = $matches[2];
             $title       = trim($matches[3]);
             $commented   = $matches[1] == '//';
 
-            $namesapce = explode('.', $section);
-            $namesapce = $namesapce[1];
-            $examples_modules[$namesapce] = true;
+            $namespace = explode('.', $section);
+            $namespace = $namespace[1];
+            $examples_modules[$namespace] = true;
 
             if (! isset($examples[$section])) {
                 $examples[$section] = [];
@@ -174,7 +238,7 @@ if (! $examples) {
 
             if (is_array($example)) {
                 $example[1] = trim($example[1]);
-                $examples[$lastSection][] = $example;
+                $examples[$lastPath][] = $example;
             }
 
             $example = [$title, ''];
@@ -197,6 +261,7 @@ if (! $examples) {
     }
 
     cache($example_file, $examples);
+    */
 }
 
 // -----------------------------------------------------------------------------
@@ -326,6 +391,7 @@ exec($command, $output, $error);
 chdir($cwd);
 
 //var_dump($output, $error);
+//echo(implode($output, '\n'));
 
 $iter = new RecursiveIteratorIterator(
     new RecursiveDirectoryIterator(

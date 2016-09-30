@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    461d6acadbb43da1f14554634d77e958
-* @date     Sun, 11 Sep 2016 06:40:55 +0000
+* @build    8a2749c7635f30b538afe8fb32386283
+* @date     Fri, 30 Sep 2016 09:42:17 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -25,7 +25,7 @@ var sh = sh || {};
     * @readonly
     * @property {String} build API build hash.
     */
-    sh.build = '461d6acadbb43da1f14554634d77e958';
+    sh.build = '8a2749c7635f30b538afe8fb32386283';
 
     /**
     * @default
@@ -177,81 +177,81 @@ var sh = sh || {};
     * ### Single request
     * ```
     * sh.network.Request({
-    *      url: 'index.html'
-    *  })
-    *  .onProgress(function(event) {
-    *      // notify progression
-    *      console.info(event.request._url, '>> progress >>',  event.percent, '%');
-    *  })
-    *  .then(function(event) {
-    *      // index.html is loaded
-    *      console.info(event.request._url, '>> loaded >>', event.response);
+    *     url: 'index.html'
+    * })
+    * .onProgress(function(event) {
+    *     // notify progression
+    *     console.info(event.request._url, '>> progress >>',  event.percent, '%');
+    * })
+    * .then(function(event) {
+    *     // index.html is loaded
+    *     console.info(event.request._url, '>> loaded >>', event.response);
     * 
-    *      // return result for final then
-    *      return { event: event, error: false };
-    *  })
-    *  .catch(function(event) {
-    *      // error loading index.html
-    *      console.warn(event.request._url, '>> error >>', event.response);
+    *     // return result for final then
+    *     return { event: event, error: false };
+    * })
+    * .catch(function(event) {
+    *     // error loading index.html
+    *     console.warn(event.request._url, '>> error >>', event.response);
     * 
-    *      // return error for final then
-    *      return { event: event, error: true };
-    *  })
-    *  .then(function(result) {
-    *      // finaly ...
-    *      var event    = result.event;
-    *      var logType  = result.error ? 'error' : 'info';
-    *      var logLabel = result.error ? 'error' : 'loaded';
+    *     // return error for final then
+    *     return { event: event, error: true };
+    * })
+    * .then(function(result) {
+    *     // finaly ...
+    *     var event    = result.event;
+    *     var logType  = result.error ? 'error' : 'info';
+    *     var logLabel = result.error ? 'error' : 'loaded';
     * 
-    *      console[logType](event.request._url, '>>', logLabel, '>>', event.response);
-    *  });
+    *     console[logType](event.request._url, '>>', logLabel, '>>', event.response);
+    * });
     * ```
     * 
     * @example
     * ### Chaining requests
     * ```
     * sh.network.Request({
-    *      url: 'index.html'
-    *  })
-    *  .onProgress(function(event) {
-    *      // notify progression
-    *      console.info(event.request._url, '>> progress >>',  event.percent, '%');
-    *  })
-    *  .then(function(event) {
-    *      // index.html is loaded
-    *      console.info(event.request._url, '>> loaded >>', event.response);
+    *     url: 'index.html'
+    * })
+    * .onProgress(function(event) {
+    *     // notify progression
+    *     console.info(event.request._url, '>> progress >>',  event.percent, '%');
+    * })
+    * .then(function(event) {
+    *     // index.html is loaded
+    *     console.info(event.request._url, '>> loaded >>', event.response);
     * 
-    *      // return another request
-    *      return sh.network.Request({
-    *          url: 'not_found.html'
-    *      })
-    *      .onProgress(function(event) {
-    *          // notify progression
-    *          console.info(event.request._url, '>> progress >>',  event.percent, '%');
-    *      });
-    *  })
-    *  .then(function(event) {
-    *      // not_found.html is loaded
-    *      console.info(event.request._url, '>> loaded >>', event.response);
+    *     // return another request
+    *     return sh.network.Request({
+    *         url: 'not_found.html'
+    *     })
+    *     .onProgress(function(event) {
+    *         // notify progression
+    *         console.info(event.request._url, '>> progress >>',  event.percent, '%');
+    *     });
+    * })
+    * .then(function(event) {
+    *     // not_found.html is loaded
+    *     console.info(event.request._url, '>> loaded >>', event.response);
     * 
-    *      // return result for final then
-    *      return { event: event, error: false };
-    *  })
-    *  .catch(function(event) {
-    *      // error loading index.html or not_found.html
-    *      console.warn(event.request._url, '>> error >>', event.response);
+    *     // return result for final then
+    *     return { event: event, error: false };
+    * })
+    * .catch(function(event) {
+    *     // error loading index.html or not_found.html
+    *     console.warn(event.request._url, '>> error >>', event.response);
     * 
-    *      // return error for final then
-    *      return { event: event, error: true };
-    *  })
-    *  .then(function(result) {
-    *      // finaly ...
-    *      var event    = result.event;
-    *      var logType  = result.error ? 'error' : 'info';
-    *      var logLabel = result.error ? 'error' : 'loaded';
+    *     // return error for final then
+    *     return { event: event, error: true };
+    * })
+    * .then(function(result) {
+    *     // finaly ...
+    *     var event    = result.event;
+    *     var logType  = result.error ? 'error' : 'info';
+    *     var logLabel = result.error ? 'error' : 'loaded';
     * 
-    *      console[logType](event.request._url, '>>', logLabel, '>>', event.response);
-    *  });
+    *     console[logType](event.request._url, '>>', logLabel, '>>', event.response);
+    * });
     * ```
     */
     sh.network.Request = function(settings) {
@@ -612,34 +612,34 @@ var sh = sh || {};
     * ### Board class usage
     * ```
     * // create the board instance
-    *  var board = sh.Board('192.168.1.102');
+    * var board = sh.Board('192.168.1.102');
     * 
-    *  // get board version (raw)
-    *  board.Command('version').then(function(event) {
-    *      console.info('board:', event.board);
-    *      console.info('version:', event.originalEvent.response.raw);
-    *  })
-    *  .catch(function(event) {
-    *      console.error('version:', event.name, event);
-    *  });
+    * // get board version (raw)
+    * board.Command('version').then(function(event) {
+    *     console.info('board:', event.board);
+    *     console.info('version:', event.originalEvent.response.raw);
+    * })
+    * .catch(function(event) {
+    *     console.error('version:', event.name, event);
+    * });
     * 
-    *  // get board version (parsed)
-    *  board.Version().then(function(event) {
-    *      console.info('board:', event.board);
-    *      console.info('info:', event.data);
-    *  })
-    *  .catch(function(event) {
-    *      console.error('version:', event.name, event);
-    *  });
+    * // get board version (parsed)
+    * board.Version().then(function(event) {
+    *     console.info('board:', event.board);
+    *     console.info('info:', event.data);
+    * })
+    * .catch(function(event) {
+    *     console.error('version:', event.name, event);
+    * });
     * ```
     * 
     * @example
     * ### Board connection
     * ```
-    * create the board instance
+    * // create the board instance
     * var board = sh.Board('192.168.1.102');
     * 
-    *  register some callbacks
+    * // register some callbacks
     * board.on('connect', function(event) {
     *     console.info('on.connect:', event.board);
     * })
@@ -674,7 +674,7 @@ var sh = sh || {};
     *     console.error('on.error:', event.board);
     * });
     * 
-    *  connect the board
+    * // connect the board
     * board.Connect().then(function(event) {
     *     console.info('connect:', event.board);
     * })
@@ -682,17 +682,17 @@ var sh = sh || {};
     *     console.error('connect:', event.name, event);
     * });
     * 
-    *  // disconnect the board after 15 seconds
-    *  setTimeout(function() {
+    * // disconnect the board after 15 seconds
+    * setTimeout(function() {
     * 
-    *      board.Disconnect().then(function(event) {
-    *          console.info('disconnect:', event.board);
-    *      })
-    *      .catch(function(event) {
-    *          console.error('disconnect:', event.name, event);
-    *      });
+    *     board.Disconnect().then(function(event) {
+    *         console.info('disconnect:', event.board);
+    *     })
+    *     .catch(function(event) {
+    *         console.error('disconnect:', event.name, event);
+    *     });
     * 
-    *  }, 15000); // 15 sec.
+    * }, 15000); // 15 sec.
     * ```
     */
     sh.Board = function(address, settings) {
@@ -1164,7 +1164,7 @@ var sh = sh || {};
     * Disconnect the board (stop watching periodicaly if the board is online).
     *
     * @method
-    * @return
+    * @return {Promise}
     */
     sh.Board.prototype.Disconnect = function() {
         // not connected
@@ -1198,40 +1198,40 @@ var sh = sh || {};
     * ### Scanne the network
     * ```
     * // create the scanner instance
-    *  var scanner = sh.network.Scanner();
+    * var scanner = sh.network.Scanner();
     * 
-    *  // register events callbacks
-    *  scanner.on('start', function(scan) {
-    *      console.log('scan:', 'start:', scan.total);
-    *  });
+    * // register events callbacks
+    * scanner.on('start', function(scan) {
+    *     console.log('scan:', 'start:', scan.total);
+    * });
     * 
-    *  scanner.on('pause', function(scan) {
-    *      console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
-    *  });
+    * scanner.on('pause', function(scan) {
+    *     console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
+    * });
     * 
-    *  scanner.on('resume', function(scan) {
-    *      console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
-    *  });
+    * scanner.on('resume', function(scan) {
+    *     console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
+    * });
     * 
-    *  scanner.on('stop', function(scan) {
-    *      console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
-    *  });
+    * scanner.on('stop', function(scan) {
+    *     console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
+    * });
     * 
-    *  scanner.on('progress', function(scan) {
-    *      console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
-    *  });
+    * scanner.on('progress', function(scan) {
+    *     console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
+    * });
     * 
-    *  scanner.on('board', function(scan, board) {
-    *      console.log('scan:', 'board:', board);
-    *  });
+    * scanner.on('board', function(scan, board) {
+    *     console.log('scan:', 'board:', board);
+    * });
     * 
-    *  scanner.on('end', function(scan) {
-    *      console.log('scan:', 'end:', scan.scanned, '/', scan.total);
-    *      console.log('scan:', 'found:', scan.found, '/', scan.total);
-    *  });
+    * scanner.on('end', function(scan) {
+    *     console.log('scan:', 'end:', scan.scanned, '/', scan.total);
+    *     console.log('scan:', 'found:', scan.found, '/', scan.total);
+    * });
     * 
-    *  // start scan
-    *  scanner.start('192.168.1.100-115');
+    * // start scan
+    * scanner.start('192.168.1.100-115');
     * ```
     */
     sh.network.Scanner = function(settings) {
