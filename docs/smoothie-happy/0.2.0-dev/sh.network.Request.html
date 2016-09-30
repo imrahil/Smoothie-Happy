@@ -105,15 +105,96 @@
             
             <span class="subtitle">Members</span>
             
+                <li data-name="sh.Board#_on"><a href="sh.Board.html#_on">_on</a></li>
+            
                 <li data-name="sh.Board#address"><a href="sh.Board.html#address">address</a></li>
+            
+                <li data-name="sh.Board#connected"><a href="sh.Board.html#connected">connected</a></li>
+            
+                <li data-name="sh.Board#connections"><a href="sh.Board.html#connections">connections</a></li>
             
                 <li data-name="sh.Board#id"><a href="sh.Board.html#id">id</a></li>
             
                 <li data-name="sh.Board#info"><a href="sh.Board.html#info">info</a></li>
             
+                <li data-name="sh.Board#lastOnlineTime"><a href="sh.Board.html#lastOnlineTime">lastOnlineTime</a></li>
+            
                 <li data-name="sh.Board#online"><a href="sh.Board.html#online">online</a></li>
             
+                <li data-name="sh.Board#reconnectAttempts"><a href="sh.Board.html#reconnectAttempts">reconnectAttempts</a></li>
+            
+                <li data-name="sh.Board#reconnections"><a href="sh.Board.html#reconnections">reconnections</a></li>
+            
                 <li data-name="sh.Board#timeout"><a href="sh.Board.html#timeout">timeout</a></li>
+            
+                <li data-name="sh.Board#watchInterval"><a href="sh.Board.html#watchInterval">watchInterval</a></li>
+            
+                <li data-name="sh.Board#watchTimeout"><a href="sh.Board.html#watchTimeout">watchTimeout</a></li>
+            
+                <li data-name="sh.Board#watchTimeoutId"><a href="sh.Board.html#watchTimeoutId">watchTimeoutId</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Type Definitions</span>
+            
+                <li data-name="sh.Board~onConnect"><a href="sh.Board.html#~onConnect">onConnect</a></li>
+            
+                <li data-name="sh.Board~onDisconnect"><a href="sh.Board.html#~onDisconnect">onDisconnect</a></li>
+            
+                <li data-name="sh.Board~onError"><a href="sh.Board.html#~onError">onError</a></li>
+            
+                <li data-name="sh.Board~onReconnect"><a href="sh.Board.html#~onReconnect">onReconnect</a></li>
+            
+                <li data-name="sh.Board~onRedisconnect"><a href="sh.Board.html#~onRedisconnect">onRedisconnect</a></li>
+            
+                <li data-name="sh.Board~onResponse"><a href="sh.Board.html#~onResponse">onResponse</a></li>
+            
+                <li data-name="sh.Board~onWatch"><a href="sh.Board.html#~onWatch">onWatch</a></li>
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.Board#_trigger"><a href="sh.Board.html#_trigger">_trigger</a></li>
+            
+                <li data-name="sh.Board#_watchConnection"><a href="sh.Board.html#_watchConnection">_watchConnection</a></li>
+            
+                <li data-name="sh.Board#Command"><a href="sh.Board.html#Command">Command</a></li>
+            
+                <li data-name="sh.Board#Connect"><a href="sh.Board.html#Connect">Connect</a></li>
+            
+                <li data-name="sh.Board#Disconnect"><a href="sh.Board.html#Disconnect">Disconnect</a></li>
+            
+                <li data-name="sh.Board#on"><a href="sh.Board.html#on">on</a></li>
+            
+                <li data-name="sh.Board#Ping"><a href="sh.Board.html#Ping">Ping</a></li>
+            
+                <li data-name="sh.Board#Version"><a href="sh.Board.html#Version">Version</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.BoardEvent">
+            <span class="title">
+                <a href="sh.BoardEvent.html">sh.BoardEvent</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.BoardEvent#board"><a href="sh.BoardEvent.html#board">board</a></li>
+            
+                <li data-name="sh.BoardEvent#data"><a href="sh.BoardEvent.html#data">data</a></li>
+            
+                <li data-name="sh.BoardEvent#name"><a href="sh.BoardEvent.html#name">name</a></li>
+            
+                <li data-name="sh.BoardEvent#originalEvent"><a href="sh.BoardEvent.html#originalEvent">originalEvent</a></li>
             
             </ul>
             <ul class="typedefs itemMembers">
@@ -479,7 +560,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line256">line 256</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line257">line 257</a>
         </div>
         
     </div>
@@ -833,78 +914,78 @@
         
 
     <h3>Single request</h3><pre class="prettyprint source"><code>sh.network.Request({
-     url: 'index.html'
- })
- .onProgress(function(event) {
-     // notify progression
-     console.info(event.request._url, '>> progress >>',  event.percent, '%');
- })
- .then(function(event) {
-     // index.html is loaded
-     console.info(event.request._url, '>> loaded >>', event.response);
+    url: 'index.html'
+})
+.onProgress(function(event) {
+    // notify progression
+    console.info(event.request._url, '>> progress >>',  event.percent, '%');
+})
+.then(function(event) {
+    // index.html is loaded
+    console.info(event.request._url, '>> loaded >>', event.response);
 
-     // return result for final then
-     return { event: event, error: false };
- })
- .catch(function(event) {
-     // error loading index.html
-     console.warn(event.request._url, '>> error >>', event.response);
+    // return result for final then
+    return { event: event, error: false };
+})
+.catch(function(event) {
+    // error loading index.html
+    console.warn(event.request._url, '>> error >>', event.response);
 
-     // return error for final then
-     return { event: event, error: true };
- })
- .then(function(result) {
-     // finaly ...
-     var event    = result.event;
-     var logType  = result.error ? 'error' : 'info';
-     var logLabel = result.error ? 'error' : 'loaded';
+    // return error for final then
+    return { event: event, error: true };
+})
+.then(function(result) {
+    // finaly ...
+    var event    = result.event;
+    var logType  = result.error ? 'error' : 'info';
+    var logLabel = result.error ? 'error' : 'loaded';
 
-     console[logType](event.request._url, '>>', logLabel, '>>', event.response);
- });</code></pre>
+    console[logType](event.request._url, '>>', logLabel, '>>', event.response);
+});</code></pre>
 
 
     <h3>Chaining requests</h3><pre class="prettyprint source"><code>sh.network.Request({
-     url: 'index.html'
- })
- .onProgress(function(event) {
-     // notify progression
-     console.info(event.request._url, '>> progress >>',  event.percent, '%');
- })
- .then(function(event) {
-     // index.html is loaded
-     console.info(event.request._url, '>> loaded >>', event.response);
+    url: 'index.html'
+})
+.onProgress(function(event) {
+    // notify progression
+    console.info(event.request._url, '>> progress >>',  event.percent, '%');
+})
+.then(function(event) {
+    // index.html is loaded
+    console.info(event.request._url, '>> loaded >>', event.response);
 
-     // return another request
-     return sh.network.Request({
-         url: 'not_found.html'
-     })
-     .onProgress(function(event) {
-         // notify progression
-         console.info(event.request._url, '>> progress >>',  event.percent, '%');
-     });
- })
- .then(function(event) {
-     // not_found.html is loaded
-     console.info(event.request._url, '>> loaded >>', event.response);
+    // return another request
+    return sh.network.Request({
+        url: 'not_found.html'
+    })
+    .onProgress(function(event) {
+        // notify progression
+        console.info(event.request._url, '>> progress >>',  event.percent, '%');
+    });
+})
+.then(function(event) {
+    // not_found.html is loaded
+    console.info(event.request._url, '>> loaded >>', event.response);
 
-     // return result for final then
-     return { event: event, error: false };
- })
- .catch(function(event) {
-     // error loading index.html or not_found.html
-     console.warn(event.request._url, '>> error >>', event.response);
+    // return result for final then
+    return { event: event, error: false };
+})
+.catch(function(event) {
+    // error loading index.html or not_found.html
+    console.warn(event.request._url, '>> error >>', event.response);
 
-     // return error for final then
-     return { event: event, error: true };
- })
- .then(function(result) {
-     // finaly ...
-     var event    = result.event;
-     var logType  = result.error ? 'error' : 'info';
-     var logLabel = result.error ? 'error' : 'loaded';
+    // return error for final then
+    return { event: event, error: true };
+})
+.then(function(result) {
+    // finaly ...
+    var event    = result.event;
+    var logType  = result.error ? 'error' : 'info';
+    var logLabel = result.error ? 'error' : 'loaded';
 
-     console[logType](event.request._url, '>>', logLabel, '>>', event.response);
- });</code></pre>
+    console[logType](event.request._url, '>>', logLabel, '>>', event.response);
+});</code></pre>
 
 
     
@@ -1539,7 +1620,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line374">line 374</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line375">line 375</a>
         </div>
         
     </div>
@@ -1617,7 +1698,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line509">line 509</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line510">line 510</a>
         </div>
         
     </div>
@@ -1741,7 +1822,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line453">line 453</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line454">line 454</a>
         </div>
         
     </div>
@@ -1865,7 +1946,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line475">line 475</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line476">line 476</a>
         </div>
         
     </div>
@@ -1989,7 +2070,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line498">line 498</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line499">line 499</a>
         </div>
         
     </div>
@@ -2142,7 +2223,7 @@
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Sep 10 2016 09:41:55 GMT+0200 (Europe de l’Ouest (heure d’été))
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Sep 30 2016 11:42:18 GMT+0200 (Europe de l’Ouest (heure d’été))
         </footer>
     </div>
 </div>

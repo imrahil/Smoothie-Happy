@@ -105,15 +105,96 @@
             
             <span class="subtitle">Members</span>
             
+                <li data-name="sh.Board#_on"><a href="sh.Board.html#_on">_on</a></li>
+            
                 <li data-name="sh.Board#address"><a href="sh.Board.html#address">address</a></li>
+            
+                <li data-name="sh.Board#connected"><a href="sh.Board.html#connected">connected</a></li>
+            
+                <li data-name="sh.Board#connections"><a href="sh.Board.html#connections">connections</a></li>
             
                 <li data-name="sh.Board#id"><a href="sh.Board.html#id">id</a></li>
             
                 <li data-name="sh.Board#info"><a href="sh.Board.html#info">info</a></li>
             
+                <li data-name="sh.Board#lastOnlineTime"><a href="sh.Board.html#lastOnlineTime">lastOnlineTime</a></li>
+            
                 <li data-name="sh.Board#online"><a href="sh.Board.html#online">online</a></li>
             
+                <li data-name="sh.Board#reconnectAttempts"><a href="sh.Board.html#reconnectAttempts">reconnectAttempts</a></li>
+            
+                <li data-name="sh.Board#reconnections"><a href="sh.Board.html#reconnections">reconnections</a></li>
+            
                 <li data-name="sh.Board#timeout"><a href="sh.Board.html#timeout">timeout</a></li>
+            
+                <li data-name="sh.Board#watchInterval"><a href="sh.Board.html#watchInterval">watchInterval</a></li>
+            
+                <li data-name="sh.Board#watchTimeout"><a href="sh.Board.html#watchTimeout">watchTimeout</a></li>
+            
+                <li data-name="sh.Board#watchTimeoutId"><a href="sh.Board.html#watchTimeoutId">watchTimeoutId</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Type Definitions</span>
+            
+                <li data-name="sh.Board~onConnect"><a href="sh.Board.html#~onConnect">onConnect</a></li>
+            
+                <li data-name="sh.Board~onDisconnect"><a href="sh.Board.html#~onDisconnect">onDisconnect</a></li>
+            
+                <li data-name="sh.Board~onError"><a href="sh.Board.html#~onError">onError</a></li>
+            
+                <li data-name="sh.Board~onReconnect"><a href="sh.Board.html#~onReconnect">onReconnect</a></li>
+            
+                <li data-name="sh.Board~onRedisconnect"><a href="sh.Board.html#~onRedisconnect">onRedisconnect</a></li>
+            
+                <li data-name="sh.Board~onResponse"><a href="sh.Board.html#~onResponse">onResponse</a></li>
+            
+                <li data-name="sh.Board~onWatch"><a href="sh.Board.html#~onWatch">onWatch</a></li>
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.Board#_trigger"><a href="sh.Board.html#_trigger">_trigger</a></li>
+            
+                <li data-name="sh.Board#_watchConnection"><a href="sh.Board.html#_watchConnection">_watchConnection</a></li>
+            
+                <li data-name="sh.Board#Command"><a href="sh.Board.html#Command">Command</a></li>
+            
+                <li data-name="sh.Board#Connect"><a href="sh.Board.html#Connect">Connect</a></li>
+            
+                <li data-name="sh.Board#Disconnect"><a href="sh.Board.html#Disconnect">Disconnect</a></li>
+            
+                <li data-name="sh.Board#on"><a href="sh.Board.html#on">on</a></li>
+            
+                <li data-name="sh.Board#Ping"><a href="sh.Board.html#Ping">Ping</a></li>
+            
+                <li data-name="sh.Board#Version"><a href="sh.Board.html#Version">Version</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.BoardEvent">
+            <span class="title">
+                <a href="sh.BoardEvent.html">sh.BoardEvent</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.BoardEvent#board"><a href="sh.BoardEvent.html#board">board</a></li>
+            
+                <li data-name="sh.BoardEvent#data"><a href="sh.BoardEvent.html#data">data</a></li>
+            
+                <li data-name="sh.BoardEvent#name"><a href="sh.BoardEvent.html#name">name</a></li>
+            
+                <li data-name="sh.BoardEvent#originalEvent"><a href="sh.BoardEvent.html#originalEvent">originalEvent</a></li>
             
             </ul>
             <ul class="typedefs itemMembers">
@@ -479,7 +560,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line705">line 705</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1237">line 1237</a>
         </div>
         
     </div>
@@ -661,40 +742,40 @@
         
 
     <h3>Scanne the network</h3><pre class="prettyprint source"><code>// create the scanner instance
- var scanner = sh.network.Scanner();
+var scanner = sh.network.Scanner();
 
- // register events callbacks
- scanner.on('start', function(scan) {
-     console.log('scan:', 'start:', scan.total);
- });
+// register events callbacks
+scanner.on('start', function(scan) {
+    console.log('scan:', 'start:', scan.total);
+});
 
- scanner.on('pause', function(scan) {
-     console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
- });
+scanner.on('pause', function(scan) {
+    console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
+});
 
- scanner.on('resume', function(scan) {
-     console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
- });
+scanner.on('resume', function(scan) {
+    console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
+});
 
- scanner.on('stop', function(scan) {
-     console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
- });
+scanner.on('stop', function(scan) {
+    console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
+});
 
- scanner.on('progress', function(scan) {
-     console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
- });
+scanner.on('progress', function(scan) {
+    console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
+});
 
- scanner.on('board', function(scan, board) {
-     console.log('scan:', 'board:', board);
- });
+scanner.on('board', function(scan, board) {
+    console.log('scan:', 'board:', board);
+});
 
- scanner.on('end', function(scan) {
-     console.log('scan:', 'end:', scan.scanned, '/', scan.total);
-     console.log('scan:', 'found:', scan.found, '/', scan.total);
- });
+scanner.on('end', function(scan) {
+    console.log('scan:', 'end:', scan.scanned, '/', scan.total);
+    console.log('scan:', 'found:', scan.found, '/', scan.total);
+});
 
- // start scan
- scanner.start('192.168.1.100-115');</code></pre>
+// start scan
+scanner.start('192.168.1.100-115');</code></pre>
 
 
     
@@ -1655,7 +1736,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line996">line 996</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1528">line 1528</a>
         </div>
         
     </div>
@@ -1733,7 +1814,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line867">line 867</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1399">line 1399</a>
         </div>
         
     </div>
@@ -1880,7 +1961,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line850">line 850</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1382">line 1382</a>
         </div>
         
     </div>
@@ -2074,7 +2155,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1123">line 1123</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1656">line 1656</a>
         </div>
         
     </div>
@@ -2152,7 +2233,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1143">line 1143</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1676">line 1676</a>
         </div>
         
     </div>
@@ -2230,7 +2311,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line894">line 894</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1426">line 1426</a>
         </div>
         
     </div>
@@ -2364,7 +2445,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line975">line 975</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1507">line 1507</a>
         </div>
         
     </div>
@@ -2488,7 +2569,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1072">line 1072</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1605">line 1605</a>
         </div>
         
     </div>
@@ -2638,7 +2719,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1103">line 1103</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1636">line 1636</a>
         </div>
         
     </div>
@@ -2722,7 +2803,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line815">line 815</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1347">line 1347</a>
         </div>
         
     </div>
@@ -2864,7 +2945,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line823">line 823</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1355">line 1355</a>
         </div>
         
     </div>
@@ -2983,7 +3064,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line794">line 794</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1326">line 1326</a>
         </div>
         
     </div>
@@ -3102,7 +3183,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line801">line 801</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1333">line 1333</a>
         </div>
         
     </div>
@@ -3221,7 +3302,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line787">line 787</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1319">line 1319</a>
         </div>
         
     </div>
@@ -3340,7 +3421,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line808">line 808</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1340">line 1340</a>
         </div>
         
     </div>
@@ -3463,7 +3544,7 @@
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Sep 10 2016 09:41:56 GMT+0200 (Europe de l’Ouest (heure d’été))
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Sep 30 2016 11:42:18 GMT+0200 (Europe de l’Ouest (heure d’été))
         </footer>
     </div>
 </div>

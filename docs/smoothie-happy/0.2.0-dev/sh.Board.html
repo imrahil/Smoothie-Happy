@@ -105,15 +105,96 @@
             
             <span class="subtitle">Members</span>
             
+                <li data-name="sh.Board#_on"><a href="sh.Board.html#_on">_on</a></li>
+            
                 <li data-name="sh.Board#address"><a href="sh.Board.html#address">address</a></li>
+            
+                <li data-name="sh.Board#connected"><a href="sh.Board.html#connected">connected</a></li>
+            
+                <li data-name="sh.Board#connections"><a href="sh.Board.html#connections">connections</a></li>
             
                 <li data-name="sh.Board#id"><a href="sh.Board.html#id">id</a></li>
             
                 <li data-name="sh.Board#info"><a href="sh.Board.html#info">info</a></li>
             
+                <li data-name="sh.Board#lastOnlineTime"><a href="sh.Board.html#lastOnlineTime">lastOnlineTime</a></li>
+            
                 <li data-name="sh.Board#online"><a href="sh.Board.html#online">online</a></li>
             
+                <li data-name="sh.Board#reconnectAttempts"><a href="sh.Board.html#reconnectAttempts">reconnectAttempts</a></li>
+            
+                <li data-name="sh.Board#reconnections"><a href="sh.Board.html#reconnections">reconnections</a></li>
+            
                 <li data-name="sh.Board#timeout"><a href="sh.Board.html#timeout">timeout</a></li>
+            
+                <li data-name="sh.Board#watchInterval"><a href="sh.Board.html#watchInterval">watchInterval</a></li>
+            
+                <li data-name="sh.Board#watchTimeout"><a href="sh.Board.html#watchTimeout">watchTimeout</a></li>
+            
+                <li data-name="sh.Board#watchTimeoutId"><a href="sh.Board.html#watchTimeoutId">watchTimeoutId</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Type Definitions</span>
+            
+                <li data-name="sh.Board~onConnect"><a href="sh.Board.html#~onConnect">onConnect</a></li>
+            
+                <li data-name="sh.Board~onDisconnect"><a href="sh.Board.html#~onDisconnect">onDisconnect</a></li>
+            
+                <li data-name="sh.Board~onError"><a href="sh.Board.html#~onError">onError</a></li>
+            
+                <li data-name="sh.Board~onReconnect"><a href="sh.Board.html#~onReconnect">onReconnect</a></li>
+            
+                <li data-name="sh.Board~onRedisconnect"><a href="sh.Board.html#~onRedisconnect">onRedisconnect</a></li>
+            
+                <li data-name="sh.Board~onResponse"><a href="sh.Board.html#~onResponse">onResponse</a></li>
+            
+                <li data-name="sh.Board~onWatch"><a href="sh.Board.html#~onWatch">onWatch</a></li>
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.Board#_trigger"><a href="sh.Board.html#_trigger">_trigger</a></li>
+            
+                <li data-name="sh.Board#_watchConnection"><a href="sh.Board.html#_watchConnection">_watchConnection</a></li>
+            
+                <li data-name="sh.Board#Command"><a href="sh.Board.html#Command">Command</a></li>
+            
+                <li data-name="sh.Board#Connect"><a href="sh.Board.html#Connect">Connect</a></li>
+            
+                <li data-name="sh.Board#Disconnect"><a href="sh.Board.html#Disconnect">Disconnect</a></li>
+            
+                <li data-name="sh.Board#on"><a href="sh.Board.html#on">on</a></li>
+            
+                <li data-name="sh.Board#Ping"><a href="sh.Board.html#Ping">Ping</a></li>
+            
+                <li data-name="sh.Board#Version"><a href="sh.Board.html#Version">Version</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.BoardEvent">
+            <span class="title">
+                <a href="sh.BoardEvent.html">sh.BoardEvent</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.BoardEvent#board"><a href="sh.BoardEvent.html#board">board</a></li>
+            
+                <li data-name="sh.BoardEvent#data"><a href="sh.BoardEvent.html#data">data</a></li>
+            
+                <li data-name="sh.BoardEvent#name"><a href="sh.BoardEvent.html#name">name</a></li>
+            
+                <li data-name="sh.BoardEvent#originalEvent"><a href="sh.BoardEvent.html#originalEvent">originalEvent</a></li>
             
             </ul>
             <ul class="typedefs itemMembers">
@@ -479,7 +560,7 @@
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line588">line 588</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line698">line 698</a>
         </div>
         
     </div>
@@ -651,7 +732,67 @@
 
                     
                 
-                <p>Default response timeout in milliseconds.</p></td>
+                <p>Response timeout in milliseconds.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>watchInterval</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Watch interval in milliseconds.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>watchTimeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Watch timeout in milliseconds.</p></td>
         </tr>
 
 	
@@ -706,12 +847,88 @@
     
 
     
-        <h5>Example</h5>
+        <h5>Examples</h5>
         
 
-    <h3>Board class usage</h3><pre class="prettyprint source"><code>create the board instance
-var board1 = sh.Board('192.168.1.101');
-var board2 = sh.Board('192.168.1.102');</code></pre>
+    <h3>Board class usage</h3><pre class="prettyprint source"><code>// create the board instance
+var board = sh.Board('192.168.1.102');
+
+// get board version (raw)
+board.Command('version').then(function(event) {
+    console.info('board:', event.board);
+    console.info('version:', event.originalEvent.response.raw);
+})
+.catch(function(event) {
+    console.error('version:', event.name, event);
+});
+
+// get board version (parsed)
+board.Version().then(function(event) {
+    console.info('board:', event.board);
+    console.info('info:', event.data);
+})
+.catch(function(event) {
+    console.error('version:', event.name, event);
+});</code></pre>
+
+
+    <h3>Board connection</h3><pre class="prettyprint source"><code>// create the board instance
+var board = sh.Board('192.168.1.102');
+
+// register some callbacks
+board.on('connect', function(event) {
+    console.info('on.connect:', event.board);
+})
+.on('disconnect', function(event) {
+    console.info('on.disconnect:', event.board);
+})
+.on('reconnect', function(event) {
+    console.info('on.reconnect:', event.board);
+})
+.on('redisconnect', function(event) {
+    console.info('on.redisconnect:', event.board);
+})
+.on('reconnectAttempt', function(event) {
+    console.info('on.reconnectAttempt:', event.data.attempts, event.board);
+    // disconnect the board after 5 attempts
+    if (this.reconnectAttempts == 2) {
+        this.Disconnect().then(function(event) {
+            console.info('disconnect:', event.board);
+        })
+        .catch(function(event) {
+            console.error('disconnect:', event.name, event);
+        });
+    }
+})
+.on('watch', function(event) {
+    console.info('on.watch:', event.board);
+})
+.on('response', function(event) {
+    console.info('on.response:', event.board);
+})
+.on('error', function(event) {
+    console.error('on.error:', event.board);
+});
+
+// connect the board
+board.Connect().then(function(event) {
+    console.info('connect:', event.board);
+})
+.catch(function(event) {
+    console.error('connect:', event.name, event);
+});
+
+// disconnect the board after 15 seconds
+setTimeout(function() {
+
+    board.Disconnect().then(function(event) {
+        console.info('disconnect:', event.board);
+    })
+    .catch(function(event) {
+        console.error('disconnect:', event.name, event);
+    });
+
+}, 15000); // 15 sec.</code></pre>
 
 
     
@@ -734,6 +951,89 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
         <h3 class="subsection-title">Members</h3>
 
         <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="_on"><span class="type-signature ">protected</span> _on</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Registred callbacks.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
             
 <dt>
     <div class="nameContainer">
@@ -803,6 +1103,178 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
 
     
 
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="connected"><span class="type-signature ">readonly</span> connected</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Is board connected.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>false</li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="connections"><span class="type-signature ">readonly</span> connections</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Number of successful connections from the first connection.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>0</li></ul></dd>
     
 
     
@@ -938,6 +1410,9 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
             
                 
 <span class="param-type">Object</span>
+|
+
+<span class="param-type">null</span>
 
 
             
@@ -1109,6 +1584,95 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
     
 
     
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>null</li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="lastOnlineTime"><span class="type-signature ">readonly</span> lastOnlineTime</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Last time the board was seen online.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>null</li></ul></dd>
+    
 
     
 
@@ -1169,7 +1733,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
 
             
 
-            <td class="description last"><p>Is online.</p></td>
+            <td class="description last"><p>Is board online.</p></td>
         </tr>
 
 	
@@ -1193,7 +1757,179 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
 
     
     <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy"><li>null</li></ul></dd>
+    <dd class="tag-default"><ul class="dummy"><li>false</li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="reconnectAttempts"><span class="type-signature ">readonly</span> reconnectAttempts</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Number of reconnection attempts.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>0</li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="reconnections"><span class="type-signature ">readonly</span> reconnections</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Number of successful reconnections from the last connection.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>0</li></ul></dd>
     
 
     
@@ -1279,6 +2015,264 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
 
     
     <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>5000</li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="watchInterval"><span class="type-signature ">readonly</span> watchInterval</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Connection timer interval.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>5000</li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="watchTimeout"><span class="type-signature ">readonly</span> watchTimeout</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Connection timeout interval.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>5000</li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="watchTimeoutId"><span class="type-signature ">readonly</span> watchTimeoutId</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Connection timer id.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
     <dd class="tag-default"><ul class="dummy"><li>null</li></ul></dd>
     
 
@@ -1297,7 +2291,1887 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
     
 
     
+        <h3 class="subsection-title">Methods</h3>
 
+        <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="_trigger">
+            
+            <span class="type-signature ">protected</span> _trigger<span class="signature">(name, event, data)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.BoardEvent.html">sh.BoardEvent</a>}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line917">line 917</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Trigger an user defined callback with the scope of this class.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Event name.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Original event.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Mixed</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Event data.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="_watchConnection">
+            
+            <span class="type-signature ">protected</span> _watchConnection<span class="signature">()</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1041">line 1041</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Watch periodicaly if the board is online.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="Command">
+            
+             Command<span class="signature">(command, timeout)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Post.html">sh.network.Post</a>}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line938">line 938</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Send a command to the board.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>command</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Command to send.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>timeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Response timeout.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="Connect">
+            
+             Connect<span class="signature">(timeout)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Post.html">sh.network.Post</a>}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1129">line 1129</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Connect the board (watch periodicaly if the board is online).</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>timeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Connection timeout.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="Disconnect">
+            
+             Disconnect<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Promise}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1169">line 1169</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Disconnect the board (stop watching periodicaly if the board is online).</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="on">
+            
+             on<span class="signature">(event, callback)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{self}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line899">line 899</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Register an event callback.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Event name.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Function to call on event is fired.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+    <div class="callbacks">
+        <h5>Callbacks</h5>
+        <div class="wrapper">
+            <table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>response</td>
+<td><a href="sh.Board.html#~onResponse"><code>onResponse</code></a></td>
+<td>Called on request response.</td>
+</tr>
+<tr>
+<td>error</td>
+<td><a href="sh.Board.html#~onError"><code>onError</code></a></td>
+<td>Called on request error.</td>
+</tr>
+<tr>
+<td>connect</td>
+<td><a href="sh.Board.html#~onConnect"><code>onConnect</code></a></td>
+<td>Called on board connect.</td>
+</tr>
+<tr>
+<td>disconnect</td>
+<td><a href="sh.Board.html#~onDisconnect"><code>onDisconnect</code></a></td>
+<td>Called on board disconnect.</td>
+</tr>
+<tr>
+<td>reconnect</td>
+<td><a href="sh.Board.html#~onReconnect"><code>onReconnect</code></a></td>
+<td>Called on board reconnect.</td>
+</tr>
+<tr>
+<td>redisconnect</td>
+<td><a href="sh.Board.html#~onRedisconnect"><code>onRedisconnect</code></a></td>
+<td>Called on board redisconnect.</td>
+</tr>
+<tr>
+<td>watch</td>
+<td><a href="sh.Board.html#~onWatch"><code>onWatch</code></a></td>
+<td>Called on watch board.</td>
+</tr>
+</tbody>
+</table>
+        </div>
+    </div>
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="Ping">
+            
+             Ping<span class="signature">(timeout)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Post.html">sh.network.Post</a>}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line987">line 987</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Send ping command (ok).</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>timeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Response timeout.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="Version">
+            
+             Version<span class="signature">(timeout)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Post.html">sh.network.Post</a>}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line998">line 998</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Get the board version.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>timeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Response timeout.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Type Definitions</h3>
+
+        <dl>
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onConnect">
+            
+             onConnect<span class="signature">(event)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line843">line 843</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On board connect.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.BoardEvent.html">sh.BoardEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board event.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onDisconnect">
+            
+             onDisconnect<span class="signature">(event)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line850">line 850</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On board disconnect.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.BoardEvent.html">sh.BoardEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board event.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onError">
+            
+             onError<span class="signature">(event)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line836">line 836</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On request error.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.BoardEvent.html">sh.BoardEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board event.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onReconnect">
+            
+             onReconnect<span class="signature">(event)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line857">line 857</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On board reconnect.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.BoardEvent.html">sh.BoardEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board event.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onRedisconnect">
+            
+             onRedisconnect<span class="signature">(event)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line864">line 864</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On board redisconnect.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.BoardEvent.html">sh.BoardEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board event.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onResponse">
+            
+             onResponse<span class="signature">(event)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line829">line 829</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On request response.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.BoardEvent.html">sh.BoardEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board event.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onWatch">
+            
+             onWatch<span class="signature">(event)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line871">line 871</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On watch board.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.BoardEvent.html">sh.BoardEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board event.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            </dl>
     
 
     
@@ -1312,7 +4186,7 @@ var board2 = sh.Board('192.168.1.102');</code></pre>
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Sep 10 2016 09:41:55 GMT+0200 (Europe de l’Ouest (heure d’été))
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Sep 30 2016 11:42:18 GMT+0200 (Europe de l’Ouest (heure d’été))
         </footer>
     </div>
 </div>
