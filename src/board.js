@@ -297,6 +297,8 @@
     * @param {Integer} timeout Response timeout.
     *
     * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.command}
     */
     sh.Board.prototype.command = function(command, timeout) {
         // default response timeout
@@ -361,6 +363,8 @@
     * @param {Integer} timeout Response timeout.
     *
     * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.version}
     */
     sh.Board.prototype.version = function(timeout) {
         // self alias
@@ -494,6 +498,8 @@
     * @param {Integer} timeout Connection timeout.
     *
     * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.connect}
     */
     sh.Board.prototype.connect = function(timeout) {
         // already connected
@@ -534,6 +540,8 @@
     *
     * @method
     * @return {Promise}
+    *
+    * {$examples sh.Board.disconnect}
     */
     sh.Board.prototype.disconnect = function() {
         // not connected

@@ -80,30 +80,38 @@
 // // @example sh.Board - Board class usage
 // // create the board instance
 // var board = sh.Board('192.168.1.102');
+
+// // @example sh.Board.command - Send arbitrary command(s)
+// // create the board instance
+// var board = sh.Board('192.168.1.102');
 //
 // // get board version (raw)
 // board.command('version').then(function(event) {
-//     console.info('board:', event.board);
-//     console.info('version:', event.originalEvent.response.raw);
-// })
-// .catch(function(event) {
-//     console.error('version:', event.name, event);
-// });
-//
-// // get board version (parsed)
-// board.version().then(function(event) {
-//     console.info('board:', event.board);
-//     console.info('info:', event.data);
+//     console.info('board:', event.board);                        // Board instance
+//     console.info('version:', event.originalEvent.response.raw); // Raw response text
 // })
 // .catch(function(event) {
 //     console.error('version:', event.name, event);
 // });
 
-// // @example sh.Board - Board connection
+// // @example sh.Board.version - Get the board version
 // // create the board instance
 // var board = sh.Board('192.168.1.102');
 //
-// // register some callbacks
+// // get board version (parsed)
+// board.version().then(function(event) {
+//     console.info('board:', event.board); // Board instance
+//     console.info('info:', event.data);   // {branch, hash, date, mcu, clock}
+// })
+// .catch(function(event) {
+//     console.error('version:', event.name, event);
+// });
+
+// // @example sh.Board.connect - Board connection
+// // create the board instance
+// var board = sh.Board('192.168.1.102');
+//
+// // register some events callbacks
 // board.on('connect', function(event) {
 //     console.info('on.connect:', event.board);
 // })
@@ -146,6 +154,18 @@
 //     console.error('connect:', event.name, event);
 // });
 
+// // @example sh.Board.disconnect - Board disconnection
+// // create the board instance
+// var board = sh.Board('192.168.1.102');
+//
+// // connect the board
+// board.connect().then(function(event) {
+//     console.info('connect:', event.board);
+// })
+// .catch(function(event) {
+//     console.error('connect:', event.name, event);
+// });
+//
 // // disconnect the board after 15 seconds
 // setTimeout(function() {
 //

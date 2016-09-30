@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    436699385620744e35b2f97fe943d414
-* @date     Fri, 30 Sep 2016 12:47:03 +0000
+* @build    4612f8e3a38f94367aa2c80346ebd3cb
+* @date     Fri, 30 Sep 2016 13:01:03 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -25,7 +25,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = '436699385620744e35b2f97fe943d414';
+    sh.build = '4612f8e3a38f94367aa2c80346ebd3cb';
 
     /**
     * @property {String} id API id.
@@ -625,86 +625,6 @@ var sh = sh || {};
     * ```
     * // create the board instance
     * var board = sh.Board('192.168.1.102');
-    * 
-    * // get board version (raw)
-    * board.command('version').then(function(event) {
-    *     console.info('board:', event.board);
-    *     console.info('version:', event.originalEvent.response.raw);
-    * })
-    * .catch(function(event) {
-    *     console.error('version:', event.name, event);
-    * });
-    * 
-    * // get board version (parsed)
-    * board.version().then(function(event) {
-    *     console.info('board:', event.board);
-    *     console.info('info:', event.data);
-    * })
-    * .catch(function(event) {
-    *     console.error('version:', event.name, event);
-    * });
-    * ```
-    * 
-    * @example
-    * ### Board connection
-    * ```
-    * // create the board instance
-    * var board = sh.Board('192.168.1.102');
-    * 
-    * // register some callbacks
-    * board.on('connect', function(event) {
-    *     console.info('on.connect:', event.board);
-    * })
-    * .on('disconnect', function(event) {
-    *     console.info('on.disconnect:', event.board);
-    * })
-    * .on('reconnect', function(event) {
-    *     console.info('on.reconnect:', event.board);
-    * })
-    * .on('redisconnect', function(event) {
-    *     console.info('on.redisconnect:', event.board);
-    * })
-    * .on('reconnectAttempt', function(event) {
-    *     console.info('on.reconnectAttempt:', event.data.attempts, event.board);
-    *     // disconnect the board after 5 attempts
-    *     if (this.reconnectAttempts == 2) {
-    *         this.disconnect().then(function(event) {
-    *             console.info('disconnect:', event.board);
-    *         })
-    *         .catch(function(event) {
-    *             console.error('disconnect:', event.name, event);
-    *         });
-    *     }
-    * })
-    * .on('watch', function(event) {
-    *     console.info('on.watch:', event.board);
-    * })
-    * .on('response', function(event) {
-    *     console.info('on.response:', event.board);
-    * })
-    * .on('error', function(event) {
-    *     console.error('on.error:', event.board);
-    * });
-    * 
-    * // connect the board
-    * board.connect().then(function(event) {
-    *     console.info('connect:', event.board);
-    * })
-    * .catch(function(event) {
-    *     console.error('connect:', event.name, event);
-    * });
-    * 
-    * // disconnect the board after 15 seconds
-    * setTimeout(function() {
-    * 
-    *     board.disconnect().then(function(event) {
-    *         console.info('disconnect:', event.board);
-    *     })
-    *     .catch(function(event) {
-    *         console.error('disconnect:', event.name, event);
-    *     });
-    * 
-    * }, 15000); // 15 sec.
     * ```
     */
     sh.Board = function(address, settings) {
@@ -960,6 +880,22 @@ var sh = sh || {};
     * @param {Integer} timeout Response timeout.
     *
     * @return {sh.network.Request}
+    *
+    * @example
+    * ### Send arbitrary command(s)
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * // get board version (raw)
+    * board.command('version').then(function(event) {
+    *     console.info('board:', event.board);                        // Board instance
+    *     console.info('version:', event.originalEvent.response.raw); // Raw response text
+    * })
+    * .catch(function(event) {
+    *     console.error('version:', event.name, event);
+    * });
+    * ```
     */
     sh.Board.prototype.command = function(command, timeout) {
         // default response timeout
@@ -1024,6 +960,22 @@ var sh = sh || {};
     * @param {Integer} timeout Response timeout.
     *
     * @return {sh.network.Request}
+    *
+    * @example
+    * ### Get the board version
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * // get board version (parsed)
+    * board.version().then(function(event) {
+    *     console.info('board:', event.board); // Board instance
+    *     console.info('info:', event.data);   // {branch, hash, date, mcu, clock}
+    * })
+    * .catch(function(event) {
+    *     console.error('version:', event.name, event);
+    * });
+    * ```
     */
     sh.Board.prototype.version = function(timeout) {
         // self alias
@@ -1157,6 +1109,56 @@ var sh = sh || {};
     * @param {Integer} timeout Connection timeout.
     *
     * @return {sh.network.Request}
+    *
+    * @example
+    * ### Board connection
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * // register some events callbacks
+    * board.on('connect', function(event) {
+    *     console.info('on.connect:', event.board);
+    * })
+    * .on('disconnect', function(event) {
+    *     console.info('on.disconnect:', event.board);
+    * })
+    * .on('reconnect', function(event) {
+    *     console.info('on.reconnect:', event.board);
+    * })
+    * .on('redisconnect', function(event) {
+    *     console.info('on.redisconnect:', event.board);
+    * })
+    * .on('reconnectAttempt', function(event) {
+    *     console.info('on.reconnectAttempt:', event.data.attempts, event.board);
+    *     // disconnect the board after 5 attempts
+    *     if (this.reconnectAttempts == 2) {
+    *         this.disconnect().then(function(event) {
+    *             console.info('disconnect:', event.board);
+    *         })
+    *         .catch(function(event) {
+    *             console.error('disconnect:', event.name, event);
+    *         });
+    *     }
+    * })
+    * .on('watch', function(event) {
+    *     console.info('on.watch:', event.board);
+    * })
+    * .on('response', function(event) {
+    *     console.info('on.response:', event.board);
+    * })
+    * .on('error', function(event) {
+    *     console.error('on.error:', event.board);
+    * });
+    * 
+    * // connect the board
+    * board.connect().then(function(event) {
+    *     console.info('connect:', event.board);
+    * })
+    * .catch(function(event) {
+    *     console.error('connect:', event.name, event);
+    * });
+    * ```
     */
     sh.Board.prototype.connect = function(timeout) {
         // already connected
@@ -1197,6 +1199,33 @@ var sh = sh || {};
     *
     * @method
     * @return {Promise}
+    *
+    * @example
+    * ### Board diconnection
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * // connect the board
+    * board.connect().then(function(event) {
+    *     console.info('connect:', event.board);
+    * })
+    * .catch(function(event) {
+    *     console.error('connect:', event.name, event);
+    * });
+    * 
+    * // disconnect the board after 15 seconds
+    * setTimeout(function() {
+    * 
+    *     board.disconnect().then(function(event) {
+    *         console.info('disconnect:', event.board);
+    *     })
+    *     .catch(function(event) {
+    *         console.error('disconnect:', event.name, event);
+    *     });
+    * 
+    * }, 15000); // 15 sec.
+    * ```
     */
     sh.Board.prototype.disconnect = function() {
         // not connected
