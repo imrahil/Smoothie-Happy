@@ -82,7 +82,7 @@
 // var board = sh.Board('192.168.1.102');
 //
 // // get board version (raw)
-// board.Command('version').then(function(event) {
+// board.command('version').then(function(event) {
 //     console.info('board:', event.board);
 //     console.info('version:', event.originalEvent.response.raw);
 // })
@@ -91,7 +91,7 @@
 // });
 //
 // // get board version (parsed)
-// board.Version().then(function(event) {
+// board.version().then(function(event) {
 //     console.info('board:', event.board);
 //     console.info('info:', event.data);
 // })
@@ -120,7 +120,7 @@
 //     console.info('on.reconnectAttempt:', event.data.attempts, event.board);
 //     // disconnect the board after 5 attempts
 //     if (this.reconnectAttempts == 2) {
-//         this.Disconnect().then(function(event) {
+//         this.disconnect().then(function(event) {
 //             console.info('disconnect:', event.board);
 //         })
 //         .catch(function(event) {
@@ -139,7 +139,7 @@
 // });
 //
 // // connect the board
-// board.Connect().then(function(event) {
+// board.connect().then(function(event) {
 //     console.info('connect:', event.board);
 // })
 // .catch(function(event) {
@@ -149,7 +149,7 @@
 // // disconnect the board after 15 seconds
 // setTimeout(function() {
 //
-//     board.Disconnect().then(function(event) {
+//     board.disconnect().then(function(event) {
 //         console.info('disconnect:', event.board);
 //     })
 //     .catch(function(event) {

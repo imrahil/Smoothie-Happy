@@ -14,44 +14,44 @@ var sh = sh || {};
     'use strict';
 
     /**
+    * @property {String} version API version.
     * @default
     * @readonly
-    * @property {String} version API version.
     */
     sh.version = '{$version}';
 
     /**
+    * @property {String} build API build hash.
     * @default
     * @readonly
-    * @property {String} build API build hash.
     */
     sh.build = '{$build}';
 
     /**
+    * @property {String} id API id.
     * @default
     * @readonly
-    * @property {String} id API id.
     */
     sh.id = '{$id}';
 
     /**
+    * @property {String} name API name.
     * @default
     * @readonly
-    * @property {String} name API name.
     */
     sh.name = '{$name}';
 
     /**
+    * @property {String} description API description.
     * @default
     * @readonly
-    * @property {String} description API description.
     */
     sh.description = '{$description}';
 
     /**
+    * @property {String} gitURL API repository url.
     * @default
     * @readonly
-    * @property {String} gitURL API repository url.
     */
     sh.gitURL = '{$git_url}';
 

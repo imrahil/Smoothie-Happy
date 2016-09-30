@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    8a2749c7635f30b538afe8fb32386283
-* @date     Fri, 30 Sep 2016 09:42:17 +0000
+* @build    436699385620744e35b2f97fe943d414
+* @date     Fri, 30 Sep 2016 12:47:03 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -14,49 +14,50 @@ var sh = sh || {};
     'use strict';
 
     /**
+    * @property {String} version API version.
     * @default
     * @readonly
-    * @property {String} version API version.
     */
     sh.version = '0.2.0-dev';
 
     /**
+    * @property {String} build API build hash.
     * @default
     * @readonly
-    * @property {String} build API build hash.
     */
-    sh.build = '8a2749c7635f30b538afe8fb32386283';
+    sh.build = '436699385620744e35b2f97fe943d414';
 
     /**
+    * @property {String} id API id.
     * @default
     * @readonly
-    * @property {String} id API id.
     */
     sh.id = 'smoothie-happy';
 
     /**
+    * @property {String} name API name.
     * @default
     * @readonly
-    * @property {String} name API name.
     */
     sh.name = 'Smoothie-Happy';
 
     /**
+    * @property {String} description API description.
     * @default
     * @readonly
-    * @property {String} description API description.
     */
     sh.description = 'A SmoothieBoard network communication API';
 
     /**
+    * @property {String} gitURL API repository url.
     * @default
     * @readonly
-    * @property {String} gitURL API repository url.
     */
     sh.gitURL = 'git://github.com/lautr3k/Smoothie-Happy.git';
 
     /**
     * Network module.
+    *
     * @namespace
     */
     sh.network = {};
@@ -65,7 +66,8 @@ var sh = sh || {};
     * XMLHttpRequest response abstraction class.
     *
     * @class
-    * @param  {XMLHttpRequest}  xhr   An `XMLHttpRequest` instance.
+    *
+    * @param {XMLHttpRequest} xhr An `XMLHttpRequest` instance.
     */
     sh.network.Response = function(xhr) {
         // instance factory
@@ -73,25 +75,25 @@ var sh = sh || {};
             return new sh.network.Response(xhr);
         }
 
-        /** @property  {Integer}  -  Response status code. */
+        /** @property {Integer} - Response status code. */
         this.code = xhr.status;
 
-        /** @property  {String}  -  Respons status text. */
+        /** @property {String} - Respons status text. */
         this.message = xhr.statusText;
 
-        /** @property  {String}  -  Response type. */
+        /** @property {String} - Response type. */
         this.type = xhr.responseType;
 
-        /** @property  {String}  -  Response url. */
+        /** @property {String} - Response url. */
         this.url = xhr.responseURL;
 
-        /** @property  {String}  -  Response XML. */
+        /** @property {String} - Response XML. */
         this.xml = xhr.responseXML;
 
-        /** @property  {String}  -  Response text. */
+        /** @property {String} - Response text. */
         this.text = xhr.responseText;
 
-        /** @property  {Mixed}  -  Raw response. */
+        /** @property {Mixed} - Raw response. */
         this.raw = xhr.response;
     };
 
@@ -99,8 +101,9 @@ var sh = sh || {};
     * Custom request event.
     *
     * @class
-    * @param  {String}              name      Event name, possible values is `[upload.]load`, `[upload.]timeout`, `[upload.]abort` or `[upload.]error`.
-    * @param  {sh.network.Request}  request   Original `sh.network.Request` instance.
+    *
+    * @param {String}             name     Event name, possible values is `[upload.]load`, `[upload.]timeout`, `[upload.]abort` or `[upload.]error`.
+    * @param {sh.network.Request} request  Original `sh.network.Request` instance.
     */
     sh.network.RequestEvent = function(name, request) {
         // instance factory
@@ -108,13 +111,13 @@ var sh = sh || {};
             return new sh.network.RequestEvent(name, request);
         }
 
-        /** @property  {String}  -  Possible values is `[upload.]load`, `[upload.]timeout`, `[upload.]abort` or `[upload.]error`. */
+        /** @property {String} - Possible values is `[upload.]load`, `[upload.]timeout`, `[upload.]abort` or `[upload.]error`. */
         this.name = name;
 
-        /** @property  {sh.network.Request}  -  Request instance. */
+        /** @property {sh.network.Request} - Request instance. */
         this.request = request;
 
-        /** @property  {sh.network.Response}  -  Response instance. */
+        /** @property {sh.network.Response} - Response instance. */
         this.response = sh.network.Response(request._xhr);
     };
 
@@ -122,10 +125,11 @@ var sh = sh || {};
     * Custom progress event.
     *
     * @class
-    * @extends  sh.network.RequestEvent
-    * @param    {String}              name     Event name, possible values is `progress` or `upload.progress`.
-    * @param    {sh.network.Request}  request  Original `sh.network.Request`.
-    * @param    {ProgressEvent}       source   Original `ProgressEvent`.
+    * @extends sh.network.RequestEvent
+    *
+    * @param {String}             name    Event name, possible values is `progress` or `upload.progress`.
+    * @param {sh.network.Request} request Original `sh.network.Request`.
+    * @param {ProgressEvent}      source  Original `ProgressEvent`.
     */
     sh.network.ProgressEvent = function(name, request, source) {
         // instance factory
@@ -136,22 +140,22 @@ var sh = sh || {};
         // call parent constructor
         sh.network.RequestEvent.call(this, name, request);
 
-        /** @property  {String}  -  Possible values is `progress` or `upload.progress`. */
+        /** @property {String} - Possible values is `progress` or `upload.progress`. */
         this.name = name;
 
-        /** @property  {ProgressEvent}  -  `ProgressEvent` instance. */
+        /** @property {ProgressEvent} - `ProgressEvent` instance. */
         this.source = source;
 
-        /** @property  {Boolean}  -  If computable length. */
+        /** @property {Boolean} - If computable length. */
         this.computable = source.lengthComputable;
 
-        /** @property  {Integer}  -  Total bytes. */
+        /** @property {Integer} - Total bytes. */
         this.total = this.computable ? source.total : null;
 
-        /** @property  {Integer}  -  Loaded bytes. */
+        /** @property {Integer} - Loaded bytes. */
         this.loaded = this.computable ? source.loaded : null;
 
-        /** @property  {Integer}  -  Loaded bytes as percent. */
+        /** @property {Integer} - Loaded bytes as percent. */
         this.percent = this.computable ? (this.loaded / this.total) * 100 : null;
     };
 
@@ -163,13 +167,14 @@ var sh = sh || {};
     * `XMLHttpRequest` wrapper with `Promise` logic.
     *
     * @class
-    * @param   {Object}   settings                    Request settings.
-    * @param   {String}   settings.url                URL with protocol.
-    * @param   {String}   [settings.method  = 'GET']  'GET', 'POST', 'DELETE', ...
-    * @param   {Mixed}    [settings.data    = null]   Data to send with the request.
-    * @param   {Object}   [settings.headers = null]   Headers to send with the request.
-    * @param   {Integer}  [settings.timeout = 5000]   Timeout for this request in milliseconds.
-    * @param   {Object}   [settings.xhr     = null]   An `XMLHttpRequest` instance or an collection of `XMLHttpRequest` properties/methods to overwrite.
+    *
+    * @param {Object}  settings                   Request settings.
+    * @param {String}  settings.url               URL with protocol.
+    * @param {String}  [settings.method  = 'GET'] 'GET', 'POST', 'DELETE', ...
+    * @param {Mixed}   [settings.data    = null]  Data to send with the request.
+    * @param {Object}  [settings.headers = null]  Headers to send with the request.
+    * @param {Integer} [settings.timeout = 5000]  Timeout for this request in milliseconds.
+    * @param {Object}  [settings.xhr     = null]  An `XMLHttpRequest` instance or an collection of `XMLHttpRequest` properties/methods to overwrite.
     *
     * @see Please read {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise|this} and {@link https://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html|that} to learn more about promises.
     *
@@ -264,23 +269,23 @@ var sh = sh || {};
         var settings = settings || {};
 
         /**
+        * @property {String} - Request url.
+        * @default ''
         * @protected
-        * @property  {String}  -  Request url.
-        * @default   ''
         */
         this._url = (settings.url || '').trim();
 
         /**
+        * @property {String} - Request method.
+        * @default 'GET'
         * @protected
-        * @property  {String}  -  Request method.
-        * @default   'GET'
         */
         this._method = (settings.method  || 'GET').trim().toUpperCase();
 
         /**
+        * @property {Mixed} - Request data.
+        * @default null
         * @protected
-        * @property  {Mixed}  -  Request data.
-        * @default   null
         */
         this._data = settings.data || null;
 
@@ -312,22 +317,22 @@ var sh = sh || {};
         }
 
         /**
+        * @property {Object} - Request headers.
+        * @default {}
         * @protected
-        * @property  {Object}  -  Request headers.
-        * @default   {}
         */
         this._headers = settings.headers || {};
 
         /**
+        * @property {Integer} - Request timeout in milliseconds.
+        * @default 5000
         * @protected
-        * @property  {Integer}  -  Request timeout in milliseconds.
-        * @default   5000
         */
         this._timeout = settings.timeout === undefined ? 5000 : settings.timeout;
 
         /**
+        * @property {XMLHttpRequest} - XMLHttpRequest instance.
         * @protected
-        * @property  {XMLHttpRequest}  -  XMLHttpRequest instance.
         */
         this._xhr = settings.xhr || null;
 
@@ -359,8 +364,8 @@ var sh = sh || {};
         }
 
         /**
+        * @property {Promise} - Promise instance.
         * @protected
-        * @property  {Promise}  -  Promise instance.
         */
         this._promise = this._execute();
     };
@@ -368,8 +373,9 @@ var sh = sh || {};
     /**
     * Execute the request and return a Promise.
     *
-    * @protected
     * @method
+    * @protected
+    *
     * @return {Promise}
     */
     sh.network.Request.prototype._execute = function() {
@@ -448,8 +454,10 @@ var sh = sh || {};
     * Register progress event handler.
     *
     * @method
-    * @param   {Function}  progressHandler  An function receiving an {@link sh.network.ProgressEvent} as first parameter.
-    * @return  {self}
+    *
+    * @param {Function} progressHandler An function receiving an {@link sh.network.ProgressEvent} as first parameter.
+    *
+    * @return {this}
     */
     sh.network.Request.prototype.onProgress = function(progressHandler) {
         // self alias
@@ -470,8 +478,10 @@ var sh = sh || {};
     * Register upload progress event handler.
     *
     * @method
-    * @param   {Function}  progressHandler  An function receiving an {@link sh.network.ProgressEvent} as first parameter.
-    * @return  {self}
+    *
+    * @param {Function} progressHandler An function receiving an {@link sh.network.ProgressEvent} as first parameter.
+    *
+    * @return {this}
     */
     sh.network.Request.prototype.onUploadProgress = function(progressHandler) {
         // self alias
@@ -492,9 +502,11 @@ var sh = sh || {};
     * Appends fulfillment and rejection handlers to the promise.
     *
     * @method
-    * @param   {Function}  onFulfilled  Fulfillment callback.
-    * @param   {Function}  onRejected   Rejection callback.
-    * @return  {Promise}
+    *
+    * @param {Function} onFulfilled Fulfillment callback.
+    * @param {Function} onRejected  Rejection callback.
+    *
+    * @return {Promise}
     */
     sh.network.Request.prototype.then = function(onFulfilled, onRejected) {
         return this._promise.then(onFulfilled, onRejected);
@@ -504,8 +516,10 @@ var sh = sh || {};
     * Appends a rejection handler callback to the promise.
     *
     * @method
-    * @param   {Function}  onRejected  Rejection callback.
-    * @return  {Promise}
+    *
+    * @param {Function} onRejected Rejection callback.
+    *
+    * @return {Promise}
     */
     sh.network.Request.prototype.catch = function(onRejected) {
         return this._promise.catch(onRejected);
@@ -514,69 +528,66 @@ var sh = sh || {};
     /**
     * Make and return an GET `sh.network.Request`.
     *
-    * @class
-    * @extends  {sh.network.Request}
-    * @param    {Object}   settings                    Request settings.
-    * @param    {String}   settings.url                URL with protocol.
-    * @param    {Mixed}    [settings.data    = null]   Data to send with the request.
-    * @param    {Object}   [settings.headers = null]   Headers to send with the request.
-    * @param    {Integer}  [settings.timeout = 5000]   Timeout for this request in milliseconds.
-    * @param    {Object}   [settings.xhr     = null]   An `XMLHttpRequest` instance or an collection of `XMLHttpRequest` properties/methods to overwrite.
+    * @function
+    *
+    * @param {Object}  settings                  Request settings.
+    * @param {String}  settings.url              URL with protocol.
+    * @param {Mixed}   [settings.data    = null] Data to send with the request.
+    * @param {Object}  [settings.headers = null] Headers to send with the request.
+    * @param {Integer} [settings.timeout = 5000] Timeout for this request in milliseconds.
+    * @param {Object}  [settings.xhr     = null] An `XMLHttpRequest` instance or an collection of `XMLHttpRequest` properties/methods to overwrite.
+    *
+    * @return {sh.network.Request}
     *
     * @see Please see {@link sh.network.Request} for uses examples.
     */
-    sh.network.Get = function(settings) {
-        // instance factory
-        if (! (this instanceof sh.network.Get)) {
-            return new sh.network.Get(settings);
-        }
-
+    sh.network.get = function(settings) {
+        // defaults settings
         settings = settings || {};
-        settings.method = 'GET';
-        return sh.network.Request.call(this, settings);
-    };
 
-    // extends sh.network.Request
-    sh.network.Get.prototype = Object.create(sh.network.Request.prototype);
-    sh.network.Get.prototype.constructor = sh.network.Get;
+        // force GET method
+        settings.method = 'GET';
+
+        // create and return the request
+        return sh.network.Request(settings);
+    };
 
     /**
     * Make and return an POST `sh.network.Request`.
     *
-    * @class
-    * @extends  {sh.network.Request}
-    * @param    {Object}   settings                    Request settings.
-    * @param    {String}   settings.url                URL with protocol.
-    * @param    {Mixed}    [settings.data    = null]   Data to send with the request.
-    * @param    {Object}   [settings.headers = null]   Headers to send with the request.
-    * @param    {Integer}  [settings.timeout = 5000]   Timeout for this request in milliseconds.
-    * @param    {Object}   [settings.xhr     = null]   An `XMLHttpRequest` instance or an collection of `XMLHttpRequest` properties/methods to overwrite.
+    * @function
+    *
+    * @param {Object}  settings                  Request settings.
+    * @param {String}  settings.url              URL with protocol.
+    * @param {Mixed}   [settings.data    = null] Data to send with the request.
+    * @param {Object}  [settings.headers = null] Headers to send with the request.
+    * @param {Integer} [settings.timeout = 5000] Timeout for this request in milliseconds.
+    * @param {Object}  [settings.xhr     = null] An `XMLHttpRequest` instance or an collection of `XMLHttpRequest` properties/methods to overwrite.
+    *
+    * @return {sh.network.Request}
     *
     * @see Please see {@link sh.network.Request} for uses examples.
     */
-    sh.network.Post = function(settings) {
-        // instance factory
-        if (! (this instanceof sh.network.Post)) {
-            return new sh.network.Post(settings);
-        }
-
+    sh.network.post = function(settings) {
+        // defaults settings
         settings = settings || {};
-        settings.method = 'POST';
-        return sh.network.Request.call(this, settings);
-    };
 
-    // extends sh.network.Request
-    sh.network.Post.prototype = Object.create(sh.network.Request.prototype);
-    sh.network.Post.prototype.constructor = sh.network.Post;
+        // force POST method
+        settings.method = 'POST';
+
+        // create and return the request
+        return sh.network.Request(settings);
+    };
 
     /**
     * Custom board event.
     *
     * @class
-    * @param  {String}                   name   Event name.
-    * @param  {sh.Board}                 board  Board instance.
-    * @param  {sh.network.RequestEvent}  event  Original `sh.network.RequestEvent` instance.
-    * @param  {Object|null}              data   Event data (depending on the command).
+    *
+    * @param {String}                  name  Event name.
+    * @param {sh.Board}                board Board instance.
+    * @param {sh.network.RequestEvent} event Original `sh.network.RequestEvent` instance.
+    * @param {Object|null}             data  Event data (depending on the command).
     */
     sh.BoardEvent = function(name, board, event, data) {
         // instance factory
@@ -601,12 +612,13 @@ var sh = sh || {};
     * Board class.
     *
     * @class
-    * @param  {String|Object}  address|settings          Board ip or hostname.
-    * @param  {Object}         [settings]                Board settings.
-    * @param  {String}         [settings.address]        Board ip or hostname.
-    * @param  {Integer}        [settings.timeout]        Response timeout in milliseconds.
-    * @param  {Integer}        [settings.watchInterval]  Watch interval in milliseconds.
-    * @param  {Integer}        [settings.watchTimeout]   Watch timeout in milliseconds.
+    *
+    * @param {String|Object} address|settings         Board ip or hostname.
+    * @param {Object}        [settings]               Board settings.
+    * @param {String}        [settings.address]       Board ip or hostname.
+    * @param {Integer}       [settings.timeout]       Response timeout in milliseconds.
+    * @param {Integer}       [settings.watchInterval] Watch interval in milliseconds.
+    * @param {Integer}       [settings.watchTimeout]  Watch timeout in milliseconds.
     *
     * @example
     * ### Board class usage
@@ -615,7 +627,7 @@ var sh = sh || {};
     * var board = sh.Board('192.168.1.102');
     * 
     * // get board version (raw)
-    * board.Command('version').then(function(event) {
+    * board.command('version').then(function(event) {
     *     console.info('board:', event.board);
     *     console.info('version:', event.originalEvent.response.raw);
     * })
@@ -624,7 +636,7 @@ var sh = sh || {};
     * });
     * 
     * // get board version (parsed)
-    * board.Version().then(function(event) {
+    * board.version().then(function(event) {
     *     console.info('board:', event.board);
     *     console.info('info:', event.data);
     * })
@@ -656,7 +668,7 @@ var sh = sh || {};
     *     console.info('on.reconnectAttempt:', event.data.attempts, event.board);
     *     // disconnect the board after 5 attempts
     *     if (this.reconnectAttempts == 2) {
-    *         this.Disconnect().then(function(event) {
+    *         this.disconnect().then(function(event) {
     *             console.info('disconnect:', event.board);
     *         })
     *         .catch(function(event) {
@@ -675,7 +687,7 @@ var sh = sh || {};
     * });
     * 
     * // connect the board
-    * board.Connect().then(function(event) {
+    * board.connect().then(function(event) {
     *     console.info('connect:', event.board);
     * })
     * .catch(function(event) {
@@ -685,7 +697,7 @@ var sh = sh || {};
     * // disconnect the board after 15 seconds
     * setTimeout(function() {
     * 
-    *     board.Disconnect().then(function(event) {
+    *     board.disconnect().then(function(event) {
     *         console.info('disconnect:', event.board);
     *     })
     *     .catch(function(event) {
@@ -724,102 +736,103 @@ var sh = sh || {};
         }
 
         /**
+        * @property {String} address Board ip or hostname.
         * @readonly
-        * @property  {String}  address  Board ip or hostname.
         */
         this.address = address;
 
         /**
+        * @property {String} id Board ip or hostname as DOM id.
         * @readonly
-        * @property  {String}  id  Board ip or hostname as DOM id.
         */
         this.id = address.replace(/[^0-9a-z_\-]+/gi, '-');
 
         /**
+        * @property {Integer} timeout Default response timeout in milliseconds.
+        * @default 5000
         * @readonly
-        * @property  {Integer}  timeout  Default response timeout in milliseconds.
-        * @default   5000
         */
         this.timeout = settings.timeout !== undefined ? settings.timeout : 5000;
 
         /**
+        * @property {Object|null} info        Board info parsed from version command.
+        * @property {String}      info.branch Firmware branch.
+        * @property {String}      info.hash   Firmware hash.
+        * @property {String}      info.date   Firmware date.
+        * @property {String}      info.mcu    Board MCU.
+        * @property {String}      info.clock  Board clock freqency.
+        * @default
+        *
         * @readonly
-        * @property  {Object|null}  info         Board info parsed from version command.
-        * @property  {String}       info.branch  Firmware branch.
-        * @property  {String}       info.hash    Firmware hash.
-        * @property  {String}       info.date    Firmware date.
-        * @property  {String}       info.mcu     Board MCU.
-        * @property  {String}       info.clock   Board clock freqency.
-        * @default   null
         */
         this.info = null;
 
         /**
+        * @property {Boolean} online Is board online.
+        * @default
         * @readonly
-        * @property  {Boolean}  online  Is board online.
-        * @default   false
         */
         this.online = false;
 
         /**
+        * @property {Integer} lastOnlineTime Last time the board was seen online.
+        * @default
         * @readonly
-        * @property  {Integer}  lastOnlineTime Last time the board was seen online.
-        * @default   null
         */
         this.lastOnlineTime = null;
 
         /**
+        * @property {Boolean} online Is board connected.
+        * @default
         * @readonly
-        * @property  {Boolean}  online  Is board connected.
-        * @default   false
         */
         this.connected = false;
 
         /**
+        * @property {Integer} watchTimeoutId Connection timer id.
+        * @default
         * @readonly
-        * @property  {Integer}  watchTimeoutId Connection timer id.
-        * @default   null
         */
         this.watchTimeoutId = null;
 
         /**
+        * @property {Integer} watchInterval Connection timer interval.
+        * @default 5000
         * @readonly
-        * @property  {Integer}  watchInterval Connection timer interval.
-        * @default   5000
         */
         this.watchInterval = settings.watchInterval || 5000;
 
         /**
+        * @property {Integer} watchInterval Connection timeout interval.
+        * @default 2000
         * @readonly
-        * @property  {Integer}  watchInterval Connection timeout interval.
-        * @default   5000
         */
         this.watchTimeout = settings.watchTimeout || 2000;
 
         /**
+        * @property {Integer} reconnectAttempts Number of reconnection attempts.
+        * @default
         * @readonly
-        * @property  {Integer}  reconnectAttempts Number of reconnection attempts.
-        * @default   0
         */
         this.reconnectAttempts = 0;
 
         /**
+        * @property {Integer} connections Number of successful connections from the first connection.
+        * @default
         * @readonly
-        * @property  {Integer}  connections Number of successful connections from the first connection.
-        * @default   0
         */
         this.connections = 0;
 
         /**
+        * @property {Integer} reconnections Number of successful reconnections from the last connection.
+        * @default
         * @readonly
-        * @property  {Integer}  reconnections Number of successful reconnections from the last connection.
-        * @default   0
         */
         this.reconnections = 0;
 
         /**
+        * @property {Object} - Registred callbacks.
         * @protected
-        * @property  {Object}  -  Registred callbacks.
         */
         this._on = {};
     };
@@ -830,49 +843,56 @@ var sh = sh || {};
     * On request response.
     *
     * @callback sh.Board~onResponse
-    * @param  {sh.BoardEvent}  event  Board event.
+    *
+    * @param {sh.BoardEvent} event Board event.
     */
 
     /**
     * On request error.
     *
     * @callback sh.Board~onError
-    * @param  {sh.BoardEvent}  event  Board event.
+    *
+    * @param {sh.BoardEvent} event Board event.
     */
 
     /**
     * On board connect.
     *
     * @callback sh.Board~onConnect
-    * @param  {sh.BoardEvent}  event  Board event.
+    *
+    * @param {sh.BoardEvent} event Board event.
     */
 
     /**
     * On board disconnect.
     *
     * @callback sh.Board~onDisconnect
-    * @param  {sh.BoardEvent}  event  Board event.
+    *
+    * @param {sh.BoardEvent} event Board event.
     */
 
     /**
     * On board reconnect.
     *
     * @callback sh.Board~onReconnect
-    * @param  {sh.BoardEvent}  event  Board event.
+    *
+    * @param {sh.BoardEvent} event Board event.
     */
 
     /**
     * On board redisconnect.
     *
     * @callback sh.Board~onRedisconnect
-    * @param  {sh.BoardEvent}  event  Board event.
+    *
+    * @param {sh.BoardEvent} event Board event.
     */
 
     /**
     * On watch board.
     *
     * @callback sh.Board~onWatch
-    * @param  {sh.BoardEvent}  event  Board event.
+    *
+    * @param {sh.BoardEvent} event Board event.
     */
 
     // -------------------------------------------------------------------------
@@ -881,26 +901,28 @@ var sh = sh || {};
     * Register an event callback.
     *
     * @method
-    * @param  {String}    event     Event name.
-    * @param  {Function}  callback  Function to call on event is fired.
-    * @return {self}
+    *
+    * @param {String}   event    Event name.
+    * @param {Function} callback Function to call on event is fired.
+    *
+    * @return {this}
     *
     * @callbacks
-    * | Name | Type | Description |
-    * | ---- | ---- | ----------- |
-    * | response      | {@link sh.Board~onResponse|onResponse}         | Called on request response.   |
-    * | error         | {@link sh.Board~onError|onError}               | Called on request error.      |
-    * | connect       | {@link sh.Board~onConnect|onConnect}           | Called on board connect.      |
-    * | disconnect    | {@link sh.Board~onDisconnect|onDisconnect}     | Called on board disconnect.   |
-    * | reconnect     | {@link sh.Board~onReconnect|onReconnect}       | Called on board reconnect.    |
-    * | redisconnect  | {@link sh.Board~onRedisconnect|onRedisconnect} | Called on board redisconnect. |
-    * | watch         | {@link sh.Board~onWatch|onWatch}               | Called on watch board.        |
+    * | Name         | Type                                           | Description                   |
+    * | ------------ | ---------------------------------------------- | ----------------------------- |
+    * | response     | {@link sh.Board~onResponse|onResponse}         | Called on request response.   |
+    * | error        | {@link sh.Board~onError|onError}               | Called on request error.      |
+    * | connect      | {@link sh.Board~onConnect|onConnect}           | Called on board connect.      |
+    * | disconnect   | {@link sh.Board~onDisconnect|onDisconnect}     | Called on board disconnect.   |
+    * | reconnect    | {@link sh.Board~onReconnect|onReconnect}       | Called on board reconnect.    |
+    * | redisconnect | {@link sh.Board~onRedisconnect|onRedisconnect} | Called on board redisconnect. |
+    * | watch        | {@link sh.Board~onWatch|onWatch}               | Called on watch board.        |
     */
     sh.Board.prototype.on = function(event, callback) {
         // register callback
         this._on[event] = callback;
 
-        // chainable
+        // -> this (chainable)
         return this;
     };
 
@@ -909,9 +931,11 @@ var sh = sh || {};
     *
     * @method
     * @protected
-    * @param  {String}  name   Event name.
-    * @param  {String}  event  Original event.
-    * @param  {Mixed}   data   Event data.
+    *
+    * @param {String} name  Event name.
+    * @param {String} event Original event.
+    * @param {Mixed}  data  Event data.
+    *
     * @return {sh.BoardEvent}
     */
     sh.Board.prototype._trigger = function(name, event, data) {
@@ -931,11 +955,13 @@ var sh = sh || {};
     * Send a command to the board.
     *
     * @method
-    * @param   {String}           command  Command to send.
-    * @param   {Integer}          timeout  Response timeout.
-    * @return  {sh.network.Post}  Promise
+    *
+    * @param {String}  command Command to send.
+    * @param {Integer} timeout Response timeout.
+    *
+    * @return {sh.network.Request}
     */
-    sh.Board.prototype.Command = function(command, timeout) {
+    sh.Board.prototype.command = function(command, timeout) {
         // default response timeout
         if (timeout === undefined) {
             timeout = this.timeout;
@@ -944,8 +970,8 @@ var sh = sh || {};
         // self alias
         var self = this;
 
-        // return Post request (promise)
-        return sh.network.Post({
+        // return POST request (promise)
+        return sh.network.post({
             url    : 'http://' + this.address + '/command',
             data   : command.trim() + '\n',
             timeout: timeout
@@ -981,26 +1007,30 @@ var sh = sh || {};
     * Send ping command (ok).
     *
     * @method
-    * @param   {Integer}          timeout  Response timeout.
-    * @return  {sh.network.Post}  Promise
+    *
+    * @param {Integer} timeout Response timeout.
+    *
+    * @return {sh.network.Request}
     */
-    sh.Board.prototype.Ping = function(timeout) {
-        return this.Command('ok', timeout);
+    sh.Board.prototype.ping = function(timeout) {
+        return this.command('ok', timeout);
     };
 
     /**
     * Get the board version.
     *
     * @method
-    * @param   {Integer}          timeout  Response timeout.
-    * @return  {sh.network.Post}  Promise
+    *
+    * @param {Integer} timeout Response timeout.
+    *
+    * @return {sh.network.Request}
     */
-    sh.Board.prototype.Version = function(timeout) {
+    sh.Board.prototype.version = function(timeout) {
         // self alias
         var self = this;
 
         // get board version (raw)
-        return this.Command('version').then(function(event) {
+        return this.command('version').then(function(event) {
             // raw version string
             // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
             var raw_version = event.originalEvent.response.raw;
@@ -1064,7 +1094,7 @@ var sh = sh || {};
             var online = self.online;
 
             // send ping command
-            self.Ping(self.watchTimeout).then(function(event) {
+            self.ping(self.watchTimeout).then(function(event) {
                 // if online flag as changed
                 if (! online) {
                     // reset reconnection attempts
@@ -1123,10 +1153,12 @@ var sh = sh || {};
     * Connect the board (watch periodicaly if the board is online).
     *
     * @method
-    * @param   {Integer}          timeout  Connection timeout.
-    * @return  {sh.network.Post}  Promise
+    *
+    * @param {Integer} timeout Connection timeout.
+    *
+    * @return {sh.network.Request}
     */
-    sh.Board.prototype.Connect = function(timeout) {
+    sh.Board.prototype.connect = function(timeout) {
         // already connected
         if (this.connected) {
             throw new Error('Already connected.');
@@ -1139,7 +1171,7 @@ var sh = sh || {};
         var self = this;
 
         // get board version
-        return this.Version(timeout).then(function(event) {
+        return this.version(timeout).then(function(event) {
             // set connected flag
             self.connected = true;
 
@@ -1166,7 +1198,7 @@ var sh = sh || {};
     * @method
     * @return {Promise}
     */
-    sh.Board.prototype.Disconnect = function() {
+    sh.Board.prototype.disconnect = function() {
         // not connected
         if (! this.connected) {
             throw new Error('Not connected.');
@@ -1190,9 +1222,10 @@ var sh = sh || {};
     * Network scanner.
     *
     * @class
-    * @param  {Object}        settings          Scanner settings.
-    * @param  {String|Array}  settings.input    Ip's scan pattern. See {@link sh.network.Scanner#setInput|setInput} for details.
-    * @param  {Integer}       settings.timeout  Scan timeout in milliseconds. See {@link sh.network.Scanner#setTimeout|setTimeout} for details.
+    *
+    * @param {Object}       settings         Scanner settings.
+    * @param {String|Array} settings.input   Ip's scan pattern. See {@link sh.network.Scanner#setInput|setInput} for details.
+    * @param {Integer}      settings.timeout Scan timeout in milliseconds. See {@link sh.network.Scanner#setTimeout|setTimeout} for details.
     *
     * @example
     * ### Scanne the network
@@ -1244,71 +1277,71 @@ var sh = sh || {};
         settings = settings || {};
 
         /**
+        * @property {Object} - Registred callbacks.
         * @protected
-        * @property  {Object}  -  Registred callbacks.
         */
         this._on = {};
 
         /**
+        * @property {String} input Input to scan.
+        * @default 192.168.1.*.
         * @readonly
-        * @property  {String}  input  Input to scan.
-        * @default   192.168.1.*.
         */
         this.input = settings.input || '192.168.1.*';
 
         /**
+        * @property {Array} queue Ip's queue to scann.
         * @readonly
-        * @property  {Array}  queue  Ip's queue to scann.
         */
         this.queue = [];
 
         /**
-        * @readonly
-        * @property  {Integer}  timeout  Default scan response timeout in milliseconds.
+        * @property {Integer} timeout Default scan response timeout in milliseconds.
         * @default 1000
+        * @readonly
         */
         this.timeout = settings.timeout === undefined ? 1000 : settings.timeout;
 
         /**
-        * @readonly
-        * @property  {Integer}  boardTimeout  Default board response timeout in milliseconds.
+        * @property {Integer} boardTimeout Default board response timeout in milliseconds.
         * @default 1000
+        * @readonly
         */
         this.boardTimeout = settings.boardTimeout === undefined ? 5000 : settings.boardTimeout;
 
         /**
+        * @property {Boolean} scanning Is scanning.
         * @readonly
-        * @property  {Boolean}  scanning  Is scanning.
         */
         this.scanning = false;
 
         /**
+        * @property {Boolean} aborted Aborted scann status.
         * @readonly
-        * @property  {Boolean}  aborted  Aborted scann status.
         */
         this.aborted = false;
 
         /**
+        * @property {Integer} total Total number of ip to scan.
         * @readonly
-        * @property  {Integer}  total  Total number of ip to scan.
         */
         this.total = 0;
 
         /**
+        *@property {Integer} scanned Number of ip scanned.
         * @readonly
-        * @property  {Integer}  scanned Number of ip scanned.
         */
         this.scanned = 0;
 
         /**
+        * @property {Integer} found Number of boards found.
         * @readonly
-        * @property  {Integer}  found  Number of boards found.
         */
         this.found = 0;
 
         /**
+        * @property {Object} boards Known boards list.
         * @readonly
-        * @property  {Object}  boards  Known boards list.
         */
         this.boards = {};
 
@@ -1320,43 +1353,49 @@ var sh = sh || {};
     * On scan start callback.
     *
     * @callback sh.network.Scanner~onStart
-    * @param  {sh.network.Scanner}  scanner  Scanner instance.
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
     */
 
     /**
     * On scan pause callback.
     *
     * @callback sh.network.Scanner~onPause
-    * @param  {sh.network.Scanner}  scanner  Scanner instance.
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
     */
 
     /**
     * On scan resume callback.
     *
     * @callback sh.network.Scanner~onResume
-    * @param  {sh.network.Scanner}  scanner  Scanner instance.
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
     */
 
     /**
     * On scan stop callback.
     *
     * @callback sh.network.Scanner~onStop
-    * @param  {sh.network.Scanner}  scanner  Scanner instance.
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
     */
 
     /**
     * On board found callback.
     *
     * @callback sh.network.Scanner~onBoard
-    * @param  {sh.network.Scanner}  scanner  Scanner instance.
-    * @param  {sh.Board}            board    Board instance.
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
+    * @param {sh.Board}           board   Board instance.
     */
 
     /**
     * On scan end callback.
     *
     * @callback sh.network.Scanner~onEnd
-    * @param  {sh.network.Scanner}  scanner  Scanner instance.
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
     */
 
     // -------------------------------------------------------------------------
@@ -1365,13 +1404,15 @@ var sh = sh || {};
     * Register an event callback.
     *
     * @method
-    * @param  {String}    event     Event name.
-    * @param  {Function}  callback  Function to call on event is fired.
-    * @return {self}
+    *
+    * @param {String}   event    Event name.
+    * @param {Function} callback Function to call on event is fired.
+    *
+    * @return {this}
     *
     * @callbacks
-    * | Name | Type | Description |
-    * | -----| ---- | ----------- |
+    * | Name   | Type                                         | Description                |
+    * | -------| -------------------------------------------- | -------------------------- |
     * | start  | {@link sh.network.Scanner~onStart|onStart}   | Called before scan start.  |
     * | pause  | {@link sh.network.Scanner~onPause|onPause}   | Called after scan pause.   |
     * | resume | {@link sh.network.Scanner~onResume|onResume} | Called before scan resume. |
@@ -1383,7 +1424,7 @@ var sh = sh || {};
         // register callback
         this._on[event] = callback;
 
-        // chainable
+        // -> this (chainable)
         return this;
     };
 
@@ -1392,15 +1433,17 @@ var sh = sh || {};
     *
     * @method
     * @protected
-    * @param  {String}  event  Event name.
-    * @param  {Array}   args   Arguments to pass to the callback.
-    * @return {self}
+    *
+    * @param {String} event Event name.
+    * @param {Array}  args  Arguments to pass to the callback.
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype._trigger = function(name, args) {
         // if defined, call user callback
         this._on[name] && this._on[name].apply(this, args || []);
 
-        // chainable
+        // -> this (chainable)
         return this;
     };
 
@@ -1420,8 +1463,10 @@ var sh = sh || {};
     * ```
     *
     * @method
-    * @param  {String|Array}  input  Ip's scan pattern.
-    * @return {self}
+    *
+    * @param {String|Array} input Ip's scan pattern.
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype.setInput = function(input) {
         // Not alowed in scan mode.
@@ -1500,9 +1545,12 @@ var sh = sh || {};
 
     /**
     * Set scan timeout.
+    *
     * @method
-    * @param  {Integer}  timeout  Scan timeout in milliseconds [min: 100, max: 2000].
-    * @return {self}
+    *
+    * @param {Integer} timeout Scan timeout in milliseconds [min: 100, max: 2000].
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype.setTimeout = function(timeout) {
         // out of range test
@@ -1521,8 +1569,10 @@ var sh = sh || {};
 
     /**
     * Shift and scan an ip from the queue looking for a SmoothieBoard.
+    *
     * @method
     * @protected
+    *
     * @return {Boolean|null}
     */
     sh.network.Scanner.prototype._processQueue = function() {
@@ -1555,7 +1605,7 @@ var sh = sh || {};
             });
 
             // get board version
-            board.Version().then(function(event) {
+            board.version().then(function(event) {
                 // increment counters
                 self.found++;
 
@@ -1598,9 +1648,11 @@ var sh = sh || {};
     * Start new scan.
     *
     * @method
-    * @param  {String|Array}  input    Ip's scan pattern. See {@link sh.network.Scanner#setInput|setInput} for details.
-    * @param  {Integer}       timeout  Scan timeout in milliseconds. See {@link sh.network.Scanner#setTimeout|setTimeout} for details.
-    * @return {self}
+    *
+    * @param {String|Array} input   Ip's scan pattern. See {@link sh.network.Scanner#setInput|setInput} for details.
+    * @param {Integer}      timeout Scan timeout in milliseconds. See {@link sh.network.Scanner#setTimeout|setTimeout} for details.
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype.start = function(input, timeout) {
         // set the input
@@ -1623,7 +1675,7 @@ var sh = sh || {};
         // process queue
         this._processQueue();
 
-        // chainable
+        // -> this (chainable)
         return this;
     };
 
@@ -1631,7 +1683,8 @@ var sh = sh || {};
     * Stop current scan.
     *
     * @method
-    * @return {self}
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype.stop = function() {
         if (this.scanning || this.aborted) {
@@ -1643,7 +1696,7 @@ var sh = sh || {};
             this._trigger('stop', [this]);
         }
 
-        // chainable
+        // -> this (chainable)
         return this;
     };
 
@@ -1651,7 +1704,8 @@ var sh = sh || {};
     * Pause current scan.
     *
     * @method
-    * @return {self}
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype.pause = function() {
         if (this.scanning) {
@@ -1663,7 +1717,7 @@ var sh = sh || {};
             this._trigger('pause', [this]);
        }
 
-        // chainable
+        // -> this (chainable)
         return this;
     };
 
@@ -1671,7 +1725,8 @@ var sh = sh || {};
     * Resume current scan.
     *
     * @method
-    * @return {self}
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype.resume = function() {
         if (this.aborted) {
@@ -1686,7 +1741,7 @@ var sh = sh || {};
             this._processQueue();
         }
 
-        // chainable
+        // -> this (chainable)
         return this;
     };
 

@@ -5,9 +5,10 @@
     * Network scanner.
     *
     * @class
-    * @param  {Object}        settings          Scanner settings.
-    * @param  {String|Array}  settings.input    Ip's scan pattern. See {@link sh.network.Scanner#setInput|setInput} for details.
-    * @param  {Integer}       settings.timeout  Scan timeout in milliseconds. See {@link sh.network.Scanner#setTimeout|setTimeout} for details.
+    *
+    * @param {Object}       settings         Scanner settings.
+    * @param {String|Array} settings.input   Ip's scan pattern. See {@link sh.network.Scanner#setInput|setInput} for details.
+    * @param {Integer}      settings.timeout Scan timeout in milliseconds. See {@link sh.network.Scanner#setTimeout|setTimeout} for details.
     *
     * {$examples sh.network.Scanner}
     */
@@ -21,71 +22,71 @@
         settings = settings || {};
 
         /**
+        * @property {Object} - Registred callbacks.
         * @protected
-        * @property  {Object}  -  Registred callbacks.
         */
         this._on = {};
 
         /**
+        * @property {String} input Input to scan.
+        * @default 192.168.1.*.
         * @readonly
-        * @property  {String}  input  Input to scan.
-        * @default   192.168.1.*.
         */
         this.input = settings.input || '192.168.1.*';
 
         /**
+        * @property {Array} queue Ip's queue to scann.
         * @readonly
-        * @property  {Array}  queue  Ip's queue to scann.
         */
         this.queue = [];
 
         /**
-        * @readonly
-        * @property  {Integer}  timeout  Default scan response timeout in milliseconds.
+        * @property {Integer} timeout Default scan response timeout in milliseconds.
         * @default 1000
+        * @readonly
         */
         this.timeout = settings.timeout === undefined ? 1000 : settings.timeout;
 
         /**
-        * @readonly
-        * @property  {Integer}  boardTimeout  Default board response timeout in milliseconds.
+        * @property {Integer} boardTimeout Default board response timeout in milliseconds.
         * @default 1000
+        * @readonly
         */
         this.boardTimeout = settings.boardTimeout === undefined ? 5000 : settings.boardTimeout;
 
         /**
+        * @property {Boolean} scanning Is scanning.
         * @readonly
-        * @property  {Boolean}  scanning  Is scanning.
         */
         this.scanning = false;
 
         /**
+        * @property {Boolean} aborted Aborted scann status.
         * @readonly
-        * @property  {Boolean}  aborted  Aborted scann status.
         */
         this.aborted = false;
 
         /**
+        * @property {Integer} total Total number of ip to scan.
         * @readonly
-        * @property  {Integer}  total  Total number of ip to scan.
         */
         this.total = 0;
 
         /**
+        *@property {Integer} scanned Number of ip scanned.
         * @readonly
-        * @property  {Integer}  scanned Number of ip scanned.
         */
         this.scanned = 0;
 
         /**
+        * @property {Integer} found Number of boards found.
         * @readonly
-        * @property  {Integer}  found  Number of boards found.
         */
         this.found = 0;
 
         /**
+        * @property {Object} boards Known boards list.
         * @readonly
-        * @property  {Object}  boards  Known boards list.
         */
         this.boards = {};
 
@@ -97,43 +98,49 @@
     * On scan start callback.
     *
     * @callback sh.network.Scanner~onStart
-    * @param  {sh.network.Scanner}  scanner  Scanner instance.
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
     */
 
     /**
     * On scan pause callback.
     *
     * @callback sh.network.Scanner~onPause
-    * @param  {sh.network.Scanner}  scanner  Scanner instance.
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
     */
 
     /**
     * On scan resume callback.
     *
     * @callback sh.network.Scanner~onResume
-    * @param  {sh.network.Scanner}  scanner  Scanner instance.
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
     */
 
     /**
     * On scan stop callback.
     *
     * @callback sh.network.Scanner~onStop
-    * @param  {sh.network.Scanner}  scanner  Scanner instance.
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
     */
 
     /**
     * On board found callback.
     *
     * @callback sh.network.Scanner~onBoard
-    * @param  {sh.network.Scanner}  scanner  Scanner instance.
-    * @param  {sh.Board}            board    Board instance.
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
+    * @param {sh.Board}           board   Board instance.
     */
 
     /**
     * On scan end callback.
     *
     * @callback sh.network.Scanner~onEnd
-    * @param  {sh.network.Scanner}  scanner  Scanner instance.
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
     */
 
     // -------------------------------------------------------------------------
@@ -142,13 +149,15 @@
     * Register an event callback.
     *
     * @method
-    * @param  {String}    event     Event name.
-    * @param  {Function}  callback  Function to call on event is fired.
-    * @return {self}
+    *
+    * @param {String}   event    Event name.
+    * @param {Function} callback Function to call on event is fired.
+    *
+    * @return {this}
     *
     * @callbacks
-    * | Name | Type | Description |
-    * | -----| ---- | ----------- |
+    * | Name   | Type                                         | Description                |
+    * | -------| -------------------------------------------- | -------------------------- |
     * | start  | {@link sh.network.Scanner~onStart|onStart}   | Called before scan start.  |
     * | pause  | {@link sh.network.Scanner~onPause|onPause}   | Called after scan pause.   |
     * | resume | {@link sh.network.Scanner~onResume|onResume} | Called before scan resume. |
@@ -160,7 +169,7 @@
         // register callback
         this._on[event] = callback;
 
-        // chainable
+        // -> this (chainable)
         return this;
     };
 
@@ -169,15 +178,17 @@
     *
     * @method
     * @protected
-    * @param  {String}  event  Event name.
-    * @param  {Array}   args   Arguments to pass to the callback.
-    * @return {self}
+    *
+    * @param {String} event Event name.
+    * @param {Array}  args  Arguments to pass to the callback.
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype._trigger = function(name, args) {
         // if defined, call user callback
         this._on[name] && this._on[name].apply(this, args || []);
 
-        // chainable
+        // -> this (chainable)
         return this;
     };
 
@@ -197,8 +208,10 @@
     * ```
     *
     * @method
-    * @param  {String|Array}  input  Ip's scan pattern.
-    * @return {self}
+    *
+    * @param {String|Array} input Ip's scan pattern.
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype.setInput = function(input) {
         // Not alowed in scan mode.
@@ -277,9 +290,12 @@
 
     /**
     * Set scan timeout.
+    *
     * @method
-    * @param  {Integer}  timeout  Scan timeout in milliseconds [min: 100, max: 2000].
-    * @return {self}
+    *
+    * @param {Integer} timeout Scan timeout in milliseconds [min: 100, max: 2000].
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype.setTimeout = function(timeout) {
         // out of range test
@@ -298,8 +314,10 @@
 
     /**
     * Shift and scan an ip from the queue looking for a SmoothieBoard.
+    *
     * @method
     * @protected
+    *
     * @return {Boolean|null}
     */
     sh.network.Scanner.prototype._processQueue = function() {
@@ -332,7 +350,7 @@
             });
 
             // get board version
-            board.Version().then(function(event) {
+            board.version().then(function(event) {
                 // increment counters
                 self.found++;
 
@@ -375,9 +393,11 @@
     * Start new scan.
     *
     * @method
-    * @param  {String|Array}  input    Ip's scan pattern. See {@link sh.network.Scanner#setInput|setInput} for details.
-    * @param  {Integer}       timeout  Scan timeout in milliseconds. See {@link sh.network.Scanner#setTimeout|setTimeout} for details.
-    * @return {self}
+    *
+    * @param {String|Array} input   Ip's scan pattern. See {@link sh.network.Scanner#setInput|setInput} for details.
+    * @param {Integer}      timeout Scan timeout in milliseconds. See {@link sh.network.Scanner#setTimeout|setTimeout} for details.
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype.start = function(input, timeout) {
         // set the input
@@ -400,7 +420,7 @@
         // process queue
         this._processQueue();
 
-        // chainable
+        // -> this (chainable)
         return this;
     };
 
@@ -408,7 +428,8 @@
     * Stop current scan.
     *
     * @method
-    * @return {self}
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype.stop = function() {
         if (this.scanning || this.aborted) {
@@ -420,7 +441,7 @@
             this._trigger('stop', [this]);
         }
 
-        // chainable
+        // -> this (chainable)
         return this;
     };
 
@@ -428,7 +449,8 @@
     * Pause current scan.
     *
     * @method
-    * @return {self}
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype.pause = function() {
         if (this.scanning) {
@@ -440,7 +462,7 @@
             this._trigger('pause', [this]);
        }
 
-        // chainable
+        // -> this (chainable)
         return this;
     };
 
@@ -448,7 +470,8 @@
     * Resume current scan.
     *
     * @method
-    * @return {self}
+    *
+    * @return {this}
     */
     sh.network.Scanner.prototype.resume = function() {
         if (this.aborted) {
@@ -463,7 +486,7 @@
             this._processQueue();
         }
 
-        // chainable
+        // -> this (chainable)
         return this;
     };
 

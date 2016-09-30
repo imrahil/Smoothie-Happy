@@ -3,6 +3,7 @@
 
     /**
     * Network module.
+    *
     * @namespace
     */
     sh.network = {};
@@ -11,7 +12,8 @@
     * XMLHttpRequest response abstraction class.
     *
     * @class
-    * @param  {XMLHttpRequest}  xhr   An `XMLHttpRequest` instance.
+    *
+    * @param {XMLHttpRequest} xhr An `XMLHttpRequest` instance.
     */
     sh.network.Response = function(xhr) {
         // instance factory
@@ -19,25 +21,25 @@
             return new sh.network.Response(xhr);
         }
 
-        /** @property  {Integer}  -  Response status code. */
+        /** @property {Integer} - Response status code. */
         this.code = xhr.status;
 
-        /** @property  {String}  -  Respons status text. */
+        /** @property {String} - Respons status text. */
         this.message = xhr.statusText;
 
-        /** @property  {String}  -  Response type. */
+        /** @property {String} - Response type. */
         this.type = xhr.responseType;
 
-        /** @property  {String}  -  Response url. */
+        /** @property {String} - Response url. */
         this.url = xhr.responseURL;
 
-        /** @property  {String}  -  Response XML. */
+        /** @property {String} - Response XML. */
         this.xml = xhr.responseXML;
 
-        /** @property  {String}  -  Response text. */
+        /** @property {String} - Response text. */
         this.text = xhr.responseText;
 
-        /** @property  {Mixed}  -  Raw response. */
+        /** @property {Mixed} - Raw response. */
         this.raw = xhr.response;
     };
 
@@ -45,8 +47,9 @@
     * Custom request event.
     *
     * @class
-    * @param  {String}              name      Event name, possible values is `[upload.]load`, `[upload.]timeout`, `[upload.]abort` or `[upload.]error`.
-    * @param  {sh.network.Request}  request   Original `sh.network.Request` instance.
+    *
+    * @param {String}             name     Event name, possible values is `[upload.]load`, `[upload.]timeout`, `[upload.]abort` or `[upload.]error`.
+    * @param {sh.network.Request} request  Original `sh.network.Request` instance.
     */
     sh.network.RequestEvent = function(name, request) {
         // instance factory
@@ -54,13 +57,13 @@
             return new sh.network.RequestEvent(name, request);
         }
 
-        /** @property  {String}  -  Possible values is `[upload.]load`, `[upload.]timeout`, `[upload.]abort` or `[upload.]error`. */
+        /** @property {String} - Possible values is `[upload.]load`, `[upload.]timeout`, `[upload.]abort` or `[upload.]error`. */
         this.name = name;
 
-        /** @property  {sh.network.Request}  -  Request instance. */
+        /** @property {sh.network.Request} - Request instance. */
         this.request = request;
 
-        /** @property  {sh.network.Response}  -  Response instance. */
+        /** @property {sh.network.Response} - Response instance. */
         this.response = sh.network.Response(request._xhr);
     };
 
@@ -68,10 +71,11 @@
     * Custom progress event.
     *
     * @class
-    * @extends  sh.network.RequestEvent
-    * @param    {String}              name     Event name, possible values is `progress` or `upload.progress`.
-    * @param    {sh.network.Request}  request  Original `sh.network.Request`.
-    * @param    {ProgressEvent}       source   Original `ProgressEvent`.
+    * @extends sh.network.RequestEvent
+    *
+    * @param {String}             name    Event name, possible values is `progress` or `upload.progress`.
+    * @param {sh.network.Request} request Original `sh.network.Request`.
+    * @param {ProgressEvent}      source  Original `ProgressEvent`.
     */
     sh.network.ProgressEvent = function(name, request, source) {
         // instance factory
@@ -82,22 +86,22 @@
         // call parent constructor
         sh.network.RequestEvent.call(this, name, request);
 
-        /** @property  {String}  -  Possible values is `progress` or `upload.progress`. */
+        /** @property {String} - Possible values is `progress` or `upload.progress`. */
         this.name = name;
 
-        /** @property  {ProgressEvent}  -  `ProgressEvent` instance. */
+        /** @property {ProgressEvent} - `ProgressEvent` instance. */
         this.source = source;
 
-        /** @property  {Boolean}  -  If computable length. */
+        /** @property {Boolean} - If computable length. */
         this.computable = source.lengthComputable;
 
-        /** @property  {Integer}  -  Total bytes. */
+        /** @property {Integer} - Total bytes. */
         this.total = this.computable ? source.total : null;
 
-        /** @property  {Integer}  -  Loaded bytes. */
+        /** @property {Integer} - Loaded bytes. */
         this.loaded = this.computable ? source.loaded : null;
 
-        /** @property  {Integer}  -  Loaded bytes as percent. */
+        /** @property {Integer} - Loaded bytes as percent. */
         this.percent = this.computable ? (this.loaded / this.total) * 100 : null;
     };
 
@@ -109,13 +113,14 @@
     * `XMLHttpRequest` wrapper with `Promise` logic.
     *
     * @class
-    * @param   {Object}   settings                    Request settings.
-    * @param   {String}   settings.url                URL with protocol.
-    * @param   {String}   [settings.method  = 'GET']  'GET', 'POST', 'DELETE', ...
-    * @param   {Mixed}    [settings.data    = null]   Data to send with the request.
-    * @param   {Object}   [settings.headers = null]   Headers to send with the request.
-    * @param   {Integer}  [settings.timeout = 5000]   Timeout for this request in milliseconds.
-    * @param   {Object}   [settings.xhr     = null]   An `XMLHttpRequest` instance or an collection of `XMLHttpRequest` properties/methods to overwrite.
+    *
+    * @param {Object}  settings                   Request settings.
+    * @param {String}  settings.url               URL with protocol.
+    * @param {String}  [settings.method  = 'GET'] 'GET', 'POST', 'DELETE', ...
+    * @param {Mixed}   [settings.data    = null]  Data to send with the request.
+    * @param {Object}  [settings.headers = null]  Headers to send with the request.
+    * @param {Integer} [settings.timeout = 5000]  Timeout for this request in milliseconds.
+    * @param {Object}  [settings.xhr     = null]  An `XMLHttpRequest` instance or an collection of `XMLHttpRequest` properties/methods to overwrite.
     *
     * @see Please read {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise|this} and {@link https://pouchdb.com/2015/05/18/we-have-a-problem-with-promises.html|that} to learn more about promises.
     *
@@ -131,23 +136,23 @@
         var settings = settings || {};
 
         /**
+        * @property {String} - Request url.
+        * @default ''
         * @protected
-        * @property  {String}  -  Request url.
-        * @default   ''
         */
         this._url = (settings.url || '').trim();
 
         /**
+        * @property {String} - Request method.
+        * @default 'GET'
         * @protected
-        * @property  {String}  -  Request method.
-        * @default   'GET'
         */
         this._method = (settings.method  || 'GET').trim().toUpperCase();
 
         /**
+        * @property {Mixed} - Request data.
+        * @default null
         * @protected
-        * @property  {Mixed}  -  Request data.
-        * @default   null
         */
         this._data = settings.data || null;
 
@@ -179,22 +184,22 @@
         }
 
         /**
+        * @property {Object} - Request headers.
+        * @default {}
         * @protected
-        * @property  {Object}  -  Request headers.
-        * @default   {}
         */
         this._headers = settings.headers || {};
 
         /**
+        * @property {Integer} - Request timeout in milliseconds.
+        * @default 5000
         * @protected
-        * @property  {Integer}  -  Request timeout in milliseconds.
-        * @default   5000
         */
         this._timeout = settings.timeout === undefined ? 5000 : settings.timeout;
 
         /**
+        * @property {XMLHttpRequest} - XMLHttpRequest instance.
         * @protected
-        * @property  {XMLHttpRequest}  -  XMLHttpRequest instance.
         */
         this._xhr = settings.xhr || null;
 
@@ -226,8 +231,8 @@
         }
 
         /**
+        * @property {Promise} - Promise instance.
         * @protected
-        * @property  {Promise}  -  Promise instance.
         */
         this._promise = this._execute();
     };
@@ -235,8 +240,9 @@
     /**
     * Execute the request and return a Promise.
     *
-    * @protected
     * @method
+    * @protected
+    *
     * @return {Promise}
     */
     sh.network.Request.prototype._execute = function() {
@@ -315,8 +321,10 @@
     * Register progress event handler.
     *
     * @method
-    * @param   {Function}  progressHandler  An function receiving an {@link sh.network.ProgressEvent} as first parameter.
-    * @return  {self}
+    *
+    * @param {Function} progressHandler An function receiving an {@link sh.network.ProgressEvent} as first parameter.
+    *
+    * @return {this}
     */
     sh.network.Request.prototype.onProgress = function(progressHandler) {
         // self alias
@@ -337,8 +345,10 @@
     * Register upload progress event handler.
     *
     * @method
-    * @param   {Function}  progressHandler  An function receiving an {@link sh.network.ProgressEvent} as first parameter.
-    * @return  {self}
+    *
+    * @param {Function} progressHandler An function receiving an {@link sh.network.ProgressEvent} as first parameter.
+    *
+    * @return {this}
     */
     sh.network.Request.prototype.onUploadProgress = function(progressHandler) {
         // self alias
@@ -359,9 +369,11 @@
     * Appends fulfillment and rejection handlers to the promise.
     *
     * @method
-    * @param   {Function}  onFulfilled  Fulfillment callback.
-    * @param   {Function}  onRejected   Rejection callback.
-    * @return  {Promise}
+    *
+    * @param {Function} onFulfilled Fulfillment callback.
+    * @param {Function} onRejected  Rejection callback.
+    *
+    * @return {Promise}
     */
     sh.network.Request.prototype.then = function(onFulfilled, onRejected) {
         return this._promise.then(onFulfilled, onRejected);
@@ -371,8 +383,10 @@
     * Appends a rejection handler callback to the promise.
     *
     * @method
-    * @param   {Function}  onRejected  Rejection callback.
-    * @return  {Promise}
+    *
+    * @param {Function} onRejected Rejection callback.
+    *
+    * @return {Promise}
     */
     sh.network.Request.prototype.catch = function(onRejected) {
         return this._promise.catch(onRejected);
@@ -381,59 +395,55 @@
     /**
     * Make and return an GET `sh.network.Request`.
     *
-    * @class
-    * @extends  {sh.network.Request}
-    * @param    {Object}   settings                    Request settings.
-    * @param    {String}   settings.url                URL with protocol.
-    * @param    {Mixed}    [settings.data    = null]   Data to send with the request.
-    * @param    {Object}   [settings.headers = null]   Headers to send with the request.
-    * @param    {Integer}  [settings.timeout = 5000]   Timeout for this request in milliseconds.
-    * @param    {Object}   [settings.xhr     = null]   An `XMLHttpRequest` instance or an collection of `XMLHttpRequest` properties/methods to overwrite.
+    * @function
+    *
+    * @param {Object}  settings                  Request settings.
+    * @param {String}  settings.url              URL with protocol.
+    * @param {Mixed}   [settings.data    = null] Data to send with the request.
+    * @param {Object}  [settings.headers = null] Headers to send with the request.
+    * @param {Integer} [settings.timeout = 5000] Timeout for this request in milliseconds.
+    * @param {Object}  [settings.xhr     = null] An `XMLHttpRequest` instance or an collection of `XMLHttpRequest` properties/methods to overwrite.
+    *
+    * @return {sh.network.Request}
     *
     * @see Please see {@link sh.network.Request} for uses examples.
     */
-    sh.network.Get = function(settings) {
-        // instance factory
-        if (! (this instanceof sh.network.Get)) {
-            return new sh.network.Get(settings);
-        }
-
+    sh.network.get = function(settings) {
+        // defaults settings
         settings = settings || {};
-        settings.method = 'GET';
-        return sh.network.Request.call(this, settings);
-    };
 
-    // extends sh.network.Request
-    sh.network.Get.prototype = Object.create(sh.network.Request.prototype);
-    sh.network.Get.prototype.constructor = sh.network.Get;
+        // force GET method
+        settings.method = 'GET';
+
+        // create and return the request
+        return sh.network.Request(settings);
+    };
 
     /**
     * Make and return an POST `sh.network.Request`.
     *
-    * @class
-    * @extends  {sh.network.Request}
-    * @param    {Object}   settings                    Request settings.
-    * @param    {String}   settings.url                URL with protocol.
-    * @param    {Mixed}    [settings.data    = null]   Data to send with the request.
-    * @param    {Object}   [settings.headers = null]   Headers to send with the request.
-    * @param    {Integer}  [settings.timeout = 5000]   Timeout for this request in milliseconds.
-    * @param    {Object}   [settings.xhr     = null]   An `XMLHttpRequest` instance or an collection of `XMLHttpRequest` properties/methods to overwrite.
+    * @function
+    *
+    * @param {Object}  settings                  Request settings.
+    * @param {String}  settings.url              URL with protocol.
+    * @param {Mixed}   [settings.data    = null] Data to send with the request.
+    * @param {Object}  [settings.headers = null] Headers to send with the request.
+    * @param {Integer} [settings.timeout = 5000] Timeout for this request in milliseconds.
+    * @param {Object}  [settings.xhr     = null] An `XMLHttpRequest` instance or an collection of `XMLHttpRequest` properties/methods to overwrite.
+    *
+    * @return {sh.network.Request}
     *
     * @see Please see {@link sh.network.Request} for uses examples.
     */
-    sh.network.Post = function(settings) {
-        // instance factory
-        if (! (this instanceof sh.network.Post)) {
-            return new sh.network.Post(settings);
-        }
-
+    sh.network.post = function(settings) {
+        // defaults settings
         settings = settings || {};
-        settings.method = 'POST';
-        return sh.network.Request.call(this, settings);
-    };
 
-    // extends sh.network.Request
-    sh.network.Post.prototype = Object.create(sh.network.Request.prototype);
-    sh.network.Post.prototype.constructor = sh.network.Post;
+        // force POST method
+        settings.method = 'POST';
+
+        // create and return the request
+        return sh.network.Request(settings);
+    };
 
 })();
