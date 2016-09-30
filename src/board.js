@@ -511,7 +511,7 @@
     * Disconnect the board (stop watching periodicaly if the board is online).
     *
     * @method
-    * @return
+    * @return {Promise}
     */
     sh.Board.prototype.Disconnect = function() {
         // not connected
