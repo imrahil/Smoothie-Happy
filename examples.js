@@ -178,6 +178,30 @@
 //
 // }, 15000); // 15 sec.
 
+// // @example sh.Board.ls - List files
+// // create the board instance
+// var board = sh.Board('192.168.1.102');
+//
+// // get board version (parsed)
+// board.ls('/sd').then(function(event) {
+//     console.info('ls:', event.name, event.data);
+// })
+// .catch(function(event) {
+//     console.error('ls:', event.name, event);
+// });
+
+// @example sh.Board.lsAll - List all files (recursive)
+// create the board instance
+var board = sh.Board('192.168.1.102');
+
+// get board version (parsed)
+board.lsAll().then(function(event) {
+    console.info('lsAll:', event.name, event.data);
+})
+.catch(function(event) {
+    console.error('lsAll:', event.name, event);
+});
+
 // -----------------------------------------------------------------------------
 
 // // @example sh.network.Scanner - Scanne the network

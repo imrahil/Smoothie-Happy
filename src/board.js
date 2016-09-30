@@ -289,121 +289,6 @@
     // -------------------------------------------------------------------------
 
     /**
-    * Send a command to the board.
-    *
-    * @method
-    *
-    * @param {String}  command Command to send.
-    * @param {Integer} timeout Response timeout.
-    *
-    * @return {sh.network.Request}
-    *
-    * {$examples sh.Board.command}
-    */
-    sh.Board.prototype.command = function(command, timeout) {
-        // default response timeout
-        if (timeout === undefined) {
-            timeout = this.timeout;
-        }
-
-        // self alias
-        var self = this;
-
-        // return POST request (promise)
-        return sh.network.post({
-            url    : 'http://' + this.address + '/command',
-            data   : command.trim() + '\n',
-            timeout: timeout
-        })
-        .then(function(event) {
-            // set online flag
-            self.online = true;
-
-            // set last online time
-            self.lastOnlineTime = Date.now();
-
-            // trigger event
-            var board_event = self._trigger('response', event);
-
-            // resolve the promise
-            return Promise.resolve(board_event);
-        })
-        .catch(function(event) {
-            // unset online flag
-            self.online = false;
-
-            // trigger event
-            var board_event = self._trigger('error', event);
-
-            // reject the promise
-            return Promise.reject(board_event);
-        });
-    };
-
-    // -------------------------------------------------------------------------
-
-    /**
-    * Send ping command (ok).
-    *
-    * @method
-    *
-    * @param {Integer} timeout Response timeout.
-    *
-    * @return {sh.network.Request}
-    */
-    sh.Board.prototype.ping = function(timeout) {
-        return this.command('ok', timeout);
-    };
-
-    /**
-    * Get the board version.
-    *
-    * @method
-    *
-    * @param {Integer} timeout Response timeout.
-    *
-    * @return {sh.network.Request}
-    *
-    * {$examples sh.Board.version}
-    */
-    sh.Board.prototype.version = function(timeout) {
-        // self alias
-        var self = this;
-
-        // get board version (raw)
-        return this.command('version').then(function(event) {
-            // raw version string
-            // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
-            var raw_version = event.originalEvent.response.raw;
-
-            // version pattern
-            var version_pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
-
-            // test the pattern
-            var info = raw_version.match(version_pattern);
-
-            if (info) {
-                // split branch-hash on dash
-                var branch = info[1].split('-');
-
-                // update board info
-                self.info = {
-                    branch: branch[0].trim(),
-                    hash  : branch[1].trim(),
-                    date  : info[2].trim(),
-                    mcu   : info[3].trim(),
-                    clock : info[4].trim()
-                };
-            }
-
-            // resolve the promise
-            return Promise.resolve(sh.BoardEvent('version', self, event, self.info));
-        });
-    };
-
-    // -------------------------------------------------------------------------
-
-    /**
     * Watch periodicaly if the board is online.
     *
     * @protected
@@ -495,7 +380,7 @@
     *
     * @method
     *
-    * @param {Integer} timeout Connection timeout.
+    * @param {Integer} [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
     *
