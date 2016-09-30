@@ -214,54 +214,8 @@ if (! $examples) {
         $examples[$path][] = $example;
     }
 
-    /*
-    foreach ($example_lines as $line) {
-        // skip spacers
-        if (preg_match('/\/\/ ?\-{70,}/', $line)) {
-            var_dump($line);
-            continue;
-        }
-
-        if (preg_match('/^\/\/(\/\/)? +\@example +([^ ]+) +\- +([^\n]+)/', $line, $matches)) {
-            $lastPath = $section or $matches[2];
-            $section     = $matches[2];
-            $title       = trim($matches[3]);
-            $commented   = $matches[1] == '//';
-
-            $namespace = explode('.', $section);
-            $namespace = $namespace[1];
-            $examples_modules[$namespace] = true;
-
-            if (! isset($examples[$section])) {
-                $examples[$section] = [];
-            }
-
-            if (is_array($example)) {
-                $example[1] = trim($example[1]);
-                $examples[$lastPath][] = $example;
-            }
-
-            $example = [$title, ''];
-
-            continue;
-        }
-
-        if (is_array($example)) {
-            if ($commented) {
-                $line = preg_replace('/^\/\//', '', $line);
-            }
-
-            $example[1] .= $line . "\n";
-        }
-    }
-
-    if (is_array($example)) {
-        $example[1] = trim($example[1]);
-        $examples[$section][] = $example;
-    }
-
+    // cache...
     cache($example_file, $examples);
-    */
 }
 
 // -----------------------------------------------------------------------------
