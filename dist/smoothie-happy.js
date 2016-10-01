@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    b557520bd77a2e6a37a01efde8172a83
-* @date     Sat, 01 Oct 2016 08:33:34 +0000
+* @build    8275688f9f91eb05196eaa3244257ca2
+* @date     Sat, 01 Oct 2016 08:55:45 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -25,7 +25,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = 'b557520bd77a2e6a37a01efde8172a83';
+    sh.build = '8275688f9f91eb05196eaa3244257ca2';
 
     /**
     * @property {String} id API id.
@@ -1259,7 +1259,7 @@ var sh = sh || {};
     * // create the board instance
     * var board = sh.Board('192.168.1.102');
     * 
-    * // get board version (parsed)
+    * // get all files or directories on sd/gcode
     * board.ls('sd/gcode/').then(function(event) {
     *     console.info('ls:', event.name, event.data);
     * })
@@ -1333,7 +1333,7 @@ var sh = sh || {};
     };
 
     /**
-    * List all files (recursive)
+    * List all files (recursive).
     *
     * @method
     *
@@ -1349,7 +1349,7 @@ var sh = sh || {};
     * // create the board instance
     * var board = sh.Board('192.168.1.102');
     * 
-    * // get board version (parsed)
+    * // get all files or directories on sd/gcode (recursive)
     * board.lsAll('/sd/gcode/').then(function(event) {
     *     console.info('lsAll:', event.name, event.data);
     * })

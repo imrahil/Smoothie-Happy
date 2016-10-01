@@ -173,6 +173,10 @@
             
                 <li data-name="sh.Board#disconnect"><a href="sh.Board.html#disconnect">disconnect</a></li>
             
+                <li data-name="sh.Board#ls"><a href="sh.Board.html#ls">ls</a></li>
+            
+                <li data-name="sh.Board#lsAll"><a href="sh.Board.html#lsAll">lsAll</a></li>
+            
                 <li data-name="sh.Board#on"><a href="sh.Board.html#on">on</a></li>
             
                 <li data-name="sh.Board#ping"><a href="sh.Board.html#ping">ping</a></li>
@@ -452,8 +456,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) &lt;sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    e537f960cb91f0ccdcebd4f98640853d
-* @date     Fri, 30 Sep 2016 13:04:06 +0000
+* @build    699b47b812e96de352444bf9c2fcd473
+* @date     Sat, 01 Oct 2016 08:40:10 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -475,7 +479,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = 'e537f960cb91f0ccdcebd4f98640853d';
+    sh.build = '699b47b812e96de352444bf9c2fcd473';
 
     /**
     * @property {String} id API id.
@@ -1322,149 +1326,6 @@ var sh = sh || {};
     // -------------------------------------------------------------------------
 
     /**
-    * Send a command to the board.
-    *
-    * @method
-    *
-    * @param {String}  command Command to send.
-    * @param {Integer} timeout Response timeout.
-    *
-    * @return {sh.network.Request}
-    *
-    * @example
-    * ### Send arbitrary command(s)
-    * ```
-    * // create the board instance
-    * var board = sh.Board('192.168.1.102');
-    * 
-    * // get board version (raw)
-    * board.command('version').then(function(event) {
-    *     console.info('board:', event.board);                        // Board instance
-    *     console.info('version:', event.originalEvent.response.raw); // Raw response text
-    * })
-    * .catch(function(event) {
-    *     console.error('version:', event.name, event);
-    * });
-    * ```
-    */
-    sh.Board.prototype.command = function(command, timeout) {
-        // default response timeout
-        if (timeout === undefined) {
-            timeout = this.timeout;
-        }
-
-        // self alias
-        var self = this;
-
-        // return POST request (promise)
-        return sh.network.post({
-            url    : 'http://' + this.address + '/command',
-            data   : command.trim() + '\n',
-            timeout: timeout
-        })
-        .then(function(event) {
-            // set online flag
-            self.online = true;
-
-            // set last online time
-            self.lastOnlineTime = Date.now();
-
-            // trigger event
-            var board_event = self._trigger('response', event);
-
-            // resolve the promise
-            return Promise.resolve(board_event);
-        })
-        .catch(function(event) {
-            // unset online flag
-            self.online = false;
-
-            // trigger event
-            var board_event = self._trigger('error', event);
-
-            // reject the promise
-            return Promise.reject(board_event);
-        });
-    };
-
-    // -------------------------------------------------------------------------
-
-    /**
-    * Send ping command (ok).
-    *
-    * @method
-    *
-    * @param {Integer} timeout Response timeout.
-    *
-    * @return {sh.network.Request}
-    */
-    sh.Board.prototype.ping = function(timeout) {
-        return this.command('ok', timeout);
-    };
-
-    /**
-    * Get the board version.
-    *
-    * @method
-    *
-    * @param {Integer} timeout Response timeout.
-    *
-    * @return {sh.network.Request}
-    *
-    * @example
-    * ### Get the board version
-    * ```
-    * // create the board instance
-    * var board = sh.Board('192.168.1.102');
-    * 
-    * // get board version (parsed)
-    * board.version().then(function(event) {
-    *     console.info('board:', event.board); // Board instance
-    *     console.info('info:', event.data);   // {branch, hash, date, mcu, clock}
-    * })
-    * .catch(function(event) {
-    *     console.error('version:', event.name, event);
-    * });
-    * ```
-    */
-    sh.Board.prototype.version = function(timeout) {
-        // self alias
-        var self = this;
-
-        // get board version (raw)
-        return this.command('version').then(function(event) {
-            // raw version string
-            // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
-            var raw_version = event.originalEvent.response.raw;
-
-            // version pattern
-            var version_pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
-
-            // test the pattern
-            var info = raw_version.match(version_pattern);
-
-            if (info) {
-                // split branch-hash on dash
-                var branch = info[1].split('-');
-
-                // update board info
-                self.info = {
-                    branch: branch[0].trim(),
-                    hash  : branch[1].trim(),
-                    date  : info[2].trim(),
-                    mcu   : info[3].trim(),
-                    clock : info[4].trim()
-                };
-            }
-
-            // resolve the promise
-            return Promise.resolve(sh.BoardEvent('version', self, event, self.info));
-        });
-    };
-
-    // -------------------------------------------------------------------------
-
-    /**
     * Watch periodicaly if the board is online.
     *
     * @protected
@@ -1556,7 +1417,7 @@ var sh = sh || {};
     *
     * @method
     *
-    * @param {Integer} timeout Connection timeout.
+    * @param {Integer} [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
     *
@@ -1695,6 +1556,364 @@ var sh = sh || {};
 
         // resolve the promise
         return Promise.resolve(board_event);
+    };
+
+    /**
+    * Send a command to the board.
+    *
+    * @method
+    *
+    * @param {String}  command Command to send.
+    * @param {Integer} [timeout] Response timeout.
+    *
+    * @return {sh.network.Request}
+    *
+    * @example
+    * ### Send arbitrary command(s)
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * // get board version (raw)
+    * board.command('version').then(function(event) {
+    *     console.info('board:', event.board);                        // Board instance
+    *     console.info('version:', event.originalEvent.response.raw); // Raw response text
+    * })
+    * .catch(function(event) {
+    *     console.error('version:', event.name, event);
+    * });
+    * ```
+    */
+    sh.Board.prototype.command = function(command, timeout) {
+        // default response timeout
+        if (timeout === undefined) {
+            timeout = this.timeout;
+        }
+
+        // self alias
+        var self = this;
+
+        // return POST request (promise)
+        return sh.network.post({
+            url    : 'http://' + this.address + '/command',
+            data   : command.trim() + '\n',
+            timeout: timeout
+        })
+        .then(function(event) {
+            // set online flag
+            self.online = true;
+
+            // set last online time
+            self.lastOnlineTime = Date.now();
+
+            // trigger event
+            var board_event = self._trigger('response', event);
+
+            // resolve the promise
+            return Promise.resolve(board_event);
+        })
+        .catch(function(event) {
+            // unset online flag
+            self.online = false;
+
+            // trigger event
+            var board_event = self._trigger('error', event);
+
+            // reject the promise
+            return Promise.reject(board_event);
+        });
+    };
+
+    /**
+    * Send ping command (ok).
+    *
+    * @method
+    *
+    * @param {Integer} [timeout] Response timeout.
+    *
+    * @return {sh.network.Request}
+    */
+    sh.Board.prototype.ping = function(timeout) {
+        return this.command('ok', timeout);
+    };
+
+    /**
+    * Get the board version.
+    *
+    * @method
+    *
+    * @param {Integer} [timeout] Response timeout.
+    *
+    * @return {sh.network.Request}
+    *
+    * @example
+    * ### Get the board version
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * // get board version (parsed)
+    * board.version().then(function(event) {
+    *     console.info('board:', event.board); // Board instance
+    *     console.info('info:', event.data);   // {branch, hash, date, mcu, clock}
+    * })
+    * .catch(function(event) {
+    *     console.error('version:', event.name, event);
+    * });
+    * ```
+    */
+    sh.Board.prototype.version = function(timeout) {
+        // self alias
+        var self = this;
+
+        // get board version (raw)
+        return this.command('version', timeout).then(function(event) {
+            // raw response string
+            // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
+            var raw = event.originalEvent.response.raw;
+
+            // version pattern
+            var version_pattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
+
+            // test the pattern
+            var info = raw.match(version_pattern);
+
+            if (info) {
+                // split branch-hash on dash
+                var branch = info[1].split('-');
+
+                // update board info
+                self.info = {
+                    branch: branch[0].trim(),
+                    hash  : branch[1].trim(),
+                    date  : info[2].trim(),
+                    mcu   : info[3].trim(),
+                    clock : info[4].trim()
+                };
+            }
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('version', self, event, self.info));
+        });
+    };
+
+    /**
+    * List files.
+    *
+    * @method
+    *
+    * @param {String}  [path='/'] The path to list file.
+    * @param {Integer} [timeout]  Connection timeout.
+    *
+    * @return {sh.network.Request}
+    *
+    * @example
+    * ### List files
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * // get all files or directories on sd/gcode
+    * board.ls('sd/gcode/').then(function(event) {
+    *     console.info('ls:', event.name, event.data);
+    * })
+    * .catch(function(event) {
+    *     console.error('ls:', event.name, event);
+    * });
+    * ```
+    */
+    sh.Board.prototype.ls = function(path, timeout) {
+        // self alias
+        var self = this;
+
+        // default path to root
+        if (path === undefined) {
+            path = '/';
+        }
+
+        // remove trailing slash
+        path = path.replace(/\/+$/gm, '');
+
+        // get board version (raw)
+        return this.command('ls -s ' + path, timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw;
+
+            // file not found
+            if (raw.indexOf('Could not open directory') === 0) {
+                return Promise.reject(sh.BoardEvent('ls', self, event, raw));
+            }
+
+            // split lines
+            var lines = raw.split('\n');
+            var line  = null;
+            var info  = null;
+
+            // empty files list
+            var files = [];
+            var file  = null;
+            var isDir = false;
+            var root  = null;
+
+            // for each lines (file)
+            for (var i = 0, il = lines.length; i &lt; il; i++) {
+                // current line
+                line = lines[i].trim();
+
+                // extract file/directory info (name/size)
+                info = line.match(/^([a-z0-9_\-\.]+)(\/| [0-9]+)$/, 'gi');
+
+                if (info) {
+                    // is directory ?
+                    isDir = info[2] == '/';
+
+                    // fix root path
+                    root = path.length ? path : '/';
+
+                    // set file info
+                    files.push({
+                        root: root,
+                        name: info[1],
+                        path: path + '/' + info[1],
+                        type: isDir ? 'directory' : 'file',
+                        size: isDir ? 0 : parseInt(info[2])
+                    });
+                }
+            }
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('ls', self, event, files));
+        });
+    };
+
+    /**
+    * List all files (recursive).
+    *
+    * @method
+    *
+    * @param {String}  [path='/']  The path to list file.
+    * @param {Integer} [timeout]   Connection timeout.
+    * @param {Boolean} [innerCall] Used internaly for recursion.
+    *
+    * @return {sh.network.Request}
+    *
+    * @example
+    * ### List all files (recursive)
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * // get all files or directories on sd/gcode (recursive)
+    * board.lsAll('/sd/gcode/').then(function(event) {
+    *     console.info('lsAll:', event.name, event.data);
+    * })
+    * .catch(function(event) {
+    *     console.error('lsAll:', event.name, event);
+    * });
+    * ```
+    */
+    sh.Board.prototype.lsAll = function(path, timeout, innerCall) {
+        // self alias
+        var self = this;
+
+        // empty file tree
+        var tree  = [];
+        var files = null;
+        var file  = null;
+
+        var directory = [];
+        var promise   = null;
+
+        // List root path
+        return this.ls(path, timeout).then(function(event) {
+            // files list
+            files = event.data;
+
+            // add root directory
+            if (! innerCall &amp;&amp; files.length) {
+                // first file
+                file = files[0];
+
+                tree.push({
+                    root: null,
+                    name: file.root.split('/').pop(),
+                    path: file.root,
+                    type: 'directory',
+                    size: 0
+                });
+            }
+
+            // for each file or directory
+            for (var i = 0, il = files.length; i &lt; il; i++) {
+                // current file
+                file = files[i];
+
+                // add file/directory to the tree
+                tree.push(file);
+
+                // if not a directory
+                if (file.type == 'file') {
+                    // go to next file
+                    continue;
+                }
+
+                // list the directory
+                directory.push(self.lsAll(file.path, timeout, true));
+            }
+
+            if (! directory.length) {
+                // resolve the promise
+                return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
+            }
+
+            return Promise.all(directory).then(function(events) {
+                // for each Promise events
+                for (var i = 0, il = events.length; i &lt; il; i++) {
+                    // add results to tree
+                    tree = tree.concat(events[i].data);
+                }
+
+                // resolve the promise
+                return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
+            });
+        })
+        .then(function(event) {
+            // if inner call
+            if (innerCall) {
+                // resolve the promise
+                return Promise.resolve(event);
+            }
+
+            // current directory
+            directory = null;
+
+            // update directories size
+            for (var i = tree.length - 1; i > 0; i--) {
+                // current file
+                file = tree[i];
+
+                // if not a file
+                if (file.type == 'directory') {
+                    // go to next file
+                    continue;
+                }
+
+                // for each file/directory
+                for (var j = 0, jl = tree.length; j &lt; jl; j++) {
+                    // current directory
+                    directory = tree[j];
+
+                    // test if this file is in this tree node
+                    if (file.root.indexOf(directory.path) == 0 &amp;&amp; directory.type == 'directory') {
+                        // update directory size
+                        directory.size += file.size;
+                    }
+                }
+            }
+
+            // resolve the promise with updated tree
+            return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
+        });
     };
 
     /**
@@ -2237,7 +2456,7 @@ var sh = sh || {};
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Sep 30 2016 15:04:07 GMT+0200 (Europe de l’Ouest (heure d’été))
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Oct 01 2016 10:40:12 GMT+0200 (Europe de l’Ouest (heure d’été))
         </footer>
     </div>
 </div>

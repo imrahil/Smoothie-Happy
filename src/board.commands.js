@@ -189,7 +189,7 @@
     };
 
     /**
-    * List all files (recursive)
+    * List all files (recursive).
     *
     * @method
     *

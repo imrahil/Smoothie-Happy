@@ -173,6 +173,10 @@
             
                 <li data-name="sh.Board#disconnect"><a href="sh.Board.html#disconnect">disconnect</a></li>
             
+                <li data-name="sh.Board#ls"><a href="sh.Board.html#ls">ls</a></li>
+            
+                <li data-name="sh.Board#lsAll"><a href="sh.Board.html#lsAll">lsAll</a></li>
+            
                 <li data-name="sh.Board#on"><a href="sh.Board.html#on">on</a></li>
             
                 <li data-name="sh.Board#ping"><a href="sh.Board.html#ping">ping</a></li>
@@ -2285,7 +2289,7 @@ var board = sh.Board('192.168.1.102');</code></pre>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1023">line 1023</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line880">line 880</a>
         </div>
         
     </div>
@@ -2353,12 +2357,12 @@ var board = sh.Board('192.168.1.102');</code></pre>
     <div class="nameContainer">
         <h4 class="name" id="command">
             
-             command<span class="signature">(command, timeout)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Request.html">sh.network.Request</a>}</span>
+             command<span class="signature">(command, <span class="optional">timeout</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Request.html">sh.network.Request</a>}</span>
         </h4>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line900">line 900</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1133">line 1133</a>
         </div>
         
     </div>
@@ -2416,6 +2420,11 @@ var board = sh.Board('192.168.1.102');</code></pre>
 
             <td class="description last">
                 
+                    
+                    
+
+                    
+                
                 <p>Command to send.</p></td>
         </tr>
 
@@ -2438,6 +2447,13 @@ var board = sh.Board('192.168.1.102');</code></pre>
             
 
             <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
                 
                 <p>Response timeout.</p></td>
         </tr>
@@ -2517,12 +2533,12 @@ board.command('version').then(function(event) {
     <div class="nameContainer">
         <h4 class="name" id="connect">
             
-             connect<span class="signature">(timeout)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Request.html">sh.network.Request</a>}</span>
+             connect<span class="signature">(<span class="optional">timeout</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Request.html">sh.network.Request</a>}</span>
         </h4>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1163">line 1163</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1020">line 1020</a>
         </div>
         
     </div>
@@ -2579,6 +2595,13 @@ board.command('version').then(function(event) {
             
 
             <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
                 
                 <p>Connection timeout.</p></td>
         </tr>
@@ -2697,7 +2720,7 @@ board.connect().then(function(event) {
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1230">line 1230</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1087">line 1087</a>
         </div>
         
     </div>
@@ -2787,6 +2810,418 @@ setTimeout(function() {
     });
 
 }, 15000); // 15 sec.</code></pre>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="ls">
+            
+             ls<span class="signature">(<span class="optional">path</span>, <span class="optional">timeout</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Request.html">sh.network.Request</a>}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1271">line 1271</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>List files.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Default</th>
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                    '/'
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>The path to list file.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>timeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Connection timeout.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+        <h5>Example</h5>
+        
+
+    <h3>List files</h3><pre class="prettyprint source"><code>// create the board instance
+var board = sh.Board('192.168.1.102');
+
+// get all files or directories on sd/gcode
+board.ls('sd/gcode/').then(function(event) {
+    console.info('ls:', event.name, event.data);
+})
+.catch(function(event) {
+    console.error('ls:', event.name, event);
+});</code></pre>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="lsAll">
+            
+             lsAll<span class="signature">(<span class="optional">path</span>, <span class="optional">timeout</span>, <span class="optional">innerCall</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Request.html">sh.network.Request</a>}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1361">line 1361</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>List all files (recursive).</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Default</th>
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                    '/'
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>The path to list file.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>timeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Connection timeout.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>innerCall</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Used internaly for recursion.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+        <h5>Example</h5>
+        
+
+    <h3>List all files (recursive)</h3><pre class="prettyprint source"><code>// create the board instance
+var board = sh.Board('192.168.1.102');
+
+// get all files or directories on sd/gcode (recursive)
+board.lsAll('/sd/gcode/').then(function(event) {
+    console.info('lsAll:', event.name, event.data);
+})
+.catch(function(event) {
+    console.error('lsAll:', event.name, event);
+});</code></pre>
 
 
     
@@ -2997,12 +3432,12 @@ setTimeout(function() {
     <div class="nameContainer">
         <h4 class="name" id="ping">
             
-             ping<span class="signature">(timeout)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Request.html">sh.network.Request</a>}</span>
+             ping<span class="signature">(<span class="optional">timeout</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Request.html">sh.network.Request</a>}</span>
         </h4>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line951">line 951</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1182">line 1182</a>
         </div>
         
     </div>
@@ -3059,6 +3494,13 @@ setTimeout(function() {
             
 
             <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
                 
                 <p>Response timeout.</p></td>
         </tr>
@@ -3121,12 +3563,12 @@ setTimeout(function() {
     <div class="nameContainer">
         <h4 class="name" id="version">
             
-             version<span class="signature">(timeout)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Request.html">sh.network.Request</a>}</span>
+             version<span class="signature">(<span class="optional">timeout</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Request.html">sh.network.Request</a>}</span>
         </h4>
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line980">line 980</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1211">line 1211</a>
         </div>
         
     </div>
@@ -3183,6 +3625,13 @@ setTimeout(function() {
             
 
             <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
                 
                 <p>Response timeout.</p></td>
         </tr>
@@ -4110,7 +4559,7 @@ board.version().then(function(event) {
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Sep 30 2016 15:04:07 GMT+0200 (Europe de l’Ouest (heure d’été))
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Oct 01 2016 10:40:13 GMT+0200 (Europe de l’Ouest (heure d’été))
         </footer>
     </div>
 </div>
