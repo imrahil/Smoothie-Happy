@@ -182,7 +182,7 @@
 // // create the board instance
 // var board = sh.Board('192.168.1.102');
 //
-// // get board version (parsed)
+// // get all files or directories on sd/gcode
 // board.ls('sd/gcode/').then(function(event) {
 //     console.info('ls:', event.name, event.data);
 // })
@@ -190,17 +190,17 @@
 //     console.error('ls:', event.name, event);
 // });
 
-// @example sh.Board.lsAll - List all files (recursive)
-// create the board instance
-var board = sh.Board('192.168.1.102');
-
-// get board version (parsed)
-board.lsAll('/sd/gcode/').then(function(event) {
-    console.info('lsAll:', event.name, event.data);
-})
-.catch(function(event) {
-    console.error('lsAll:', event.name, event);
-});
+// // @example sh.Board.lsAll - List all files (recursive)
+// // create the board instance
+// var board = sh.Board('192.168.1.102');
+//
+// // get all files or directories on sd/gcode (recursive)
+// board.lsAll('/sd/gcode/').then(function(event) {
+//     console.info('lsAll:', event.name, event.data);
+// })
+// .catch(function(event) {
+//     console.error('lsAll:', event.name, event);
+// });
 
 // -----------------------------------------------------------------------------
 
