@@ -183,7 +183,7 @@
 // var board = sh.Board('192.168.1.102');
 //
 // // get board version (parsed)
-// board.ls('/sd').then(function(event) {
+// board.ls('sd/gcode/').then(function(event) {
 //     console.info('ls:', event.name, event.data);
 // })
 // .catch(function(event) {
@@ -195,7 +195,7 @@
 var board = sh.Board('192.168.1.102');
 
 // get board version (parsed)
-board.lsAll().then(function(event) {
+board.lsAll('/sd/gcode/').then(function(event) {
     console.info('lsAll:', event.name, event.data);
 })
 .catch(function(event) {

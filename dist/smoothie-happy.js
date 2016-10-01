@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    957189d1926107fd666e536f808100b8
-* @date     Fri, 30 Sep 2016 16:13:13 +0000
+* @build    b557520bd77a2e6a37a01efde8172a83
+* @date     Sat, 01 Oct 2016 08:33:34 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -25,7 +25,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = '957189d1926107fd666e536f808100b8';
+    sh.build = 'b557520bd77a2e6a37a01efde8172a83';
 
     /**
     * @property {String} id API id.
@@ -1260,7 +1260,7 @@ var sh = sh || {};
     * var board = sh.Board('192.168.1.102');
     * 
     * // get board version (parsed)
-    * board.ls('/sd').then(function(event) {
+    * board.ls('sd/gcode/').then(function(event) {
     *     console.info('ls:', event.name, event.data);
     * })
     * .catch(function(event) {
@@ -1274,11 +1274,11 @@ var sh = sh || {};
 
         // default path to root
         if (path === undefined) {
-            path = '';
+            path = '/';
         }
 
-        // normalize path to my/path
-        path = path.replace(/^\/+|\/+$/gm, '');
+        // remove trailing slash
+        path = path.replace(/\/+$/gm, '');
 
         // get board version (raw)
         return this.command('ls -s ' + path, timeout).then(function(event) {
@@ -1298,6 +1298,8 @@ var sh = sh || {};
             // empty files list
             var files = [];
             var file  = null;
+            var isDir = false;
+            var root  = null;
 
             // for each lines (file)
             for (var i = 0, il = lines.length; i < il; i++) {
@@ -1308,13 +1310,19 @@ var sh = sh || {};
                 info = line.match(/^([a-z0-9_\-\.]+)(\/| [0-9]+)$/, 'gi');
 
                 if (info) {
+                    // is directory ?
+                    isDir = info[2] == '/';
+
+                    // fix root path
+                    root = path.length ? path : '/';
+
                     // set file info
                     files.push({
+                        root: root,
                         name: info[1],
-                        root: path + '/',
                         path: path + '/' + info[1],
-                        type: info[2] == '/' ? 'directory' : 'file',
-                        size: info[2] == '/' ? -1 : parseInt(info[2])
+                        type: isDir ? 'directory' : 'file',
+                        size: isDir ? 0 : parseInt(info[2])
                     });
                 }
             }
@@ -1329,8 +1337,9 @@ var sh = sh || {};
     *
     * @method
     *
-    * @param {String}  [path='/'] The path to list file.
-    * @param {Integer} [timeout]  Connection timeout.
+    * @param {String}  [path='/']  The path to list file.
+    * @param {Integer} [timeout]   Connection timeout.
+    * @param {Boolean} [innerCall] Used internaly for recursion.
     *
     * @return {sh.network.Request}
     *
@@ -1341,7 +1350,7 @@ var sh = sh || {};
     * var board = sh.Board('192.168.1.102');
     * 
     * // get board version (parsed)
-    * board.lsAll().then(function(event) {
+    * board.lsAll('/sd/gcode/').then(function(event) {
     *     console.info('lsAll:', event.name, event.data);
     * })
     * .catch(function(event) {
@@ -1349,12 +1358,12 @@ var sh = sh || {};
     * });
     * ```
     */
-    sh.Board.prototype.lsAll = function(path, timeout) {
+    sh.Board.prototype.lsAll = function(path, timeout, innerCall) {
         // self alias
         var self = this;
 
         // empty file tree
-        var tree  = {};
+        var tree  = [];
         var files = null;
         var file  = null;
 
@@ -1366,13 +1375,27 @@ var sh = sh || {};
             // files list
             files = event.data;
 
+            // add root directory
+            if (! innerCall && files.length) {
+                // first file
+                file = files[0];
+
+                tree.push({
+                    root: null,
+                    name: file.root.split('/').pop(),
+                    path: file.root,
+                    type: 'directory',
+                    size: 0
+                });
+            }
+
             // for each file or directory
             for (var i = 0, il = files.length; i < il; i++) {
                 // current file
                 file = files[i];
 
                 // add file/directory to the tree
-                tree[file.path] = file;
+                tree.push(file);
 
                 // if not a directory
                 if (file.type == 'file') {
@@ -1381,7 +1404,7 @@ var sh = sh || {};
                 }
 
                 // list the directory
-                directory.push(self.lsAll(file.path, timeout));
+                directory.push(self.lsAll(file.path, timeout, true));
             }
 
             if (! directory.length) {
@@ -1390,15 +1413,52 @@ var sh = sh || {};
             }
 
             return Promise.all(directory).then(function(events) {
+                // for each Promise events
                 for (var i = 0, il = events.length; i < il; i++) {
-                    for (var file in events[i].data) {
-                        tree[file] = events[i].data[file];
-                    }
+                    // add results to tree
+                    tree = tree.concat(events[i].data);
                 }
 
                 // resolve the promise
                 return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
             });
+        })
+        .then(function(event) {
+            // if inner call
+            if (innerCall) {
+                // resolve the promise
+                return Promise.resolve(event);
+            }
+
+            // current directory
+            directory = null;
+
+            // update directories size
+            for (var i = tree.length - 1; i > 0; i--) {
+                // current file
+                file = tree[i];
+
+                // if not a file
+                if (file.type == 'directory') {
+                    // go to next file
+                    continue;
+                }
+
+                // for each file/directory
+                for (var j = 0, jl = tree.length; j < jl; j++) {
+                    // current directory
+                    directory = tree[j];
+
+                    // test if this file is in this tree node
+                    if (file.root.indexOf(directory.path) == 0 && directory.type == 'directory') {
+                        // update directory size
+                        directory.size += file.size;
+                    }
+                }
+            }
+
+            // resolve the promise with updated tree
+            return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
         });
     };
 
