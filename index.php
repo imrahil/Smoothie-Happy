@@ -288,6 +288,33 @@ $library_buffer = preg_replace($modules_placeholder_pattern, $modules_buffer, $l
 file_put_contents($library_file, trim($library_buffer) . "\n");
 
 // -----------------------------------------------------------------------------
+// compile templates file
+// -----------------------------------------------------------------------------
+foreach (glob($templates_path . '/*.tpl') as $template_path) {
+    // skip main template
+    if ($template_path != $index_template) {
+        // get cached template
+        $template_buffer = cache($template_path);
+
+        // create template tag name
+        $template_name = substr(basename($template_path), 0, -4) . '_template';
+
+        // compile template buffer
+        if (! $template_buffer) {
+            // force to rebuild main template
+            $noCache = true;
+
+            // get and parse template contents
+            $template_buffer = file_get_contents($template_path);
+            $template_buffer = tags_replace($settings, $template_buffer);
+        }
+
+        // add/update tag to settings
+        $settings[$template_name] = $template_buffer;
+    }
+}
+
+// -----------------------------------------------------------------------------
 // compile index file
 // -----------------------------------------------------------------------------
 if (! cache($index_template)) {
