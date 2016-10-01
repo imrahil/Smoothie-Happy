@@ -26,10 +26,12 @@
         <div id="body" class="row">
             <div class="col-xs-12 col-sm-6 col-md-6">
                 {$scanner_template}
+                {$boards_template}
             </div>
             <div class="col-xs-12 col-sm-6 col-md-6">...</div>
         </div>
         <script src="vendor/jquery.min.js?v=2.2.3"></script>
+        <script src="vendor/knockout.min.js?v=3.4.0"></script>
         <script src="vendor/bootstrap/js/bootstrap.min.js?v=3.3.5"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="dist/smoothie-happy.js?v={$version}&amp;b={$build}"></script>
