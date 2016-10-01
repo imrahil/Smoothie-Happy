@@ -26,8 +26,11 @@ $settings = [
 $library_template = './src/smoothie-happy.js';
 $library_file     = './dist/smoothie-happy.js';
 
+// templates path
+$templates_path = './templates';
+
 // index template
-$index_template = './index.tpl';
+$index_template = 'index.tpl';
 $index_file     = './index.html';
 
 // examples file
@@ -72,6 +75,12 @@ if (! is_dir($library_directory)) {
 
 // index paths
 $index_directory = dirname($index_file);
+
+if (! is_dir($templates_path)) {
+    throw new Exception('$templates_path [ ' . $templates_path . ' ] is not a directory.');
+}
+
+$index_template = $templates_path . '/' . $index_template;
 
 if (! is_file($index_template)) {
     throw new Exception('$index_template [ ' . $index_template . ' ] is not a file');
