@@ -1,0 +1,3471 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Smoothie-Happy</title>
+    
+    <meta name="description" content="A SmoothieBoard network communication API" />
+    
+        <meta name="keywords" content="SmoothieBoard, SmoothieWare, Smoothie Firmware, Network, API, js, JavaScript" />
+        <meta name="keyword" content="SmoothieBoard, SmoothieWare, Smoothie Firmware, Network, API, js, JavaScript" />
+    
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/jaguar.css">
+    
+    
+    <script>
+    var config = {"monospaceLinks":true,"cleverLinks":true,"default":{"outputSourceFiles":true},"applicationName":"smoothie-happy","meta":{"title":"Smoothie-Happy","description":"A SmoothieBoard network communication API","keyword":"SmoothieBoard, SmoothieWare, Smoothie Firmware, Network, API, js, JavaScript"},"linenums":true};
+    </script>
+    
+
+    
+</head>
+<body>
+<div id="wrap" class="clearfix">
+    
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html">smoothie-happy</a></h3>
+
+    <div class="search">
+        <input id="search" type="text" class="form-control input-sm" placeholder="Search Documentations">
+    </div>
+    <ul class="list">
+    
+        <li class="item" data-name="sh">
+            <span class="title">
+                <a href="sh.html">sh</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.build"><a href="sh.html#.build">build</a></li>
+            
+                <li data-name="sh.description"><a href="sh.html#.description">description</a></li>
+            
+                <li data-name="sh.gitURL"><a href="sh.html#.gitURL">gitURL</a></li>
+            
+                <li data-name="sh.id"><a href="sh.html#.id">id</a></li>
+            
+                <li data-name="sh.name"><a href="sh.html#.name">name</a></li>
+            
+                <li data-name="sh.version"><a href="sh.html#.version">version</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network">
+            <span class="title">
+                <a href="sh.network.html">sh.network</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.network.get"><a href="sh.network.html#.get">get</a></li>
+            
+                <li data-name="sh.network.post"><a href="sh.network.html#.post">post</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.Board">
+            <span class="title">
+                <a href="sh.Board.html">sh.Board</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.Board#_on"><a href="sh.Board.html#_on">_on</a></li>
+            
+                <li data-name="sh.Board#address"><a href="sh.Board.html#address">address</a></li>
+            
+                <li data-name="sh.Board#connected"><a href="sh.Board.html#connected">connected</a></li>
+            
+                <li data-name="sh.Board#connections"><a href="sh.Board.html#connections">connections</a></li>
+            
+                <li data-name="sh.Board#id"><a href="sh.Board.html#id">id</a></li>
+            
+                <li data-name="sh.Board#info"><a href="sh.Board.html#info">info</a></li>
+            
+                <li data-name="sh.Board#lastOnlineTime"><a href="sh.Board.html#lastOnlineTime">lastOnlineTime</a></li>
+            
+                <li data-name="sh.Board#online"><a href="sh.Board.html#online">online</a></li>
+            
+                <li data-name="sh.Board#reconnectAttempts"><a href="sh.Board.html#reconnectAttempts">reconnectAttempts</a></li>
+            
+                <li data-name="sh.Board#reconnections"><a href="sh.Board.html#reconnections">reconnections</a></li>
+            
+                <li data-name="sh.Board#timeout"><a href="sh.Board.html#timeout">timeout</a></li>
+            
+                <li data-name="sh.Board#watchInterval"><a href="sh.Board.html#watchInterval">watchInterval</a></li>
+            
+                <li data-name="sh.Board#watchTimeout"><a href="sh.Board.html#watchTimeout">watchTimeout</a></li>
+            
+                <li data-name="sh.Board#watchTimeoutId"><a href="sh.Board.html#watchTimeoutId">watchTimeoutId</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Type Definitions</span>
+            
+                <li data-name="sh.Board~onConnect"><a href="sh.Board.html#~onConnect">onConnect</a></li>
+            
+                <li data-name="sh.Board~onDisconnect"><a href="sh.Board.html#~onDisconnect">onDisconnect</a></li>
+            
+                <li data-name="sh.Board~onError"><a href="sh.Board.html#~onError">onError</a></li>
+            
+                <li data-name="sh.Board~onReconnect"><a href="sh.Board.html#~onReconnect">onReconnect</a></li>
+            
+                <li data-name="sh.Board~onRedisconnect"><a href="sh.Board.html#~onRedisconnect">onRedisconnect</a></li>
+            
+                <li data-name="sh.Board~onResponse"><a href="sh.Board.html#~onResponse">onResponse</a></li>
+            
+                <li data-name="sh.Board~onWatch"><a href="sh.Board.html#~onWatch">onWatch</a></li>
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.Board#_trigger"><a href="sh.Board.html#_trigger">_trigger</a></li>
+            
+                <li data-name="sh.Board#_watchConnection"><a href="sh.Board.html#_watchConnection">_watchConnection</a></li>
+            
+                <li data-name="sh.Board#command"><a href="sh.Board.html#command">command</a></li>
+            
+                <li data-name="sh.Board#connect"><a href="sh.Board.html#connect">connect</a></li>
+            
+                <li data-name="sh.Board#disconnect"><a href="sh.Board.html#disconnect">disconnect</a></li>
+            
+                <li data-name="sh.Board#ls"><a href="sh.Board.html#ls">ls</a></li>
+            
+                <li data-name="sh.Board#lsAll"><a href="sh.Board.html#lsAll">lsAll</a></li>
+            
+                <li data-name="sh.Board#on"><a href="sh.Board.html#on">on</a></li>
+            
+                <li data-name="sh.Board#ping"><a href="sh.Board.html#ping">ping</a></li>
+            
+                <li data-name="sh.Board#version"><a href="sh.Board.html#version">version</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.BoardEvent">
+            <span class="title">
+                <a href="sh.BoardEvent.html">sh.BoardEvent</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.BoardEvent#board"><a href="sh.BoardEvent.html#board">board</a></li>
+            
+                <li data-name="sh.BoardEvent#data"><a href="sh.BoardEvent.html#data">data</a></li>
+            
+                <li data-name="sh.BoardEvent#name"><a href="sh.BoardEvent.html#name">name</a></li>
+            
+                <li data-name="sh.BoardEvent#originalEvent"><a href="sh.BoardEvent.html#originalEvent">originalEvent</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.ProgressEvent">
+            <span class="title">
+                <a href="sh.network.ProgressEvent.html">sh.network.ProgressEvent</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.ProgressEvent#computable"><a href="sh.network.ProgressEvent.html#computable">computable</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#loaded"><a href="sh.network.ProgressEvent.html#loaded">loaded</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#name"><a href="sh.network.ProgressEvent.html#name">name</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#percent"><a href="sh.network.ProgressEvent.html#percent">percent</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#request"><a href="sh.network.ProgressEvent.html#request">request</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#response"><a href="sh.network.ProgressEvent.html#response">response</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#source"><a href="sh.network.ProgressEvent.html#source">source</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#total"><a href="sh.network.ProgressEvent.html#total">total</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.Request">
+            <span class="title">
+                <a href="sh.network.Request.html">sh.network.Request</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.Request#_data"><a href="sh.network.Request.html#_data">_data</a></li>
+            
+                <li data-name="sh.network.Request#_headers"><a href="sh.network.Request.html#_headers">_headers</a></li>
+            
+                <li data-name="sh.network.Request#_method"><a href="sh.network.Request.html#_method">_method</a></li>
+            
+                <li data-name="sh.network.Request#_promise"><a href="sh.network.Request.html#_promise">_promise</a></li>
+            
+                <li data-name="sh.network.Request#_timeout"><a href="sh.network.Request.html#_timeout">_timeout</a></li>
+            
+                <li data-name="sh.network.Request#_url"><a href="sh.network.Request.html#_url">_url</a></li>
+            
+                <li data-name="sh.network.Request#_xhr"><a href="sh.network.Request.html#_xhr">_xhr</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.network.Request#_execute"><a href="sh.network.Request.html#_execute">_execute</a></li>
+            
+                <li data-name="sh.network.Request#catch"><a href="sh.network.Request.html#catch">catch</a></li>
+            
+                <li data-name="sh.network.Request#onProgress"><a href="sh.network.Request.html#onProgress">onProgress</a></li>
+            
+                <li data-name="sh.network.Request#onUploadProgress"><a href="sh.network.Request.html#onUploadProgress">onUploadProgress</a></li>
+            
+                <li data-name="sh.network.Request#then"><a href="sh.network.Request.html#then">then</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.RequestEvent">
+            <span class="title">
+                <a href="sh.network.RequestEvent.html">sh.network.RequestEvent</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.RequestEvent#name"><a href="sh.network.RequestEvent.html#name">name</a></li>
+            
+                <li data-name="sh.network.RequestEvent#request"><a href="sh.network.RequestEvent.html#request">request</a></li>
+            
+                <li data-name="sh.network.RequestEvent#response"><a href="sh.network.RequestEvent.html#response">response</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.Response">
+            <span class="title">
+                <a href="sh.network.Response.html">sh.network.Response</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.Response#code"><a href="sh.network.Response.html#code">code</a></li>
+            
+                <li data-name="sh.network.Response#message"><a href="sh.network.Response.html#message">message</a></li>
+            
+                <li data-name="sh.network.Response#raw"><a href="sh.network.Response.html#raw">raw</a></li>
+            
+                <li data-name="sh.network.Response#text"><a href="sh.network.Response.html#text">text</a></li>
+            
+                <li data-name="sh.network.Response#type"><a href="sh.network.Response.html#type">type</a></li>
+            
+                <li data-name="sh.network.Response#url"><a href="sh.network.Response.html#url">url</a></li>
+            
+                <li data-name="sh.network.Response#xml"><a href="sh.network.Response.html#xml">xml</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.Scanner">
+            <span class="title">
+                <a href="sh.network.Scanner.html">sh.network.Scanner</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.Scanner#_on"><a href="sh.network.Scanner.html#_on">_on</a></li>
+            
+                <li data-name="sh.network.Scanner#aborted"><a href="sh.network.Scanner.html#aborted">aborted</a></li>
+            
+                <li data-name="sh.network.Scanner#boards"><a href="sh.network.Scanner.html#boards">boards</a></li>
+            
+                <li data-name="sh.network.Scanner#boardTimeout"><a href="sh.network.Scanner.html#boardTimeout">boardTimeout</a></li>
+            
+                <li data-name="sh.network.Scanner#found"><a href="sh.network.Scanner.html#found">found</a></li>
+            
+                <li data-name="sh.network.Scanner#input"><a href="sh.network.Scanner.html#input">input</a></li>
+            
+                <li data-name="sh.network.Scanner#queue"><a href="sh.network.Scanner.html#queue">queue</a></li>
+            
+                <li data-name="sh.network.Scanner#scanned"><a href="sh.network.Scanner.html#scanned">scanned</a></li>
+            
+                <li data-name="sh.network.Scanner#scanning"><a href="sh.network.Scanner.html#scanning">scanning</a></li>
+            
+                <li data-name="sh.network.Scanner#timeout"><a href="sh.network.Scanner.html#timeout">timeout</a></li>
+            
+                <li data-name="sh.network.Scanner#total"><a href="sh.network.Scanner.html#total">total</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Type Definitions</span>
+            
+                <li data-name="sh.network.Scanner~onBoard"><a href="sh.network.Scanner.html#~onBoard">onBoard</a></li>
+            
+                <li data-name="sh.network.Scanner~onEnd"><a href="sh.network.Scanner.html#~onEnd">onEnd</a></li>
+            
+                <li data-name="sh.network.Scanner~onPause"><a href="sh.network.Scanner.html#~onPause">onPause</a></li>
+            
+                <li data-name="sh.network.Scanner~onResume"><a href="sh.network.Scanner.html#~onResume">onResume</a></li>
+            
+                <li data-name="sh.network.Scanner~onStart"><a href="sh.network.Scanner.html#~onStart">onStart</a></li>
+            
+                <li data-name="sh.network.Scanner~onStop"><a href="sh.network.Scanner.html#~onStop">onStop</a></li>
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.network.Scanner#_processQueue"><a href="sh.network.Scanner.html#_processQueue">_processQueue</a></li>
+            
+                <li data-name="sh.network.Scanner#_trigger"><a href="sh.network.Scanner.html#_trigger">_trigger</a></li>
+            
+                <li data-name="sh.network.Scanner#on"><a href="sh.network.Scanner.html#on">on</a></li>
+            
+                <li data-name="sh.network.Scanner#pause"><a href="sh.network.Scanner.html#pause">pause</a></li>
+            
+                <li data-name="sh.network.Scanner#resume"><a href="sh.network.Scanner.html#resume">resume</a></li>
+            
+                <li data-name="sh.network.Scanner#setInput"><a href="sh.network.Scanner.html#setInput">setInput</a></li>
+            
+                <li data-name="sh.network.Scanner#setTimeout"><a href="sh.network.Scanner.html#setTimeout">setTimeout</a></li>
+            
+                <li data-name="sh.network.Scanner#start"><a href="sh.network.Scanner.html#start">start</a></li>
+            
+                <li data-name="sh.network.Scanner#stop"><a href="sh.network.Scanner.html#stop">stop</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+    </ul>
+</div>
+
+    <div class="main">
+        <h1 class="page-title" data-filename="sh.network.Scanner.html">Class: Scanner</h1>
+        
+
+
+
+<section>
+
+<header>
+    <h2>
+        <span class="ancestors"><a href="sh.html">sh</a><a href="sh.network.html">.network</a>.</span>
+    
+    Scanner
+    </h2>
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+
+    
+        
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="Scanner">
+            
+             new sh.network.Scanner<span class="signature">(settings)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1514">line 1514</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Network scanner.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>settings</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Scanner settings.</p>
+                
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>input</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+|
+
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Ip's scan pattern. See <a href="sh.network.Scanner.html#setInput"><code>setInput</code></a> for details.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>timeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Scan timeout in milliseconds. See <a href="sh.network.Scanner.html#setTimeout"><code>setTimeout</code></a> for details.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+            </td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h5>Example</h5>
+        
+
+    <h3>Scanne the network</h3><pre class="prettyprint source"><code>// create the scanner instance
+var scanner = sh.network.Scanner();
+
+// register events callbacks
+scanner.on('start', function(scan) {
+    console.log('scan:', 'start:', scan.total);
+});
+
+scanner.on('pause', function(scan) {
+    console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
+});
+
+scanner.on('resume', function(scan) {
+    console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
+});
+
+scanner.on('stop', function(scan) {
+    console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
+});
+
+scanner.on('progress', function(scan) {
+    console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
+});
+
+scanner.on('board', function(scan, board) {
+    console.log('scan:', 'board:', board);
+});
+
+scanner.on('end', function(scan) {
+    console.log('scan:', 'end:', scan.scanned, '/', scan.total);
+    console.log('scan:', 'found:', scan.found, '/', scan.total);
+});
+
+// start scan
+scanner.start('192.168.1.100-115');</code></pre>
+
+
+    
+</dd>
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="_on"><span class="type-signature ">protected</span> _on</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Registred callbacks.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="aborted"><span class="type-signature ">readonly</span> aborted</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Aborted scann status.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="boards"><span class="type-signature ">readonly</span> boards</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Known boards list.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="boardTimeout"><span class="type-signature ">readonly</span> boardTimeout</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Default board response timeout in milliseconds.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>1000</li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="found"><span class="type-signature ">readonly</span> found</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Number of boards found.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="input"><span class="type-signature ">readonly</span> input</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Input to scan.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>192.168.1.*.</li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="queue"><span class="type-signature ">readonly</span> queue</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Ip's queue to scann.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="scanned"><span class="type-signature ">readonly</span> scanned</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Number of ip scanned.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="scanning"><span class="type-signature ">readonly</span> scanning</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Is scanning.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="timeout"><span class="type-signature ">readonly</span> timeout</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Default scan response timeout in milliseconds.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>1000</li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="total"><span class="type-signature ">readonly</span> total</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Total number of ip to scan.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="_processQueue">
+            
+            <span class="type-signature ">protected</span> _processQueue<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Boolean|null}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1822">line 1822</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Shift and scan an ip from the queue looking for a SmoothieBoard.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="_trigger">
+            
+            <span class="type-signature ">protected</span> _trigger<span class="signature">(event, args)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{this}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1686">line 1686</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Trigger an user defined callback with the scope of this class.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Event name.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>args</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Arguments to pass to the callback.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="on">
+            
+             on<span class="signature">(event, callback)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{this}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1667">line 1667</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Register an event callback.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Event name.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Function to call on event is fired.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+    <div class="callbacks">
+        <h5>Callbacks</h5>
+        <div class="wrapper">
+            <table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>start</td>
+<td><a href="sh.network.Scanner.html#~onStart"><code>onStart</code></a></td>
+<td>Called before scan start.</td>
+</tr>
+<tr>
+<td>pause</td>
+<td><a href="sh.network.Scanner.html#~onPause"><code>onPause</code></a></td>
+<td>Called after scan pause.</td>
+</tr>
+<tr>
+<td>resume</td>
+<td><a href="sh.network.Scanner.html#~onResume"><code>onResume</code></a></td>
+<td>Called before scan resume.</td>
+</tr>
+<tr>
+<td>stop</td>
+<td><a href="sh.network.Scanner.html#~onStop"><code>onStop</code></a></td>
+<td>Called after scan stop.</td>
+</tr>
+<tr>
+<td>stop</td>
+<td><a href="sh.network.Scanner.html#~onBoard"><code>onBoard</code></a></td>
+<td>Called after board found.</td>
+</tr>
+<tr>
+<td>stop</td>
+<td><a href="sh.network.Scanner.html#~onEnd"><code>onEnd</code></a></td>
+<td>Called after scan end.</td>
+</tr>
+</tbody>
+</table>
+        </div>
+    </div>
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="pause">
+            
+             pause<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{this}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1954">line 1954</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Pause current scan.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="resume">
+            
+             resume<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{this}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1975">line 1975</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Resume current scan.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="setInput">
+            
+             setInput<span class="signature">(input)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{this}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1715">line 1715</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Set the input and compute the scan queue.</p>
+<p><strong>Allowed inputs :</strong></p>
+<pre class="prettyprint source"><code>- Wildcard  : '192.168.1.*'
+- Single IP : '192.168.1.100'
+- IP Range  : '192.168.1.100-120'
+- Hostname  : 'my.smoothie.board'
+- Mixed     : '192.168.1.100, my.smoothie.board'
+- Array     : ['192.168.1.100-120', 'my.smoothie.board']</code></pre>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>input</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+|
+
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Ip's scan pattern.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="setTimeout">
+            
+             setTimeout<span class="signature">(timeout)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{this}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1799">line 1799</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Set scan timeout.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>timeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Scan timeout in milliseconds [min: 100, max: 2000].</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="start">
+            
+             start<span class="signature">(input, timeout)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{this}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1901">line 1901</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Start new scan.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>input</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+|
+
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Ip's scan pattern. See <a href="sh.network.Scanner.html#setInput"><code>setInput</code></a> for details.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>timeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Scan timeout in milliseconds. See <a href="sh.network.Scanner.html#setTimeout"><code>setTimeout</code></a> for details.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="stop">
+            
+             stop<span class="signature">()</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{this}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1933">line 1933</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Stop current scan.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Type Definitions</h3>
+
+        <dl>
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onBoard">
+            
+             onBoard<span class="signature">(scanner, board)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1628">line 1628</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On board found callback.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>scanner</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.Scanner.html">sh.network.Scanner</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Scanner instance.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>board</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.Board.html">sh.Board</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board instance.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onEnd">
+            
+             onEnd<span class="signature">(scanner)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1637">line 1637</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On scan end callback.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>scanner</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.Scanner.html">sh.network.Scanner</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Scanner instance.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onPause">
+            
+             onPause<span class="signature">(scanner)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1604">line 1604</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On scan pause callback.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>scanner</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.Scanner.html">sh.network.Scanner</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Scanner instance.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onResume">
+            
+             onResume<span class="signature">(scanner)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1612">line 1612</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On scan resume callback.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>scanner</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.Scanner.html">sh.network.Scanner</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Scanner instance.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onStart">
+            
+             onStart<span class="signature">(scanner)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1596">line 1596</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On scan start callback.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>scanner</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.Scanner.html">sh.network.Scanner</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Scanner instance.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onStop">
+            
+             onStop<span class="signature">(scanner)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1620">line 1620</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On scan stop callback.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>scanner</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.Scanner.html">sh.network.Scanner</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Scanner instance.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            </dl>
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+        
+
+        <footer>
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Sat Oct 01 2016 10:40:13 GMT+0200 (Europe de l’Ouest (heure d’été))
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>

@@ -1,6 +1,3 @@
-old
-docs/clean.php
+cache
 node_modules
-makedocs.bat
-jsdoc.json
-package.json
+docs/*.*
