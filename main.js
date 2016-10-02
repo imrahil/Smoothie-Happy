@@ -159,6 +159,11 @@ function observableBoard(board) {
     // set some things obserbales
     board.ob = {
         name: ko.observable(name),
+        info: ko.observable(board.info),
+        online: ko.observable(board.online),
+        connected: ko.observable(board.connected),
+        wait_connect: ko.observable(false),
+        wait_lookup: ko.observable(false),
 
         tooltip: ko.pureComputed(function() {
             return board.ob.name() == board.address
@@ -187,9 +192,48 @@ function observableBoard(board) {
             $(e.target).attr({ 'data-original-title': board.ob.tooltip() });
         },
 
-        online: ko.pureComputed(function() {
-            return board.online;
-        })
+        updateState: function() {
+            board.ob.connected(board.connected);
+            board.ob.online(board.online);
+        },
+
+        connect: function() {
+            board.ob.wait_connect(true);
+            board.connect().then(function(event) {
+                board.ob.info(board.info);
+                return event;
+            }).catch(function(event) {
+                $.notify({
+                    icon: 'fa fa-warning',
+                    message: 'Unable to connect the board at ' + board.address
+                }, { type: 'danger' });
+                return event;
+            }).then(function(event) {
+                board.ob.updateState();
+                board.ob.wait_connect(false);
+            });
+        },
+
+        disconnect: function() {
+            console.log('disconnect');
+        },
+
+        lookup: function() {
+            board.ob.wait_lookup(true);
+            board.version().then(function(event) {
+                board.ob.info(board.info);
+                return event;
+            }).catch(function(event) {
+                $.notify({
+                    icon: 'fa fa-warning',
+                    message: 'Unable to reach the board at ' + board.address
+                }, { type: 'warning' });
+                return event;
+            }).then(function(event) {
+                board.ob.updateState();
+                board.ob.wait_lookup(false);
+            });
+        }
     };
 
     // return augmented board

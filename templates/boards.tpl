@@ -25,7 +25,7 @@
         </div>
         <!-- /ko -->
         <!-- ko if: boards().length -->
-        <form data-bind="foreach: { data: boards, afterRender: afterRender }">
+        <div data-bind="foreach: { data: boards, afterRender: afterRender }">
             <div data-bind="attr: { id: 'board-' + id }" class="form-group">
                 <div class="input-group input-group-sm">
                     <input
@@ -35,15 +35,24 @@
                         type="text"
                         class="form-control" />
                     <!-- ko if: ob.online -->
+                    <!-- ko ifnot: ob.connected -->
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-success w80" data-dismiss="modal">
+                        <button data-bind="disable: ob.wait_connect, click: ob.connect" type="button" class="btn btn-success w100">
                             <i class="fa fa-plug"></i> connect
                         </button>
                     </span>
                     <!-- /ko -->
+                    <!-- ko if: ob.connected -->
+                    <span class="input-group-btn">
+                        <button data-bind="click: ob.disconnect" type="button" class="btn btn-danger w100">
+                            <i class="fa fa-plug"></i> disconnect
+                        </button>
+                    </span>
+                    <!-- /ko -->
+                    <!-- /ko -->
                     <!-- ko ifnot: ob.online -->
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-warning w80" data-dismiss="modal">
+                        <button data-bind="disable: ob.wait_lookup, click: ob.lookup" type="button" class="btn btn-warning w100">
                             <i class="fa fa-search"></i> lookup
                         </button>
                     </span>
@@ -66,17 +75,17 @@
                                 </h4>
                             </div>
                             <div class="modal-body">
-                                <!-- ko ifnot: info -->
+                                <!-- ko ifnot: ob.online -->
                                 <div class="alert alert-warning" role="alert">
                                     <strong>Oups!</strong> This board seems to be offline. Please, click ont the
-                                    <button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
+                                    <button data-bind="click: ob.lookup" type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
                                         <i class="fa fa-search"></i> lookup
                                     </button> button to try to reach it.
                                 </div>
                                 <!-- /ko -->
-                                <!-- ko if: info -->
+                                <!-- ko if: ob.info -->
                                 <table class="table table-bordered">
-                                    <tbody data-bind="with: info">
+                                    <tbody data-bind="with: ob.info">
                                         <tr><th>Address</th><td><span data-bind="text: $parent.address"></span></td></tr>
                                         <tr><th>Branch</th><td><span data-bind="text: branch"></span> (#<span data-bind="text: hash"></span>)</td></tr>
                                         <tr><th>Date</th><td><span data-bind="text: date"></span></td></tr>
@@ -89,7 +98,7 @@
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
         <!-- /ko -->
     </div>
 </div>
