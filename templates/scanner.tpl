@@ -13,7 +13,7 @@
                 <input data-bind="value: input" type="text" class="form-control" placeholder="192.168.1.*" />
                 <!-- ko ifnot: scanning -->
                 <span class="input-group-btn">
-                    <button data-bind="click: start" class="btn btn-sm btn-success" type="button">
+                    <button data-bind="click: start" class="btn btn-sm btn-success w70" type="button">
                         Start
                     </button>
                 </span>
@@ -21,20 +21,20 @@
                 <!-- ko if: scanning -->
                 <!-- ko ifnot: in_pause -->
                 <span class="input-group-btn">
-                    <button data-bind="click: pause" class="btn btn-sm btn-warning" type="button">
+                    <button data-bind="click: pause" class="btn btn-sm btn-warning w70" type="button">
                         Pause
                     </button>
                 </span>
                 <!-- /ko -->
                 <!-- ko if: in_pause -->
                 <span class="input-group-btn">
-                    <button data-bind="click: resume" class="btn btn-sm btn-success" type="button">
+                    <button data-bind="click: resume" class="btn btn-sm btn-success w70" type="button">
                         Resume
                     </button>
                 </span>
                 <!-- /ko -->
                 <span class="input-group-btn">
-                    <button data-bind="click: stop" class="btn btn-sm btn-danger" type="button">
+                    <button data-bind="click: stop" class="btn btn-sm btn-danger w70" type="button">
                         Stop
                     </button>
                 </span>

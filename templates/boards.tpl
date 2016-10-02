@@ -8,32 +8,52 @@
         </h3>
     </div>
     <div class="panel-body">
-        <!-- ko ifnot: boards().length -->
+        <!-- ko if: !boards().length && !autoload_addresses().length -->
         <div class="alert alert-warning" role="alert">
             <strong>No boards found!</strong> Please scan the network to find some boards to play with.
         </div>
         <!-- /ko -->
+        <!-- ko if: autoload_addresses().length -->
+        <div class="alert alert-info" role="alert">
+            <i class="fa fa-spinner fa-pulse fa-fw"></i>
+            <strong>Please wait...</strong>
+            Lookup for known boards
+            (
+                <span data-bind="text: autoload_progression"></span> /
+                <span data-bind="text: known_addresses().length"></span>
+            ).
+        </div>
+        <!-- /ko -->
         <!-- ko if: boards().length -->
-        <ul data-bind="foreach: boards" class="list-group">
-            <li data-bind="attr: { id: 'board-' + id }" class="list-group-item clearfix">
-                <strong data-bind="text: address"></strong>
-
-                <div class="pull-right btn-group-sm">
+        <form data-bind="foreach: { data: boards, afterRender: afterRender }">
+            <div data-bind="attr: { id: 'board-' + id }" class="form-group">
+                <div class="input-group input-group-sm">
+                    <input
+                        data-bind="value: ko.name, event: { focusout: ko.changeName }, attr: { title: ko.tooltip }"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        type="text"
+                        class="form-control" />
                     <!-- ko if: ko.online -->
-                    <button type="button" class="btn btn-success" data-dismiss="modal">
-                        <i class="fa fa-plug"></i> connect
-                    </button>
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-success w80" data-dismiss="modal">
+                            <i class="fa fa-plug"></i> connect
+                        </button>
+                    </span>
                     <!-- /ko -->
                     <!-- ko ifnot: ko.online -->
-                    <button type="button" class="btn btn-warning" data-dismiss="modal">
-                        <i class="fa fa-search"></i> lookup
-                    </button>
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-warning w80" data-dismiss="modal">
+                            <i class="fa fa-search"></i> lookup
+                        </button>
+                    </span>
                     <!-- /ko -->
-                    <button data-bind="attr: { 'data-target': '#board-' + id + '-info' }" type="button" class="btn btn-info" data-toggle="modal">
-                        <i class="fa fa-info-circle"></i>
-                    </button>
+                    <span class="input-group-btn">
+                        <button data-bind="attr: { 'data-target': '#board-' + id + '-info' }" type="button" class="btn btn-info" data-toggle="modal">
+                            <i class="fa fa-info-circle"></i>
+                        </button>
+                    </span>
                 </div>
-
                 <div data-bind="attr: { id: 'board-' + id + '-info' }" class="modal fade" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -48,7 +68,10 @@
                             <div class="modal-body">
                                 <!-- ko ifnot: info -->
                                 <div class="alert alert-warning" role="alert">
-                                    <strong>Oups!</strong> This board seems to be offline.
+                                    <strong>Oups!</strong> This board seems to be offline. Please, click ont the
+                                    <button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
+                                        <i class="fa fa-search"></i> lookup
+                                    </button> button to try to reach it.
                                 </div>
                                 <!-- /ko -->
                                 <!-- ko if: info -->
@@ -65,8 +88,8 @@
                         </div>
                     </div>
                 </div>
-            </li>
-        </ul>
+            </div>
+        </form>
         <!-- /ko -->
     </div>
 </div>

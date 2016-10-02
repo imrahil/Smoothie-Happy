@@ -9,6 +9,9 @@
     z-index: 9999;
 }
 
+.w70 { width: 70px; }
+.w80 { width: 80px; }
+
 /* navbar */
 
 #navbar, .navbar {
@@ -119,4 +122,15 @@
 
 .form-group:last-child {
     margin-bottom: 0;
+}
+
+/* boards */
+
+#boards li {
+    line-height: 30px;
+}
+
+#boards .tooltip-inner {
+    max-width: 350px;
+    text-align: left;
 }

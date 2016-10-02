@@ -9,7 +9,7 @@
         <meta name="description" content="A SmoothieBoard network communication API">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=7eb4d23afa6575d007168ea977d2edab" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=3c8d2b9dac439dad325bb9a9182a3fe2" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -41,7 +41,7 @@
                 <input data-bind="value: input" type="text" class="form-control" placeholder="192.168.1.*" />
                 <!-- ko ifnot: scanning -->
                 <span class="input-group-btn">
-                    <button data-bind="click: start" class="btn btn-sm btn-success" type="button">
+                    <button data-bind="click: start" class="btn btn-sm btn-success w70" type="button">
                         Start
                     </button>
                 </span>
@@ -49,20 +49,20 @@
                 <!-- ko if: scanning -->
                 <!-- ko ifnot: in_pause -->
                 <span class="input-group-btn">
-                    <button data-bind="click: pause" class="btn btn-sm btn-warning" type="button">
+                    <button data-bind="click: pause" class="btn btn-sm btn-warning w70" type="button">
                         Pause
                     </button>
                 </span>
                 <!-- /ko -->
                 <!-- ko if: in_pause -->
                 <span class="input-group-btn">
-                    <button data-bind="click: resume" class="btn btn-sm btn-success" type="button">
+                    <button data-bind="click: resume" class="btn btn-sm btn-success w70" type="button">
                         Resume
                     </button>
                 </span>
                 <!-- /ko -->
                 <span class="input-group-btn">
-                    <button data-bind="click: stop" class="btn btn-sm btn-danger" type="button">
+                    <button data-bind="click: stop" class="btn btn-sm btn-danger w70" type="button">
                         Stop
                     </button>
                 </span>
@@ -123,32 +123,52 @@
         </h3>
     </div>
     <div class="panel-body">
-        <!-- ko ifnot: boards().length -->
+        <!-- ko if: !boards().length && !autoload_addresses().length -->
         <div class="alert alert-warning" role="alert">
             <strong>No boards found!</strong> Please scan the network to find some boards to play with.
         </div>
         <!-- /ko -->
+        <!-- ko if: autoload_addresses().length -->
+        <div class="alert alert-info" role="alert">
+            <i class="fa fa-spinner fa-pulse fa-fw"></i>
+            <strong>Please wait...</strong>
+            Lookup for known boards
+            (
+                <span data-bind="text: autoload_progression"></span> /
+                <span data-bind="text: known_addresses().length"></span>
+            ).
+        </div>
+        <!-- /ko -->
         <!-- ko if: boards().length -->
-        <ul data-bind="foreach: boards" class="list-group">
-            <li data-bind="attr: { id: 'board-' + id }" class="list-group-item clearfix">
-                <strong data-bind="text: address"></strong>
-
-                <div class="pull-right btn-group-sm">
+        <form data-bind="foreach: { data: boards, afterRender: afterRender }">
+            <div data-bind="attr: { id: 'board-' + id }" class="form-group">
+                <div class="input-group input-group-sm">
+                    <input
+                        data-bind="value: ko.name, event: { focusout: ko.changeName }, attr: { title: ko.tooltip }"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        type="text"
+                        class="form-control" />
                     <!-- ko if: ko.online -->
-                    <button type="button" class="btn btn-success" data-dismiss="modal">
-                        <i class="fa fa-plug"></i> connect
-                    </button>
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-success w80" data-dismiss="modal">
+                            <i class="fa fa-plug"></i> connect
+                        </button>
+                    </span>
                     <!-- /ko -->
                     <!-- ko ifnot: ko.online -->
-                    <button type="button" class="btn btn-warning" data-dismiss="modal">
-                        <i class="fa fa-search"></i> lookup
-                    </button>
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-warning w80" data-dismiss="modal">
+                            <i class="fa fa-search"></i> lookup
+                        </button>
+                    </span>
                     <!-- /ko -->
-                    <button data-bind="attr: { 'data-target': '#board-' + id + '-info' }" type="button" class="btn btn-info" data-toggle="modal">
-                        <i class="fa fa-info-circle"></i>
-                    </button>
+                    <span class="input-group-btn">
+                        <button data-bind="attr: { 'data-target': '#board-' + id + '-info' }" type="button" class="btn btn-info" data-toggle="modal">
+                            <i class="fa fa-info-circle"></i>
+                        </button>
+                    </span>
                 </div>
-
                 <div data-bind="attr: { id: 'board-' + id + '-info' }" class="modal fade" tabindex="-1" role="dialog">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -163,7 +183,10 @@
                             <div class="modal-body">
                                 <!-- ko ifnot: info -->
                                 <div class="alert alert-warning" role="alert">
-                                    <strong>Oups!</strong> This board seems to be offline.
+                                    <strong>Oups!</strong> This board seems to be offline. Please, click ont the
+                                    <button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
+                                        <i class="fa fa-search"></i> lookup
+                                    </button> button to try to reach it.
                                 </div>
                                 <!-- /ko -->
                                 <!-- ko if: info -->
@@ -180,8 +203,8 @@
                         </div>
                     </div>
                 </div>
-            </li>
-        </ul>
+            </div>
+        </form>
         <!-- /ko -->
     </div>
 </div>
@@ -214,8 +237,8 @@
         <script src="vendor/knockout.min.js?v=3.4.0"></script>
         <script src="vendor/bootstrap/js/bootstrap.min.js?v=3.3.5"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=7eb4d23afa6575d007168ea977d2edab"></script>
-        <script src="examples.js?v=0.2.0-dev&amp;b=7eb4d23afa6575d007168ea977d2edab"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=7eb4d23afa6575d007168ea977d2edab"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=3c8d2b9dac439dad325bb9a9182a3fe2"></script>
+        <script src="examples.js?v=0.2.0-dev&amp;b=3c8d2b9dac439dad325bb9a9182a3fe2"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=3c8d2b9dac439dad325bb9a9182a3fe2"></script>
     </body>
 </html>
