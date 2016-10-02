@@ -29,7 +29,7 @@
             <div data-bind="attr: { id: 'board-' + id }" class="form-group">
                 <div class="input-group input-group-sm">
                     <input
-                        data-bind="value: ko.name, event: { focusout: ko.changeName }, attr: { title: ko.tooltip }"
+                        data-bind="value: ob.name, event: { focusout: ob.changeName }, attr: { title: ob.tooltip }"
                         data-toggle="tooltip"
                         data-placement="top"
                         type="text"

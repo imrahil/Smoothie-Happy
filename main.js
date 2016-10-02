@@ -150,6 +150,52 @@ ko.applyBindings(scannerModel, $scanner[0]);
 // boards
 // -----------------------------------------------------------------------------
 
+// augment the Board object
+function observableBoard(board) {
+    // get boards names (ip alias)
+    var names = store.get('boards.names', {});
+    var name = names[board.address] || board.address;
+
+    // set some things obserbales
+    board.ob = {
+        name: ko.observable(name),
+
+        tooltip: ko.pureComputed(function() {
+            return board.ob.name() == board.address
+                ? '- You can change this label as you want.<br />- Leave blank to restore default value.'
+                : 'Address: ' + board.address
+        }),
+
+        changeName: function(b, e) {
+            // make the names object
+            var names = {};
+
+            // get new name
+            var newName = board.ob.name().trim();
+                newName = newName.length ? newName : board.address;
+
+            // assign new name
+            names[board.address] = newName;
+
+            // merge in names list
+            store.merge('boards.names', names);
+
+            // update name (if empty)
+            board.ob.name(newName);
+
+            // fix tooltip title
+            $(e.target).attr({ 'data-original-title': board.ob.tooltip() });
+        },
+
+        online: ko.pureComputed(function() {
+            return board.online;
+        })
+    };
+
+    // return augmented board
+    return board;
+}
+
 // Knockout model
 var boardsModel = {
     boards: ko.observableArray(),
@@ -195,45 +241,8 @@ var boardsModel = {
             return null;
         }
 
-        // get boards names (ip alias)
-        var names = store.get('boards.names', {});
-        var name = names[board.address] || board.address;
-
         // augment the board
-        board.ko = {
-            name: ko.observable(name),
-
-            tooltip: ko.pureComputed(function() {
-                return board.ko.name() == board.address
-                    ? '- You can change this label as you want.<br />- Leave blank to restore default value.'
-                    : 'Address: ' + board.address
-            }),
-
-            changeName: function(b, e) {
-                // make the names object
-                var names = {};
-
-                // get new name
-                var newName = board.ko.name().trim();
-                    newName = newName.length ? newName : board.address;
-
-                // assign new name
-                names[board.address] = newName;
-
-                // merge in names list
-                store.merge('boards.names', names);
-
-                // update name (if empty)
-                board.ko.name(newName);
-
-                // fix tooltip title
-                $(e.target).attr({ 'data-original-title': board.ko.tooltip() });
-            },
-
-            online: ko.pureComputed(function() {
-                return board.online;
-            })
-        };
+        board = observableBoard(board);
 
         // add the board to the list
         boardsModel.boards.push(board);
