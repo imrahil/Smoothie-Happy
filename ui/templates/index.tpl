@@ -25,11 +25,11 @@
         </nav>
         <div id="body" class="container-fluid">
             <div class="row">
-                <div class="col-xs-12 col-sm-6 col-md-6">
+                <div class="col-xs-12 col-sm-6 col-md-4">
                     {$scanner_template}
                     {$boards_template}
                 </div>
-                <div class="col-xs-12 col-sm-6 col-md-6">...</div>
+                <div class="col-xs-12 col-sm-6 col-md-8">...</div>
             </div>
         </div>
         <script src="vendor/jquery.min.js?v=2.2.3"></script>

@@ -1,14 +1,30 @@
+/**
+* Smoothie-Happy (UI) - A SmoothieBoard network communication API.
+* @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
+* @see      {@link https://github.com/lautr3k/Smoothie-Happy}
+* @build    2d08b9877b8f6321fbb9c4162a33861a
+* @date     Sun, 02 Oct 2016 16:05:25 +0000
+* @version  0.2.0-dev
+* @license  MIT
+*/
+(function () { 'use strict';
 // -----------------------------------------------------------------------------
 // store (localStorage wrapper)
 // -----------------------------------------------------------------------------
 
 var store = {
+    keyPrefix: 'sh.ui.',
+
+    prefixKey: function(key) {
+        return store.keyPrefix + key;
+    },
+
     has: function(key) {
-        return !! localStorage.getItem(key);
+        return !! localStorage.getItem(store.prefixKey(key));
     },
 
     set: function(key, value) {
-        localStorage.setItem(key, JSON.stringify(value));
+        localStorage.setItem(store.prefixKey(key), JSON.stringify(value));
     },
 
     merge: function(key, value) {
@@ -39,14 +55,14 @@ var store = {
 
     get: function(key, defaultValue) {
         // get the stored value (JSON string)
-        var value = localStorage.getItem(key);
+        var value = localStorage.getItem(store.prefixKey(key));
 
         // return parsed JSON string as object
         return value ? JSON.parse(value) : defaultValue;
     },
 
     remove: function(key) {
-        localStorage.removeItem(key);
+        localStorage.removeItem(store.prefixKey(key));
     },
 
     clear: function() {
@@ -54,6 +70,11 @@ var store = {
     }
 };
 
+// -----------------------------------------------------------------------------
+// Knockout model
+// -----------------------------------------------------------------------------
+
+var model = {};
 
 // -----------------------------------------------------------------------------
 // scanner
@@ -64,50 +85,66 @@ var scanner = sh.network.Scanner();
 
 // register events callbacks
 scanner.on('start', function(scan) {
-    scannerModel.scanning(true);
-    scannerModel.progression.found(scan.found);
-    scannerModel.progression.total(scan.total);
-    scannerModel.progression.scanned(scan.scanned);
+    model.scanner.scanning(true);
+    model.scanner.progression.found(scan.found);
+    model.scanner.progression.total(scan.total);
+    model.scanner.progression.scanned(scan.scanned);
 });
 
 scanner.on('pause', function(scan) {
-    scannerModel.in_pause(true);
+    model.scanner.paused(true);
 });
 
 scanner.on('resume', function(scan) {
-    scannerModel.in_pause(false);
+    model.scanner.paused(false);
 });
 
 scanner.on('stop', function(scan) {
-    scannerModel.scanning(false);
-    scannerModel.in_pause(false);
+    model.scanner.scanning(false);
+    model.scanner.paused(false);
 });
 
 scanner.on('progress', function(scan) {
-    scannerModel.progression.scanned(scan.scanned);
+    model.scanner.progression.scanned(scan.scanned);
 });
 
 scanner.on('board', function(scan, board) {
-    scannerModel.progression.found(scan.found);
-    boardsModel.addBoard(board);
+    model.scanner.progression.found(scan.found);
+    model.boards.addBoard(board);
 });
 
 scanner.on('end', function(scan) {
-    scannerModel.scanning(false);
-    scannerModel.in_pause(false);
+    model.scanner.scanning(false);
+    model.scanner.paused(false);
 });
 
-// Knockout model
-var scannerModel = {
-    input: ko.observable(store.get('scanner.input')),
+// -----------------------------------------------------------------------------
+// scanner model
+// -----------------------------------------------------------------------------
 
+model.scanner = {
+    input   : ko.observable(store.get('scanner.input')),
     scanning: ko.observable(false),
+    paused  : ko.observable(false),
 
-    in_pause: ko.observable(false),
+    progression: {
+        found  : ko.observable(0),
+        total  : ko.observable(0),
+        scanned: ko.observable(0),
+        percent: ko.pureComputed(function() {
+            var p = model.scanner.progression;
+
+            if (p.scanned() > 0) {
+                return parseInt(p.scanned() / p.total() * 100);
+            }
+
+            return 0;
+        })
+    },
 
     start: function() {
-        scanner.start(scannerModel.input());
-        scannerModel.input(scanner.input);
+        scanner.start(model.scanner.input());
+        model.scanner.input(scanner.input);
         store.set('scanner.input', scanner.input);
     },
 
@@ -121,175 +158,211 @@ var scannerModel = {
 
     stop: function() {
         scanner.stop();
-    },
-
-    progression: {
-        found  : ko.observable(0),
-        total  : ko.observable(0),
-        scanned: ko.observable(0),
-        percent: ko.pureComputed(function() {
-            var p = scannerModel.progression;
-
-            if (p.scanned() > 0) {
-                return parseInt(p.scanned() / p.total() * 100);
-            }
-
-            return 0;
-        })
     }
 };
 
-// jQuery object
-var $scanner = $('#scanner');
-
-// bind Knockout model to DOM element
-ko.applyBindings(scannerModel, $scanner[0]);
-
-
 // -----------------------------------------------------------------------------
-// boards
+// board model
 // -----------------------------------------------------------------------------
 
-// augment the Board object
-function observableBoard(board) {
+var BoardModel = function(board) {
+    // self alias
+    var self = this;
+
+    // sh.Board instance
+    self.board = board;
+
     // get boards names (ip alias)
     var names = store.get('boards.names', {});
-    var name = names[board.address] || board.address;
+    var name  = names[board.address] || board.address;
 
-    // set some things obserbales
-    board.ob = {
-        name: ko.observable(name),
-        info: ko.observable(board.info),
-        online: ko.observable(board.online),
-        connected: ko.observable(board.connected),
-        wait_connect: ko.observable(false),
-        wait_lookup: ko.observable(false),
+    // set initial board info
+    self.name = ko.observable(name);
+    self.info = ko.observable(board.info);
 
-        tooltip: ko.pureComputed(function() {
-            return board.ob.name() == board.address
-                ? '- You can change this label as you want.<br />- Leave blank to restore default value.'
-                : 'Address: ' + board.address
-        }),
+    // set initial board state
+    self.online      = ko.observable(board.online);
+    self.connected   = ko.observable(board.connected);
+    self.waitConnect = ko.observable(false);
+    self.waitLookup  = ko.observable(false);
 
-        changeName: function(b, e) {
-            // make the names object
-            var names = {};
+    // get board tooltip text
+    self.tooltip = ko.pureComputed(function() {
+        return self.name() == self.board.address
+            ? '- You can change this label as you want.<br />- Leave blank to restore default value.'
+            : 'Address: ' + self.board.address
+    });
 
-            // get new name
-            var newName = board.ob.name().trim();
-                newName = newName.length ? newName : board.address;
-
-            // assign new name
-            names[board.address] = newName;
-
-            // merge in names list
-            store.merge('boards.names', names);
-
-            // update name (if empty)
-            board.ob.name(newName);
-
-            // fix tooltip title
-            $(e.target).attr({ 'data-original-title': board.ob.tooltip() });
-        },
-
-        updateState: function() {
-            board.ob.connected(board.connected);
-            board.ob.online(board.online);
-        },
-
-        connect: function() {
-            board.ob.wait_connect(true);
-            board.connect().then(function(event) {
-                board.ob.info(board.info);
-                return event;
-            }).catch(function(event) {
-                $.notify({
-                    icon: 'fa fa-warning',
-                    message: 'Unable to connect the board at ' + board.address
-                }, { type: 'danger' });
-                return event;
-            }).then(function(event) {
-                board.ob.updateState();
-                board.ob.wait_connect(false);
-            });
-        },
-
-        disconnect: function() {
-            console.log('disconnect');
-        },
-
-        lookup: function() {
-            board.ob.wait_lookup(true);
-            board.version().then(function(event) {
-                board.ob.info(board.info);
-                return event;
-            }).catch(function(event) {
-                $.notify({
-                    icon: 'fa fa-warning',
-                    message: 'Unable to reach the board at ' + board.address
-                }, { type: 'warning' });
-                return event;
-            }).then(function(event) {
-                board.ob.updateState();
-                board.ob.wait_lookup(false);
-            });
+    // register some events callbacks
+    board.on('connect', function(event) {
+        self.updateInfo();
+        self.updateState();
+    })
+    .on('disconnect', function(event) {
+        if (self.connected()) {
+            $.notify({
+                icon: 'fa fa-warning',
+                message: 'Loosed connection with ' + self.board.address + '. Reconnection in progress...'
+            }, { type: 'danger' });
         }
-    };
+        self.updateState();
+    })
+    .on('reconnectAttempt', function(event) {
+        // attempts limit
+        var limit = 5;
 
-    // return augmented board
-    return board;
-}
+        // notify user
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'Try to reconnect with ' + self.board.address + '. Attempts: ' + self.board.reconnectAttempts + '/' + limit
+        }, { type: 'info' });
 
-// Knockout model
-var boardsModel = {
-    boards: ko.observableArray(),
+        // disconnect the board after x attempts
+        if (self.board.reconnectAttempts == limit) {
+            self.disconnect();
+        }
+    })
+    .on('error', function(event) {
+        //console.error('on.error:', event);
+        self.updateState();
+    });
+};
 
-    known_addresses: ko.observableArray(),
+BoardModel.prototype.changeName = function(board, event) {
+    // make the names object
+    var names = {};
 
-    autoload_addresses: ko.observableArray(),
+    // get new name
+    var newName = this.name().trim();
+        newName = newName.length ? newName : this.board.address;
 
-    autoload_progression: ko.pureComputed(function() {
-        return boardsModel.known_addresses().length
-             - boardsModel.autoload_addresses().length;
+    // assign new name
+    names[this.board.address] = newName;
+
+    // merge in names list
+    store.merge('boards.names', names);
+
+    // update name (if empty)
+    this.name(newName);
+
+    // fix tooltip title
+    $(event.target).attr({ 'data-original-title': this.tooltip() });
+};
+
+BoardModel.prototype.updateState = function() {
+    this.connected(this.board.connected);
+    this.online(this.board.online);
+};
+
+BoardModel.prototype.updateInfo = function() {
+    this.info(this.board.info);
+};
+
+BoardModel.prototype.connect = function() {
+    // self alias
+    var self = this;
+
+    // set we wait for connection
+    self.waitConnect(true);
+
+    // try to connect to the board
+    self.board.connect().then(function(event) {
+        self.updateInfo();
+        return event;
+    })
+    .catch(function(event) {
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'Unable to connect the board at ' + self.board.address
+        }, { type: 'danger' });
+        return event;
+    })
+    .then(function(event) {
+        self.updateState();
+        self.waitConnect(false);
+    });
+};
+
+BoardModel.prototype.disconnect = function() {
+    this.connected(false);
+    this.board.disconnect();
+};
+
+BoardModel.prototype.lookup = function() {
+    // self alias
+    var self = this;
+
+    // set we wait for lookup
+    self.waitLookup(true);
+
+    // try to get board version
+    self.board.version().then(function(event) {
+        self.updateInfo();
+        return event;
+    })
+    .catch(function(event) {
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'Unable to reach the board at ' + self.board.address
+        }, { type: 'warning' });
+        return event;
+    })
+    .then(function(event) {
+        self.updateState();
+        self.waitLookup(false);
+    });
+};
+
+// -----------------------------------------------------------------------------
+// boards model
+// -----------------------------------------------------------------------------
+
+model.boards = {
+    knownBoards      : ko.observableArray(),
+    knownAddresses   : ko.observableArray(),
+    autoloadAddresses: ko.observableArray(),
+
+    autoloadProgression: ko.pureComputed(function() {
+        return model.boards.knownAddresses().length
+             - model.boards.autoloadAddresses().length;
     }),
 
-    hasBoardAdrress: function(address) {
-        // get all boards
-        var boards = boardsModel.boards();
-
-        // for each board
-        for (var i = 0; i < boards.length; i++) {
-            // board with same address found
-            if (boards[i].address == address) {
-                return true;
-            }
-        }
-
-        // no board found
-        return false;
-    },
-
-    hasBoard: function(board) {
-        return boardsModel.hasBoardAdrress(board.address);
-    },
-
-    afterRender: function(nodes, model) {
+    afterRender: function(nodes) {
         $(nodes).find('input[data-toggle="tooltip"]').tooltip({
             trigger: 'focus', html: true
         });
     },
 
+    getBoardByAdrress: function(address) {
+        // get all known boards
+        var boards = model.boards.knownBoards();
+
+        // for each board
+        for (var i = 0; i < boards.length; i++) {
+            // board with same address found
+            if (boards[i].board.address == address) {
+                return boards[i];
+            }
+        }
+
+        // no board found
+        return null;
+    },
+
+    getBoard: function(board) {
+        return model.boards.getBoardByAdrress(
+            typeof board == 'string' ? board : board.address
+        );
+    },
+
     addBoard: function(board) {
         // skip already added board
-        if (boardsModel.hasBoard(board)) {
+        if (model.boards.getBoard(board)) {
             return null;
         }
 
-        // augment the board
-        board = observableBoard(board);
-
         // add the board to the list
-        boardsModel.boards.push(board);
+        model.boards.knownBoards.push(new BoardModel(board));
 
         // store board address for auto loading at startup
         var addresses = store.get('boards.addresses', []);
@@ -301,40 +374,38 @@ var boardsModel = {
     }
 };
 
-// jQuery object
-var $boards = $('#boards');
-
+// -----------------------------------------------------------------------------
 // bind Knockout model to DOM element
-ko.applyBindings(boardsModel, $boards[0]);
-
+// -----------------------------------------------------------------------------
+ko.applyBindings(model);
 
 // -----------------------------------------------------------------------------
 // autoload known boards at startup
 // -----------------------------------------------------------------------------
 
 // get known boards addresses
-var boards_addresses = store.get('boards.addresses', []);
-var board_address    = null;
+var boardsAddresses = store.get('boards.addresses', []);
+var boardAddress    = null;
 
 // set the addresses autoload collection
-boardsModel.known_addresses(boards_addresses.concat([]));
-boardsModel.autoload_addresses(boards_addresses.concat([]));
+model.boards.knownAddresses(boardsAddresses.concat([]));
+model.boards.autoloadAddresses(boardsAddresses.concat([]));
 
 // for each known address
-for (var i = 0; i < boards_addresses.length; i++) {
+for (var i = 0; i < boardsAddresses.length; i++) {
     // current board address
-    board_address = boards_addresses[i];
+    boardAddress = boardsAddresses[i];
 
     // skip already added board
-    if (boardsModel.hasBoardAdrress(board_address)) {
+    if (model.boards.getBoard(boardAddress)) {
         // remove address from autoload collection
-        boardsModel.autoload_addresses.remove(board_address);
+        model.boards.autoloadAddresses.remove(boardAddress);
         // go to next address
         continue;
     }
 
     // create the board instance
-    var board = sh.Board(board_address);
+    var board = sh.Board(boardAddress);
 
     // try to get the board version (info)
     board.version().then(function(event) {
@@ -342,9 +413,11 @@ for (var i = 0; i < boards_addresses.length; i++) {
     }).catch(function(event) {
         return event; // offline
     }).then(function(event) {
-        // add the new board even if offline
-        boardsModel.addBoard(event.board);
+        // add the board in any case
+        model.boards.addBoard(event.board);
         // remove address from autoload collection
-        boardsModel.autoload_addresses.remove(event.board.address);
+        model.boards.autoloadAddresses.remove(event.board.address);
     });
 }
+
+})();

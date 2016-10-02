@@ -9,7 +9,7 @@
         <meta name="description" content="A SmoothieBoard network communication API">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=cac6a22dd6fbe139e64b2a18a1041fd3" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=2d08b9877b8f6321fbb9c4162a33861a" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -25,8 +25,8 @@
         </nav>
         <div id="body" class="container-fluid">
             <div class="row">
-                <div class="col-xs-12 col-sm-6 col-md-6">
-                    <div id="scanner" class="panel panel-default">
+                <div class="col-xs-12 col-sm-6 col-md-4">
+                    <div id="scanner" data-bind="with: scanner" class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">
             <i class="fa fa-search"></i> Scanner
@@ -47,14 +47,14 @@
                 </span>
                 <!-- /ko -->
                 <!-- ko if: scanning -->
-                <!-- ko ifnot: in_pause -->
+                <!-- ko ifnot: paused -->
                 <span class="input-group-btn">
                     <button data-bind="click: pause" class="btn btn-sm btn-warning w70" type="button">
                         Pause
                     </button>
                 </span>
                 <!-- /ko -->
-                <!-- ko if: in_pause -->
+                <!-- ko if: paused -->
                 <span class="input-group-btn">
                     <button data-bind="click: resume" class="btn btn-sm btn-success w70" type="button">
                         Resume
@@ -113,7 +113,7 @@
 </div>
 <!-- #scanner-help -->
 
-                    <div id="boards" class="panel panel-default">
+                    <div id="boards" data-bind="with: boards" class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">
             <i class="fa fa-rocket"></i> Boards
@@ -123,123 +123,125 @@
         </h3>
     </div>
     <div class="panel-body">
-        <!-- ko if: !boards().length && !autoload_addresses().length -->
+        <!-- ko if: !knownBoards().length && !autoloadAddresses().length -->
         <div class="alert alert-warning" role="alert">
-            <strong>No boards found!</strong> Please scan the network to find some boards to play with.
+            <strong>No boards!</strong> Please scan the network to find some boards to play with.
         </div>
         <!-- /ko -->
-        <!-- ko if: autoload_addresses().length -->
+        <!-- ko if: autoloadAddresses().length -->
         <div class="alert alert-info" role="alert">
             <i class="fa fa-spinner fa-pulse fa-fw"></i>
             <strong>Please wait...</strong>
             Lookup for known boards
             (
-                <span data-bind="text: autoload_progression"></span> /
-                <span data-bind="text: known_addresses().length"></span>
+                <span data-bind="text: autoloadProgression"></span> /
+                <span data-bind="text: knownAddresses().length"></span>
             ).
         </div>
         <!-- /ko -->
-        <!-- ko if: boards().length -->
-        <div data-bind="foreach: { data: boards, afterRender: afterRender }">
-            <div data-bind="attr: { id: 'board-' + id }" class="form-group">
+        <!-- ko if: knownBoards().length -->
+        <div data-bind="foreach: { data: knownBoards, afterRender: afterRender }">
+            <div data-bind="attr: { id: 'board-' + board.id }" class="board form-group">
                 <div class="input-group input-group-sm">
                     <input
-                        data-bind="value: ob.name, event: { focusout: ob.changeName }, attr: { title: ob.tooltip }"
+                        data-bind="value: name, event: { focusout: changeName }, attr: { title: tooltip }"
                         data-toggle="tooltip"
                         data-placement="top"
                         type="text"
                         class="form-control" />
-                    <!-- ko if: ob.online -->
-                    <!-- ko ifnot: ob.connected -->
+                    <!-- ko if: online -->
+                    <!-- ko ifnot: connected -->
                     <span class="input-group-btn">
-                        <button data-bind="disable: ob.wait_connect, click: ob.connect" type="button" class="btn btn-success w100">
-                            <i class="fa fa-plug"></i> connect
+                        <button data-bind="disable: waitConnect, click: connect" type="button" class="btn btn-danger w100">
+                            <i class="fa fa-plug"></i> Connect
                         </button>
                     </span>
                     <!-- /ko -->
-                    <!-- ko if: ob.connected -->
+                    <!-- ko if: connected -->
                     <span class="input-group-btn">
-                        <button data-bind="click: ob.disconnect" type="button" class="btn btn-danger w100">
-                            <i class="fa fa-plug"></i> disconnect
+                        <button data-bind="click: disconnect" type="button" class="btn btn-success w100">
+                            <i class="fa fa-plug"></i> Disconnect
                         </button>
                     </span>
                     <!-- /ko -->
                     <!-- /ko -->
-                    <!-- ko ifnot: ob.online -->
+                    <!-- ko ifnot: online -->
                     <span class="input-group-btn">
-                        <button data-bind="disable: ob.wait_lookup, click: ob.lookup" type="button" class="btn btn-warning w100">
-                            <i class="fa fa-search"></i> lookup
+                        <button data-bind="disable: waitLookup, click: lookup" type="button" class="btn btn-warning w100">
+                            <i class="fa fa-search"></i> Lookup
                         </button>
                     </span>
                     <!-- /ko -->
                     <span class="input-group-btn">
-                        <button data-bind="attr: { 'data-target': '#board-' + id + '-info' }" type="button" class="btn btn-info" data-toggle="modal">
+                        <button data-bind="attr: { 'data-target': '#board-' + board.id + '-info' }" type="button" class="btn btn-info" data-toggle="modal">
                             <i class="fa fa-info-circle"></i>
                         </button>
                     </span>
                 </div>
-                <div data-bind="attr: { id: 'board-' + id + '-info' }" class="modal fade" tabindex="-1" role="dialog">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header modal-header-info">
-                                <button type="button" class="pull-right btn btn-sm btn-info" data-dismiss="modal">
-                                    <i class="fa fa-close"></i> Close
-                                </button>
-                                <h4 class="modal-title">
-                                    <i class="fa fa-info-circle"></i> Board info
-                                </h4>
+            </div>
+            <!-- .board -->
+            <div data-bind="attr: { id: 'board-' + board.id + '-info' }" class="board-info modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header modal-header-info">
+                            <button type="button" class="pull-right btn btn-sm btn-info" data-dismiss="modal">
+                                <i class="fa fa-close"></i> Close
+                            </button>
+                            <h4 class="modal-title">
+                                <i class="fa fa-info-circle"></i> Board info
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <!-- ko ifnot: online -->
+                            <div class="alert alert-warning" role="alert">
+                                <strong>Oups!</strong> This board seems to be offline. Please, click ont the
+                                <button data-bind="click: lookup" type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
+                                    <i class="fa fa-search"></i> Lookup
+                                </button> button to try to reach it.
                             </div>
-                            <div class="modal-body">
-                                <!-- ko ifnot: ob.online -->
-                                <div class="alert alert-warning" role="alert">
-                                    <strong>Oups!</strong> This board seems to be offline. Please, click ont the
-                                    <button data-bind="click: ob.lookup" type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
-                                        <i class="fa fa-search"></i> lookup
-                                    </button> button to try to reach it.
-                                </div>
-                                <!-- /ko -->
-                                <!-- ko if: ob.info -->
-                                <table class="table table-bordered">
-                                    <tbody data-bind="with: ob.info">
-                                        <tr><th>Address</th><td><span data-bind="text: $parent.address"></span></td></tr>
-                                        <tr><th>Branch</th><td><span data-bind="text: branch"></span> (#<span data-bind="text: hash"></span>)</td></tr>
-                                        <tr><th>Date</th><td><span data-bind="text: date"></span></td></tr>
-                                        <tr><th>MCU</th><td><span data-bind="text: mcu"></span> at <span data-bind="text: clock"></span></td></tr>
-                                    </tbody>
-                                </table>
-                                <!-- /ko -->
-                            </div>
+                            <!-- /ko -->
+                            <!-- ko if: info -->
+                            <table class="table table-bordered">
+                                <tbody data-bind="with: info">
+                                    <tr><th>Address</th><td><span data-bind="text: $parent.board.address"></span></td></tr>
+                                    <tr><th>Branch</th><td><span data-bind="text: branch"></span> (#<span data-bind="text: hash"></span>)</td></tr>
+                                    <tr><th>Date</th><td><span data-bind="text: date"></span></td></tr>
+                                    <tr><th>MCU</th><td><span data-bind="text: mcu"></span> at <span data-bind="text: clock"></span></td></tr>
+                                </tbody>
+                            </table>
+                            <!-- /ko -->
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- .board-info -->
         </div>
         <!-- /ko -->
     </div>
 </div>
 <!-- #boards -->
 
-<div id="boards-help" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="boards-help-title">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header modal-header-primary">
-                <button type="button" class="pull-right btn btn-sm btn-primary" data-dismiss="modal" aria-label="Close">
-                    <i class="fa fa-close"></i> Close
-                </button>
-                <h4 class="modal-title" id="boards-help-title">
-                    <i class="fa fa-question-circle-o"></i> Boards
-                </h4>
-            </div>
-            <div class="modal-body">
-                <p>Sorry, no help for this section.</p>
+    <div id="boards-help" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="boards-help-title">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-header-primary">
+                    <button type="button" class="pull-right btn btn-sm btn-primary" data-dismiss="modal" aria-label="Close">
+                        <i class="fa fa-close"></i> Close
+                    </button>
+                    <h4 class="modal-title" id="boards-help-title">
+                        <i class="fa fa-question-circle-o"></i> Boards
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <p>Sorry, no help for this section.</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<!-- #boards-help -->
+    <!-- #boards-help -->
 
                 </div>
-                <div class="col-xs-12 col-sm-6 col-md-6">...</div>
+                <div class="col-xs-12 col-sm-6 col-md-8">...</div>
             </div>
         </div>
         <script src="vendor/jquery.min.js?v=2.2.3"></script>
@@ -247,8 +249,8 @@
         <script src="vendor/bootstrap/js/bootstrap.min.js?v=3.3.5"></script>
         <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=cac6a22dd6fbe139e64b2a18a1041fd3"></script>
-        <script src="examples.js?v=0.2.0-dev&amp;b=cac6a22dd6fbe139e64b2a18a1041fd3"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=cac6a22dd6fbe139e64b2a18a1041fd3"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=2d08b9877b8f6321fbb9c4162a33861a"></script>
+        <script src="examples.js?v=0.2.0-dev&amp;b=2d08b9877b8f6321fbb9c4162a33861a"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=2d08b9877b8f6321fbb9c4162a33861a"></script>
     </body>
 </html>

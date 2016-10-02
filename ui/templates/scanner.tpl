@@ -1,4 +1,4 @@
-<div id="scanner" class="panel panel-default">
+<div id="scanner" data-bind="with: scanner" class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">
             <i class="fa fa-search"></i> Scanner
@@ -19,14 +19,14 @@
                 </span>
                 <!-- /ko -->
                 <!-- ko if: scanning -->
-                <!-- ko ifnot: in_pause -->
+                <!-- ko ifnot: paused -->
                 <span class="input-group-btn">
                     <button data-bind="click: pause" class="btn btn-sm btn-warning w70" type="button">
                         Pause
                     </button>
                 </span>
                 <!-- /ko -->
-                <!-- ko if: in_pause -->
+                <!-- ko if: paused -->
                 <span class="input-group-btn">
                     <button data-bind="click: resume" class="btn btn-sm btn-success w70" type="button">
                         Resume
