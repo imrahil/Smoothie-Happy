@@ -9,7 +9,7 @@
         <meta name="description" content="A SmoothieBoard network communication API">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=90ff9ebfc1dbcd97cd0febdfd974bfb5" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=aa2f8b231a4e52727a12b10762c10a72" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -149,14 +149,14 @@
                         data-placement="top"
                         type="text"
                         class="form-control" />
-                    <!-- ko if: ko.online -->
+                    <!-- ko if: ob.online -->
                     <span class="input-group-btn">
                         <button type="button" class="btn btn-success w80" data-dismiss="modal">
                             <i class="fa fa-plug"></i> connect
                         </button>
                     </span>
                     <!-- /ko -->
-                    <!-- ko ifnot: ko.online -->
+                    <!-- ko ifnot: ob.online -->
                     <span class="input-group-btn">
                         <button type="button" class="btn btn-warning w80" data-dismiss="modal">
                             <i class="fa fa-search"></i> lookup
@@ -237,8 +237,8 @@
         <script src="vendor/knockout.min.js?v=3.4.0"></script>
         <script src="vendor/bootstrap/js/bootstrap.min.js?v=3.3.5"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=90ff9ebfc1dbcd97cd0febdfd974bfb5"></script>
-        <script src="examples.js?v=0.2.0-dev&amp;b=90ff9ebfc1dbcd97cd0febdfd974bfb5"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=90ff9ebfc1dbcd97cd0febdfd974bfb5"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=aa2f8b231a4e52727a12b10762c10a72"></script>
+        <script src="examples.js?v=0.2.0-dev&amp;b=aa2f8b231a4e52727a12b10762c10a72"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=aa2f8b231a4e52727a12b10762c10a72"></script>
     </body>
 </html>

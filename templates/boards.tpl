@@ -34,14 +34,14 @@
                         data-placement="top"
                         type="text"
                         class="form-control" />
-                    <!-- ko if: ko.online -->
+                    <!-- ko if: ob.online -->
                     <span class="input-group-btn">
                         <button type="button" class="btn btn-success w80" data-dismiss="modal">
                             <i class="fa fa-plug"></i> connect
                         </button>
                     </span>
                     <!-- /ko -->
-                    <!-- ko ifnot: ko.online -->
+                    <!-- ko ifnot: ob.online -->
                     <span class="input-group-btn">
                         <button type="button" class="btn btn-warning w80" data-dismiss="modal">
                             <i class="fa fa-search"></i> lookup
