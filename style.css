@@ -9,8 +9,10 @@
     z-index: 9999;
 }
 
-.w70 { width: 70px; }
-.w80 { width: 80px; }
+.w70  { width: 70px; }
+.w80  { width: 80px; }
+.w90  { width: 90px; }
+.w100 { width: 100px; }
 
 /* navbar */
 
