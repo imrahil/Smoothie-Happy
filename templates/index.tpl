@@ -23,12 +23,14 @@
                 </ul>
             </div>
         </nav>
-        <div id="body" class="row">
-            <div class="col-xs-12 col-sm-6 col-md-6">
-                {$scanner_template}
-                {$boards_template}
+        <div id="body" class="container-fluid">
+            <div class="row">
+                <div class="col-xs-12 col-sm-6 col-md-6">
+                    {$scanner_template}
+                    {$boards_template}
+                </div>
+                <div class="col-xs-12 col-sm-6 col-md-6">...</div>
             </div>
-            <div class="col-xs-12 col-sm-6 col-md-6">...</div>
         </div>
         <script src="vendor/jquery.min.js?v=2.2.3"></script>
         <script src="vendor/knockout.min.js?v=3.4.0"></script>
