@@ -19,8 +19,8 @@
             <strong>Please wait...</strong>
             Lookup for known boards
             (
-                <span data-bind="text: autoloadProgression"></span> /
-                <span data-bind="text: knownAddresses().length"></span>
+            <span data-bind="text: autoloadProgression"></span> /
+            <span data-bind="text: knownAddresses().length"></span>
             ).
         </div>
         <!-- /ko -->
@@ -29,11 +29,11 @@
             <div data-bind="attr: { id: 'board-' + board.id }" class="board form-group">
                 <div class="input-group input-group-sm">
                     <input
-                        data-bind="value: name, event: { focusout: changeName }, attr: { title: tooltip }"
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        type="text"
-                        class="form-control" />
+                    data-bind="value: name, event: { focusout: changeName }, attr: { title: tooltip }"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    type="text"
+                    class="form-control" />
                     <!-- ko if: online -->
                     <!-- ko ifnot: connected -->
                     <span class="input-group-btn">
@@ -106,21 +106,21 @@
 </div>
 <!-- #boards -->
 
-    <div id="boards-help" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="boards-help-title">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header modal-header-primary">
-                    <button type="button" class="pull-right btn btn-sm btn-primary" data-dismiss="modal" aria-label="Close">
-                        <i class="fa fa-close"></i> Close
-                    </button>
-                    <h4 class="modal-title" id="boards-help-title">
-                        <i class="fa fa-question-circle-o"></i> Boards
-                    </h4>
-                </div>
-                <div class="modal-body">
-                    <p>Sorry, no help for this section.</p>
-                </div>
+<div id="boards-help" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="boards-help-title">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-primary">
+                <button type="button" class="pull-right btn btn-sm btn-primary" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-close"></i> Close
+                </button>
+                <h4 class="modal-title" id="boards-help-title">
+                    <i class="fa fa-question-circle-o"></i> Boards
+                </h4>
+            </div>
+            <div class="modal-body">
+                <p>Sorry, no help for this section.</p>
             </div>
         </div>
     </div>
-    <!-- #boards-help -->
+</div>
+<!-- #boards-help -->
