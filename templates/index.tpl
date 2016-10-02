@@ -35,6 +35,7 @@
         <script src="vendor/jquery.min.js?v=2.2.3"></script>
         <script src="vendor/knockout.min.js?v=3.4.0"></script>
         <script src="vendor/bootstrap/js/bootstrap.min.js?v=3.3.5"></script>
+        <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="dist/smoothie-happy.js?v={$version}&amp;b={$build}"></script>
         <script src="examples.js?v={$version}&amp;b={$build}"></script>
