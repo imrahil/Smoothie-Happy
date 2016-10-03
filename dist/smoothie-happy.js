@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    516d9795bfcfe438c67579f376b4143b
-* @date     Mon, 03 Oct 2016 11:22:20 +0000
+* @build    f8a373714e961e623c9c631096410d71
+* @date     Mon, 03 Oct 2016 11:26:46 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -25,7 +25,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = '516d9795bfcfe438c67579f376b4143b';
+    sh.build = 'f8a373714e961e623c9c631096410d71';
 
     /**
     * @property {String} id API id.
