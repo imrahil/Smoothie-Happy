@@ -61,6 +61,7 @@ model.boards = {
 
     selectBoard: function(boardModel, event) {
         model.boards.selectedBoard(boardModel);
+        boardModel.populateFilesTree();
         store.set('boards.selected', boardModel.board.address);
     }
 };

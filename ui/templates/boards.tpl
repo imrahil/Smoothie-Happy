@@ -77,8 +77,12 @@
                             </h4>
                         </div>
                         <div class="modal-body">
+                        <!-- ko ifnot: online -->
                         {$board-offline.tpl}
+                        <!-- /ko -->
+                        <!-- ko if: info -->
                         {$board-info.tpl}
+                        <!-- /ko -->
                         </div>
                     </div>
                 </div>

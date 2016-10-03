@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    f8a373714e961e623c9c631096410d71
-* @date     Mon, 03 Oct 2016 11:26:46 +0000
+* @build    1088dc74a851c244ac641f6819bbc789
+* @date     Mon, 03 Oct 2016 16:23:33 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -181,10 +181,17 @@ var BoardModel = function(board) {
     self.info = ko.observable(board.info);
 
     // set initial board state
-    self.online      = ko.observable(board.online);
-    self.connected   = ko.observable(board.connected);
-    self.waitConnect = ko.observable(false);
-    self.waitLookup  = ko.observable(false);
+    self.online            = ko.observable(board.online);
+    self.connected         = ko.observable(board.connected);
+    self.waitConnect       = ko.observable(false);
+    self.waitLookup        = ko.observable(false);
+    self.waitFilesTree     = ko.observable(false);
+    self.filesTree         = ko.observableArray();
+    self.dirsTree          = ko.observableArray();
+    self.selectedDirectory = ko.observable();
+
+    // set default directory
+    self.setSelectedDirectory('/');
 
     // get board tooltip text
     self.tooltip = ko.pureComputed(function() {
@@ -313,6 +320,163 @@ BoardModel.prototype.lookup = function() {
     });
 };
 
+BoardModel.prototype._makeFileNode = function(node) {
+    var isFile = node.type == 'file';
+    var icon   = isFile ? 'file' : 'folder';
+
+    node = {
+        text        : node.name || '/',
+        icon        : 'fa fa-' + icon + '-o',
+        selectedIcon: 'fa fa-' + icon,
+        node        : node
+    };
+
+    node.tags = [
+        'size: ' + node.node.size
+    ];
+
+    node.state = { selected: !node.node.root };
+
+    return node;
+};
+
+BoardModel.prototype._makeFilesTree = function(nodes) {
+    // some variables
+    var node  = null;
+    var tree  = [];
+    var dirs  = [];
+    var files = [];
+
+    // find a parent node...
+    var findParentNode = function(s, n) {
+        for (var o, i = 0, il = s.length; i < il; i++) {
+            o = s[i];
+
+            if (o.node.path == n.node.root) {
+                if (! o.nodes) {
+                    o.nodes = [];
+                }
+                return o;
+            }
+        }
+        return null;
+    }
+
+    // first pass, normalize nodes
+    for (var i = 0, il = nodes.length; i < il; i++) {
+        node = nodes[i];
+
+        tree.push(this._makeFileNode(node));
+
+        if (node.type == 'file') {
+            files.push(this._makeFileNode(node));
+        }
+        else {
+            dirs.push(this._makeFileNode(node));
+        }
+    }
+
+    // second pass, push childs into parents nodes
+    function makeTree(s) {
+        for (var i = s.length - 1; i >= 0; i--) {
+            // current node
+            node = s[i];
+
+            // find parent node
+            var parentNode = findParentNode(s, node);
+
+            if (parentNode) {
+                // extract node from tree
+                node = s.splice(i, 1)[0];
+
+                // move node to parent nodes list
+                parentNode.nodes.push(node);
+            }
+        }
+
+        return s;
+    }
+
+    tree = makeTree(tree);
+    dirs = makeTree(dirs);
+
+    // console.log(nodes);
+    // console.log(tree);
+    return {
+        tree : tree,
+        dirs : dirs,
+        files: files
+    };
+};
+
+BoardModel.prototype.setSelectedDirectory = function(path) {
+    if (path == '/') {
+        path += ' (All file on the board)';
+    }
+
+    this.selectedDirectory(path);
+};
+
+BoardModel.prototype.populateFilesTree = function() {
+    // self alias
+    var self = this;
+
+    // get trees
+    var dirsTree  = this.dirsTree();
+    var filesTree = this.filesTree();
+
+    // init dirs tree
+    $('#board-dirs-tree').treeview({
+        data          : dirsTree,
+        levels        : 10,
+        showTags      : true,
+        onNodeSelected: function(event, node) {
+            // update selected directory path
+            self.setSelectedDirectory(node.node.path);
+
+            // filter the files tree
+            var newFilesTree = filesTree.filter(function(fileNode) {
+                return fileNode.node.root == node.node.path;
+            });
+
+            // init files tree
+            $('#board-files-tree').treeview({ data: newFilesTree, showTags: true });
+        }
+    });
+
+    // init files tree
+    $('#board-files-tree').treeview({ data: filesTree, showTags: true });
+};
+
+BoardModel.prototype.refreshFilesTree = function(board, event) {
+    // self alias
+    var self = this;
+
+    // set we wait for files list
+    self.waitFilesTree(true);
+
+    var filesTree = null;
+    var dirsTree  = null;
+
+    // get all files or directories
+    self.board.lsAll().then(function(event) {
+        //console.info('lsAll:', event.name, event.data);
+        var ft = self._makeFilesTree(event.data);
+        filesTree = ft.files;
+        dirsTree  = ft.dirs;
+    })
+    .catch(function(event) {
+        //console.error('lsAll:', event.name, event);
+    })
+    .then(function(event) {
+        self.updateState();
+        self.dirsTree(dirsTree);
+        self.filesTree(filesTree);
+        self.waitFilesTree(false);
+        self.populateFilesTree();
+    });
+};
+
 // -----------------------------------------------------------------------------
 // boards model
 // -----------------------------------------------------------------------------
@@ -376,6 +540,7 @@ model.boards = {
 
     selectBoard: function(boardModel, event) {
         model.boards.selectedBoard(boardModel);
+        boardModel.populateFilesTree();
         store.set('boards.selected', boardModel.board.address);
     }
 };
@@ -428,7 +593,9 @@ for (var i = 0; i < boardsAddresses.length; i++) {
         model.boards.autoloadAddresses.remove(event.board.address);
         // if it is the last selected board
         if (event.board.address == boardsSelected) {
-            model.boards.selectedBoard(model.boards.getBoard(boardsSelected));
+            var board = model.boards.getBoard(boardsSelected);
+            model.boards.selectedBoard(board);
+            board.refreshFilesTree();
         }
     });
 }

@@ -174,3 +174,9 @@
 #board .tab-content {
     margin-top: 10px;
 }
+
+/* board: files */
+
+#board-files-pane h3 {
+    margin-top: 0;
+}

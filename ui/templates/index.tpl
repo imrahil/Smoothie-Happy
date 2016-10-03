@@ -9,6 +9,7 @@
         <meta name="description" content="{$description}">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
+        <link rel="stylesheet" type="text/css" href="vendor/bootstrap-treeview/bootstrap-treeview.min.css?v=1.2.0" />
         <link rel="stylesheet" type="text/css" href="style.css?v={$version}&amp;b={$build}" />
     </head>
     <body id="{$id}">
@@ -37,6 +38,7 @@
         <script src="vendor/jquery.min.js?v=2.2.3"></script>
         <script src="vendor/knockout.min.js?v=3.4.0"></script>
         <script src="vendor/bootstrap/js/bootstrap.min.js?v=3.3.5"></script>
+        <script src="vendor/bootstrap-treeview/bootstrap-treeview.min.js?v=1.2.0"></script>
         <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="dist/smoothie-happy.js?v={$version}&amp;b={$build}"></script>
