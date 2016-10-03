@@ -272,9 +272,13 @@ BoardModel.prototype.populateFilesTree = function() {
             self.setSelectedDirectory(node.node.path);
 
             // filter the files tree
-            var newFilesTree = filesTree.filter(function(fileNode) {
-                return fileNode.node.root == node.node.path;
-            });
+            var newFilesTree = filesTree;
+
+            if (node.node.path != '/') {
+                newFilesTree = filesTree.filter(function(fileNode) {
+                    return fileNode.node.root == node.node.path;
+                });
+            }
 
             // init files tree
             $('#board-files-tree').treeview({ data: newFilesTree, showTags: true });
