@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    f295b9fdd561c9ed1159d1973130aed1
-* @date     Mon, 03 Oct 2016 15:58:23 +0000
+* @build    1088dc74a851c244ac641f6819bbc789
+* @date     Mon, 03 Oct 2016 16:23:33 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -181,14 +181,17 @@ var BoardModel = function(board) {
     self.info = ko.observable(board.info);
 
     // set initial board state
-    self.online        = ko.observable(board.online);
-    self.connected     = ko.observable(board.connected);
-    self.waitConnect   = ko.observable(false);
-    self.waitLookup    = ko.observable(false);
-    self.waitFilesTree = ko.observable(false);
-    self.filesTree     = ko.observableArray();
-    self.dirsTree      = ko.observableArray();
+    self.online            = ko.observable(board.online);
+    self.connected         = ko.observable(board.connected);
+    self.waitConnect       = ko.observable(false);
+    self.waitLookup        = ko.observable(false);
+    self.waitFilesTree     = ko.observable(false);
+    self.filesTree         = ko.observableArray();
+    self.dirsTree          = ko.observableArray();
+    self.selectedDirectory = ko.observable();
 
+    // set default directory
+    self.setSelectedDirectory('/');
 
     // get board tooltip text
     self.tooltip = ko.pureComputed(function() {
@@ -332,6 +335,8 @@ BoardModel.prototype._makeFileNode = function(node) {
         'size: ' + node.node.size
     ];
 
+    node.state = { selected: !node.node.root };
+
     return node;
 };
 
@@ -404,19 +409,42 @@ BoardModel.prototype._makeFilesTree = function(nodes) {
     };
 };
 
-BoardModel.prototype._populateFilesTree = function(board, event) {
+BoardModel.prototype.setSelectedDirectory = function(path) {
+    if (path == '/') {
+        path += ' (All file on the board)';
+    }
+
+    this.selectedDirectory(path);
+};
+
+BoardModel.prototype.populateFilesTree = function() {
+    // self alias
+    var self = this;
+
+    // get trees
     var dirsTree  = this.dirsTree();
     var filesTree = this.filesTree();
 
+    // init dirs tree
     $('#board-dirs-tree').treeview({
         data          : dirsTree,
         levels        : 10,
         showTags      : true,
         onNodeSelected: function(event, node) {
-            console.log(node.text);
+            // update selected directory path
+            self.setSelectedDirectory(node.node.path);
+
+            // filter the files tree
+            var newFilesTree = filesTree.filter(function(fileNode) {
+                return fileNode.node.root == node.node.path;
+            });
+
+            // init files tree
+            $('#board-files-tree').treeview({ data: newFilesTree, showTags: true });
         }
     });
 
+    // init files tree
     $('#board-files-tree').treeview({ data: filesTree, showTags: true });
 };
 
@@ -445,7 +473,7 @@ BoardModel.prototype.refreshFilesTree = function(board, event) {
         self.dirsTree(dirsTree);
         self.filesTree(filesTree);
         self.waitFilesTree(false);
-        self._populateFilesTree();
+        self.populateFilesTree();
     });
 };
 
@@ -512,7 +540,7 @@ model.boards = {
 
     selectBoard: function(boardModel, event) {
         model.boards.selectedBoard(boardModel);
-        boardModel._populateFilesTree();
+        boardModel.populateFilesTree();
         store.set('boards.selected', boardModel.board.address);
     }
 };

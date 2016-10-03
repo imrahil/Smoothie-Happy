@@ -31,7 +31,7 @@
         <div id="board-dirs-tree"></div>
     </div>
     <div class="col-xs-12 col-md-8">
-        <h3>Files</h3>
+        <h3>Files : <span data-bind="text: selectedDirectory"></span></h3>
         <div id="board-files-tree"></div>
     </div>
 </div>
