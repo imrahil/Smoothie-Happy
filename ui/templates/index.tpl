@@ -26,10 +26,12 @@
         <div id="body" class="container-fluid">
             <div class="row">
                 <div class="col-xs-12 col-sm-6 col-md-4">
-                    {$scanner_template}
-                    {$boards_template}
+                    {$scanner.tpl}
+                    {$boards.tpl}
                 </div>
-                <div class="col-xs-12 col-sm-6 col-md-8">...</div>
+                <div class="col-xs-12 col-sm-6 col-md-8">
+                    {$board.tpl}
+                </div>
             </div>
         </div>
         <script src="vendor/jquery.min.js?v=2.2.3"></script>

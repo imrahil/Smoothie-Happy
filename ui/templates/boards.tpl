@@ -1,10 +1,10 @@
 <div id="boards" data-bind="with: boards" class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">
-            <i class="fa fa-rocket"></i> Boards
             <a class="pull-right" role="button" data-toggle="modal" data-target="#boards-help">
                 <i class="text-primary fa fa-question-circle-o"></i>
             </a>
+            <i class="fa fa-rocket"></i> Boards
         </h3>
     </div>
     <div class="panel-body">
@@ -33,7 +33,7 @@
                     data-toggle="tooltip"
                     data-placement="top"
                     type="text"
-                    class="form-control" />
+                    class="form-control truncate" />
                     <!-- ko if: online -->
                     <!-- ko ifnot: connected -->
                     <span class="input-group-btn">
@@ -77,24 +77,8 @@
                             </h4>
                         </div>
                         <div class="modal-body">
-                            <!-- ko ifnot: online -->
-                            <div class="alert alert-warning" role="alert">
-                                <strong>Oups!</strong> This board seems to be offline. Please, click ont the
-                                <button data-bind="click: lookup" type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
-                                    <i class="fa fa-search"></i> Lookup
-                                </button> button to try to reach it.
-                            </div>
-                            <!-- /ko -->
-                            <!-- ko if: info -->
-                            <table class="table table-bordered">
-                                <tbody data-bind="with: info">
-                                    <tr><th>Address</th><td><span data-bind="text: $parent.board.address"></span></td></tr>
-                                    <tr><th>Branch</th><td><span data-bind="text: branch"></span> (#<span data-bind="text: hash"></span>)</td></tr>
-                                    <tr><th>Date</th><td><span data-bind="text: date"></span></td></tr>
-                                    <tr><th>MCU</th><td><span data-bind="text: mcu"></span> at <span data-bind="text: clock"></span></td></tr>
-                                </tbody>
-                            </table>
-                            <!-- /ko -->
+                        {$board-offline.tpl}
+                        {$board-info.tpl}
                         </div>
                     </div>
                 </div>

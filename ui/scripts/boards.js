@@ -6,6 +6,8 @@ model.boards = {
     knownBoards      : ko.observableArray(),
     knownAddresses   : ko.observableArray(),
     autoloadAddresses: ko.observableArray(),
+    selectedBoardName: ko.observable(''),
+    selectedBoard    : ko.observable(),
 
     autoloadProgression: ko.pureComputed(function() {
         return model.boards.knownAddresses().length
@@ -56,5 +58,10 @@ model.boards = {
         if (addresses.indexOf(board.address) == -1) {
             store.push('boards.addresses', board.address);
         }
+    },
+
+    selectBoard: function(boardModel, event) {
+        model.boards.selectedBoard(boardModel);
+        model.boards.selectedBoardName(boardModel.name());
     }
 };

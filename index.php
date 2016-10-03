@@ -352,6 +352,7 @@ if (! cache($main_js_template) || $update_main_js_template) {
 // compile templates file
 // -----------------------------------------------------------------------------
 $update_index_template = false;
+$templates_buffers     = [];
 
 foreach (glob($templates_path . '/*.tpl') as $template_path) {
     // skip main template
@@ -360,25 +361,33 @@ foreach (glob($templates_path . '/*.tpl') as $template_path) {
         $template_buffer = cache($template_path);
 
         // create template tag name
-        $template_name = substr(basename($template_path), 0, -4) . '_template';
+        $template_name = basename($template_path);
 
         // compile template buffer
         if (! $template_buffer) {
             // force to rebuild main template
             $update_index_template = true;
 
-            // get and parse template contents
+            // get template contents
             $template_buffer = file_get_contents($template_path);
             $template_buffer = tags_replace($settings, $template_buffer);
             $template_buffer = trim($template_buffer) . "\n";
-
-            // update cache
-            cache($template_path, $template_buffer);
         }
 
-        // add/update tag to settings
-        $settings[$template_name] = $template_buffer;
+        // add/update tag to templates buffers list
+        $templates_buffers[$template_name] = $template_buffer;
     }
+}
+
+foreach ($templates_buffers as $template_name => $template_buffer) {
+    // parse template buffer tags
+    $template_buffer = tags_replace($templates_buffers, $template_buffer);
+
+    // save parsed template buffer in settings
+    $settings[$template_name] = $template_buffer;
+
+    // update cache
+    cache($templates_path . '/' . $template_name, $template_buffer);
 }
 
 // -----------------------------------------------------------------------------
