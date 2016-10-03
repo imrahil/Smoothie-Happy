@@ -1,4 +1,4 @@
-<div id="scanner" class="panel panel-default">
+<div id="scanner" data-bind="with: scanner" class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">
             <i class="fa fa-search"></i> Scanner
@@ -13,28 +13,28 @@
                 <input data-bind="value: input" type="text" class="form-control" placeholder="192.168.1.*" />
                 <!-- ko ifnot: scanning -->
                 <span class="input-group-btn">
-                    <button data-bind="click: start" class="btn btn-sm btn-success" type="button">
+                    <button data-bind="click: start" class="btn btn-sm btn-success w70" type="button">
                         Start
                     </button>
                 </span>
                 <!-- /ko -->
                 <!-- ko if: scanning -->
-                <!-- ko ifnot: in_pause -->
+                <!-- ko ifnot: paused -->
                 <span class="input-group-btn">
-                    <button data-bind="click: pause" class="btn btn-sm btn-warning" type="button">
+                    <button data-bind="click: pause" class="btn btn-sm btn-warning w70" type="button">
                         Pause
                     </button>
                 </span>
                 <!-- /ko -->
-                <!-- ko if: in_pause -->
+                <!-- ko if: paused -->
                 <span class="input-group-btn">
-                    <button data-bind="click: resume" class="btn btn-sm btn-success" type="button">
+                    <button data-bind="click: resume" class="btn btn-sm btn-success w70" type="button">
                         Resume
                     </button>
                 </span>
                 <!-- /ko -->
                 <span class="input-group-btn">
-                    <button data-bind="click: stop" class="btn btn-sm btn-danger" type="button">
+                    <button data-bind="click: stop" class="btn btn-sm btn-danger w70" type="button">
                         Stop
                     </button>
                 </span>

@@ -1,13 +1,23 @@
 /* global */
 
 #body {
-    padding: 10px;
-    margin-top: 50px;
+    margin-top: 65px;
 }
 
 *[class^='xdebug-'] {
     position: relative;
     z-index: 9999;
+}
+
+.w70  { width: 70px; }
+.w80  { width: 80px; }
+.w90  { width: 90px; }
+.w100 { width: 100px; }
+
+.truncate {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 /* navbar */
@@ -120,4 +130,47 @@
 
 .form-group:last-child {
     margin-bottom: 0;
+}
+
+/* boards */
+
+#boards li {
+    line-height: 30px;
+}
+
+#boards .tooltip-inner {
+    max-width: 350px;
+    text-align: left;
+}
+
+/* board */
+
+#board a.dropdown-toggle {
+    text-decoration: none;
+}
+
+#board .dropdown-menu {
+    padding: 0;
+}
+
+#board .dropdown-menu li a {
+    padding: 10px;
+}
+
+#board .dropdown-menu li.divider {
+    margin: 0;
+}
+
+#board .dropdown-menu li.divider:last-child {
+    display: none;
+}
+
+#board .name.truncate {
+    vertical-align: top;
+    display: inline-block;
+    max-width: calc(100% - 190px);
+}
+
+#board .tab-content {
+    margin-top: 10px;
 }

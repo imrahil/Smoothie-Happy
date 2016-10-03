@@ -1,0 +1,3 @@
+<!-- ko if: online -->
+jog config...
+<!-- /ko -->

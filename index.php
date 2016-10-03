@@ -26,12 +26,15 @@ $settings = [
 $library_template = './src/smoothie-happy.js';
 $library_file     = './dist/smoothie-happy.js';
 
-// templates path
-$templates_path = './templates';
+// UI templates/scripts path
+$scripts_path   = './ui/scripts';
+$templates_path = './ui/templates';
 
 // index template
-$index_template = 'index.tpl';
-$index_file     = './index.html';
+$main_js_template = 'main.js';
+$index_template   = 'index.tpl';
+$index_file       = './index.html';
+$main_js_file     = './main.js';
 
 // examples file
 $example_file = './examples.js';
@@ -73,9 +76,14 @@ if (! is_dir($library_directory)) {
     throw new Exception('$library_directory [ ' . $library_directory . ' ] is not a directory.');
 }
 
-// index paths
-$index_directory = dirname($index_file);
+// scripts paths
+if (! is_dir($scripts_path)) {
+    throw new Exception('$scripts_path [ ' . $scripts_path . ' ] is not a directory.');
+}
 
+$main_js_template = $scripts_path . '/' . $main_js_template;
+
+// template paths
 if (! is_dir($templates_path)) {
     throw new Exception('$templates_path [ ' . $templates_path . ' ] is not a directory.');
 }
@@ -85,6 +93,9 @@ $index_template = $templates_path . '/' . $index_template;
 if (! is_file($index_template)) {
     throw new Exception('$index_template [ ' . $index_template . ' ] is not a file');
 }
+
+// index paths
+$index_directory = dirname($index_file);
 
 if (! is_dir($index_directory)) {
     throw new Exception('$index_directory [ ' . $index_directory . ' ] is not a directory.');
@@ -223,7 +234,7 @@ if (! $examples) {
         $examples[$path][] = $example;
     }
 
-    // cache...
+    // update cache
     cache($example_file, $examples);
 }
 
@@ -269,6 +280,7 @@ foreach ($modules as $module) {
             return preg_replace('/^([^\n]*)$/m', '    * $1', trim($buffer));
         }, $module_buffer);
 
+        // update cache
         cache($module_template, $module_buffer);
     }
 
@@ -290,6 +302,58 @@ file_put_contents($library_file, trim($library_buffer) . "\n");
 // -----------------------------------------------------------------------------
 // compile templates file
 // -----------------------------------------------------------------------------
+$update_main_js_template = false;
+
+foreach (glob($scripts_path . '/*.js') as $script_path) {
+    // skip main template
+    if ($script_path != $main_js_template) {
+        // create template tag name
+        $script_name = basename($script_path);
+
+        // get cached template
+        $script_buffer = cache($script_path);
+
+        // compile template buffer
+        if (! $script_buffer) {
+            // force main js update
+            $update_main_js_template = true;
+
+            // get and parse template contents
+            $script_buffer = file_get_contents($script_path);
+            $script_buffer = tags_replace($settings, $script_buffer);
+            $script_buffer = trim($script_buffer) . "\n";
+
+            // update cache
+            cache($script_path, $script_buffer);
+        }
+
+        // add/update tag to settings
+        $settings[$script_name] = $script_buffer;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// compile index JS file
+// -----------------------------------------------------------------------------
+if (! cache($main_js_template) || $update_main_js_template) {
+    // get and parse the input buffer
+    $main_js_template_buffer = file_get_contents($main_js_template);
+    $main_js_template_buffer = tags_replace($settings, $main_js_template_buffer);
+    $main_js_template_buffer = trim($main_js_template_buffer) . "\n";
+
+    // write the buffer to output file
+    file_put_contents($main_js_file, $main_js_template_buffer);
+
+    // update cache
+    cache($main_js_template, $main_js_template_buffer);
+}
+
+// -----------------------------------------------------------------------------
+// compile templates file
+// -----------------------------------------------------------------------------
+$update_index_template = false;
+$templates_buffers     = [];
+
 foreach (glob($templates_path . '/*.tpl') as $template_path) {
     // skip main template
     if ($template_path != $index_template) {
@@ -297,35 +361,49 @@ foreach (glob($templates_path . '/*.tpl') as $template_path) {
         $template_buffer = cache($template_path);
 
         // create template tag name
-        $template_name = substr(basename($template_path), 0, -4) . '_template';
+        $template_name = basename($template_path);
 
         // compile template buffer
         if (! $template_buffer) {
             // force to rebuild main template
-            $noCache = true;
+            $update_index_template = true;
 
-            // get and parse template contents
+            // get template contents
             $template_buffer = file_get_contents($template_path);
             $template_buffer = tags_replace($settings, $template_buffer);
+            $template_buffer = trim($template_buffer) . "\n";
         }
 
-        // add/update tag to settings
-        $settings[$template_name] = $template_buffer;
+        // add/update tag to templates buffers list
+        $templates_buffers[$template_name] = $template_buffer;
     }
+}
+
+foreach ($templates_buffers as $template_name => $template_buffer) {
+    // parse template buffer tags
+    $template_buffer = tags_replace($templates_buffers, $template_buffer);
+
+    // save parsed template buffer in settings
+    $settings[$template_name] = $template_buffer;
+
+    // update cache
+    cache($templates_path . '/' . $template_name, $template_buffer);
 }
 
 // -----------------------------------------------------------------------------
 // compile index file
 // -----------------------------------------------------------------------------
-if (! cache($index_template)) {
+if (! cache($index_template) || $update_index_template) {
     // get and parse the input buffer
     $index_buffer = file_get_contents($index_template);
     $index_buffer = tags_replace($settings, $index_buffer);
+    $index_buffer = trim($index_buffer) . "\n";
 
     // write the buffer to output file
-    file_put_contents($index_file, trim($index_buffer) . "\n");
+    file_put_contents($index_file, $index_buffer);
 
-    cache($index_template, true);
+    // update cache
+    cache($index_template, $index_buffer);
 }
 
 // -----------------------------------------------------------------------------
@@ -348,22 +426,26 @@ if (! cache($docs_directory . '/jsdoc.tpl.json')) {
     // get and parse the input buffer
     $jsdoc_buffer = file_get_contents($docs_directory . '/jsdoc.tpl.json');
     $jsdoc_buffer = tags_replace($settings, $jsdoc_buffer);
+    $jsdoc_buffer = trim($jsdoc_buffer) . "\n";
 
     // write the buffer to output file
-    file_put_contents($docs_directory . '/jsdoc.json', trim($jsdoc_buffer) . "\n");
+    file_put_contents($docs_directory . '/jsdoc.json', $jsdoc_buffer);
 
-    cache($docs_directory . '/jsdoc.tpl.json', true);
+    // update cache
+    cache($docs_directory . '/jsdoc.tpl.json', $jsdoc_buffer);
 }
 
 if (! cache($docs_directory . '/package.tpl.json')) {
     // get and parse the input buffer
     $package_buffer = file_get_contents($docs_directory . '/package.tpl.json');
     $package_buffer = tags_replace($settings, $package_buffer);
+    $package_buffer = trim($package_buffer) . "\n";
 
     // write the buffer to output file
-    file_put_contents($docs_directory . '/package.json', trim($package_buffer) . "\n");
+    file_put_contents($docs_directory . '/package.json', $package_buffer);
 
-    cache($docs_directory . '/package.tpl.json', true);
+    // update cache
+    cache($docs_directory . '/package.tpl.json', $package_buffer);
 }
 
 // -----------------------------------------------------------------------------
