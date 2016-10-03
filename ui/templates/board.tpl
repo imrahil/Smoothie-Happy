@@ -42,21 +42,40 @@
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
-                    <a href="#board-info-pane" aria-controls="board-info-pane" role="tab" data-toggle="tab">Info</a>
+                    <a href="#board-files-pane" aria-controls="board-files-pane" role="tab" data-toggle="tab">
+                        <i class="text-primary fa fa-folder-open"></i> Files
+                    </a>
                 </li>
-                <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
-                <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
-                <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
+                <li role="presentation">
+                    <a href="#board-jog-pane" aria-controls="board-jog-pane" role="tab" data-toggle="tab">
+                        <i class="text-primary fa fa-cog"></i> Jog
+                    </a>
+                </li>
+                <li role="presentation">
+                    <a href="#board-config-pane" aria-controls="board-config-pane" role="tab" data-toggle="tab">
+                        <i class="text-primary fa fa-cog"></i> Config
+                    </a>
+                </li>
+                <li role="presentation">
+                    <a href="#board-info-pane" aria-controls="board-info-pane" role="tab" data-toggle="tab">
+                        <i class="text-primary fa fa-question-circle-o"></i> Info
+                    </a>
+                </li>
             </ul>
-
             <!-- Tab panes -->
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="board-info-pane">
+                <div role="tabpanel" class="tab-pane active" id="board-files-pane">
+                    {$board-files.tpl}
+                </div>
+                <div role="tabpanel" class="tab-pane" id="board-jog-pane">
+                    {$board-jog.tpl}
+                </div>
+                <div role="tabpanel" class="tab-pane" id="board-config-pane">
+                    {$board-config.tpl}
+                </div>
+                <div role="tabpanel" class="tab-pane" id="board-info-pane">
                     {$board-info.tpl}
                 </div>
-                <div role="tabpanel" class="tab-pane" id="profile">...</div>
-                <div role="tabpanel" class="tab-pane" id="messages">...</div>
-                <div role="tabpanel" class="tab-pane" id="settings">...</div>
             </div>
         </div>
         <!-- /ko -->
