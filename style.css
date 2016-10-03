@@ -145,6 +145,10 @@
 
 /* board */
 
+#board a.dropdown-toggle {
+    text-decoration: none;
+}
+
 #board .dropdown-menu {
     padding: 0;
 }

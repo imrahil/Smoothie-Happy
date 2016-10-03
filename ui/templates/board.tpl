@@ -29,7 +29,7 @@
         </h3>
     </div>
     <div class="panel-body">
-        <!-- ko if: knownBoards().length && !selectedBoardName() -->
+        <!-- ko if: knownBoards().length && !selectedBoard() -->
         <div class="alert alert-warning" role="alert">
             <strong>No board selected!</strong> Please select a board to play with.
         </div>

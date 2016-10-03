@@ -7,6 +7,9 @@ ko.applyBindings(model);
 // autoload known boards at startup
 // -----------------------------------------------------------------------------
 
+// get the last selected board
+var boardsSelected = store.get('boards.selected', null);
+
 // get known boards addresses
 var boardsAddresses = store.get('boards.addresses', []);
 var boardAddress    = null;
@@ -41,5 +44,9 @@ for (var i = 0; i < boardsAddresses.length; i++) {
         model.boards.addBoard(event.board);
         // remove address from autoload collection
         model.boards.autoloadAddresses.remove(event.board.address);
+        // if it is the last selected board
+        if (event.board.address == boardsSelected) {
+            model.boards.selectedBoard(model.boards.getBoard(boardsSelected));
+        }
     });
 }

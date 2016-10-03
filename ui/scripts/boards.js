@@ -6,7 +6,6 @@ model.boards = {
     knownBoards      : ko.observableArray(),
     knownAddresses   : ko.observableArray(),
     autoloadAddresses: ko.observableArray(),
-    selectedBoardName: ko.observable(''),
     selectedBoard    : ko.observable(),
 
     autoloadProgression: ko.pureComputed(function() {
@@ -62,6 +61,6 @@ model.boards = {
 
     selectBoard: function(boardModel, event) {
         model.boards.selectedBoard(boardModel);
-        model.boards.selectedBoardName(boardModel.name());
+        store.set('boards.selected', boardModel.board.address);
     }
 };

@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    539f2a86a1fc394b2c05628627914569
-* @date     Mon, 03 Oct 2016 11:00:16 +0000
+* @build    516d9795bfcfe438c67579f376b4143b
+* @date     Mon, 03 Oct 2016 11:22:20 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -321,7 +321,6 @@ model.boards = {
     knownBoards      : ko.observableArray(),
     knownAddresses   : ko.observableArray(),
     autoloadAddresses: ko.observableArray(),
-    selectedBoardName: ko.observable(''),
     selectedBoard    : ko.observable(),
 
     autoloadProgression: ko.pureComputed(function() {
@@ -377,7 +376,7 @@ model.boards = {
 
     selectBoard: function(boardModel, event) {
         model.boards.selectedBoard(boardModel);
-        model.boards.selectedBoardName(boardModel.name());
+        store.set('boards.selected', boardModel.board.address);
     }
 };
 
@@ -389,6 +388,9 @@ ko.applyBindings(model);
 // -----------------------------------------------------------------------------
 // autoload known boards at startup
 // -----------------------------------------------------------------------------
+
+// get the last selected board
+var boardsSelected = store.get('boards.selected', null);
 
 // get known boards addresses
 var boardsAddresses = store.get('boards.addresses', []);
@@ -424,6 +426,10 @@ for (var i = 0; i < boardsAddresses.length; i++) {
         model.boards.addBoard(event.board);
         // remove address from autoload collection
         model.boards.autoloadAddresses.remove(event.board.address);
+        // if it is the last selected board
+        if (event.board.address == boardsSelected) {
+            model.boards.selectedBoard(model.boards.getBoard(boardsSelected));
+        }
     });
 }
 
