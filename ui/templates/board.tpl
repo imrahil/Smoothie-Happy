@@ -36,7 +36,9 @@
         <!-- /ko -->
         <!-- ko if: selectedBoard -->
         <!-- ko with: selectedBoard -->
+        <!-- ko ifnot: online -->
         {$board-offline.tpl}
+        <!-- /ko -->
         <!-- ko if: online -->
         <div>
             <!-- Nav tabs -->

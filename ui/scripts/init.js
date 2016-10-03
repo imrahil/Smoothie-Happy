@@ -46,7 +46,9 @@ for (var i = 0; i < boardsAddresses.length; i++) {
         model.boards.autoloadAddresses.remove(event.board.address);
         // if it is the last selected board
         if (event.board.address == boardsSelected) {
-            model.boards.selectedBoard(model.boards.getBoard(boardsSelected));
+            var board = model.boards.getBoard(boardsSelected);
+            model.boards.selectedBoard(board);
+            board.refreshFilesTree();
         }
     });
 }

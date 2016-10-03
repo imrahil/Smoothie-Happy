@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    f8a373714e961e623c9c631096410d71
-* @date     Mon, 03 Oct 2016 11:26:46 +0000
+* @build    f295b9fdd561c9ed1159d1973130aed1
+* @date     Mon, 03 Oct 2016 15:58:23 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -25,7 +25,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = 'f8a373714e961e623c9c631096410d71';
+    sh.build = 'f295b9fdd561c9ed1159d1973130aed1';
 
     /**
     * @property {String} id API id.
@@ -1434,7 +1434,7 @@ var sh = sh || {};
             directory = null;
 
             // update directories size
-            for (var i = tree.length - 1; i > 0; i--) {
+            for (var i = tree.length - 1; i >= 0; i--) {
                 // current file
                 file = tree[i];
 

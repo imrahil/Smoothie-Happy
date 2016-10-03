@@ -9,7 +9,8 @@
         <meta name="description" content="A SmoothieBoard network communication API">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=f8a373714e961e623c9c631096410d71" />
+        <link rel="stylesheet" type="text/css" href="vendor/bootstrap-treeview/bootstrap-treeview.min.css?v=1.2.0" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=f295b9fdd561c9ed1159d1973130aed1" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -193,16 +194,16 @@
                         </div>
                         <div class="modal-body">
                         <!-- ko ifnot: online -->
-<div class="alert alert-warning" role="alert">
+                        <div class="alert alert-warning" role="alert">
     <strong>Oups!</strong> This board seems to be offline. Please, click ont the
     <button data-bind="click: lookup" type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
         <i class="fa fa-search"></i> Lookup
     </button> button to try to reach it.
 </div>
-<!-- /ko -->
 
+                        <!-- /ko -->
                         <!-- ko if: info -->
-<table class="table table-bordered">
+                        <table class="table table-bordered">
     <tbody data-bind="with: info">
         <tr><th>Address</th><td><span data-bind="text: $parent.board.address"></span></td></tr>
         <tr><th>Branch</th><td><span data-bind="text: branch"></span> (#<span data-bind="text: hash"></span>)</td></tr>
@@ -210,8 +211,8 @@
         <tr><th>MCU</th><td><span data-bind="text: mcu"></span> at <span data-bind="text: clock"></span></td></tr>
     </tbody>
 </table>
-<!-- /ko -->
 
+                        <!-- /ko -->
                         </div>
                     </div>
                 </div>
@@ -283,14 +284,14 @@
         <!-- ko if: selectedBoard -->
         <!-- ko with: selectedBoard -->
         <!-- ko ifnot: online -->
-<div class="alert alert-warning" role="alert">
+        <div class="alert alert-warning" role="alert">
     <strong>Oups!</strong> This board seems to be offline. Please, click ont the
     <button data-bind="click: lookup" type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
         <i class="fa fa-search"></i> Lookup
     </button> button to try to reach it.
 </div>
-<!-- /ko -->
 
+        <!-- /ko -->
         <!-- ko if: online -->
         <div>
             <!-- Nav tabs -->
@@ -319,26 +320,57 @@
             <!-- Tab panes -->
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="board-files-pane">
-                    <!-- ko if: online -->
-files pane...
+                    <div class="btn-group" role="group">
+    <button data-bind="disable: waitFilesTree, click: refreshFilesTree" type="button" class="btn btn-default">
+        <i class="fa fa-refresh"></i> Refresh
+    </button>
+    <button type="button" class="btn btn-default">
+        <i class="fa fa-upload"></i> Upload
+    </button>
+</div>
+
+<hr />
+
+<!-- ko if: waitFilesTree -->
+<div class="alert alert-info" role="alert">
+    <i class="fa fa-spinner fa-pulse fa-fw"></i>
+    <strong>Please wait...</strong> Loading the file list. Thanks to be patient, this can take some time.
+</div>
+<!-- /ko -->
+
+<!-- ko ifnot: waitFilesTree -->
+<!-- ko ifnot: filesTree().length -->
+<div class="alert alert-warning" role="alert">
+    <strong>No files or directories found!</strong> Please click ont the <button data-bind="click: refreshFilesTree" type="button" class="btn btn-default">
+        <i class="fa fa-refresh"></i> Refresh
+    </button> button to list all files on your board.
+</div>
+<!-- /ko -->
+<!-- ko if: filesTree().length -->
+<div class="row">
+    <div class="col-xs-12 col-md-4">
+        <h3>Directories</h3>
+        <div id="board-dirs-tree"></div>
+    </div>
+    <div class="col-xs-12 col-md-8">
+        <h3>Files</h3>
+        <div id="board-files-tree"></div>
+    </div>
+</div>
+<!-- /ko -->
 <!-- /ko -->
 
                 </div>
                 <div role="tabpanel" class="tab-pane" id="board-jog-pane">
-                    <!-- ko if: online -->
-jog pane...
-<!-- /ko -->
+                    jog pane...
 
                 </div>
                 <div role="tabpanel" class="tab-pane" id="board-config-pane">
-                    <!-- ko if: online -->
-jog config...
-<!-- /ko -->
+                    jog config...
 
                 </div>
                 <div role="tabpanel" class="tab-pane" id="board-info-pane">
-                    <!-- ko if: info -->
-<table class="table table-bordered">
+                    <table class="table table-bordered">
     <tbody data-bind="with: info">
         <tr><th>Address</th><td><span data-bind="text: $parent.board.address"></span></td></tr>
         <tr><th>Branch</th><td><span data-bind="text: branch"></span> (#<span data-bind="text: hash"></span>)</td></tr>
@@ -346,7 +378,6 @@ jog config...
         <tr><th>MCU</th><td><span data-bind="text: mcu"></span> at <span data-bind="text: clock"></span></td></tr>
     </tbody>
 </table>
-<!-- /ko -->
 
                 </div>
             </div>
@@ -383,10 +414,11 @@ jog config...
         <script src="vendor/jquery.min.js?v=2.2.3"></script>
         <script src="vendor/knockout.min.js?v=3.4.0"></script>
         <script src="vendor/bootstrap/js/bootstrap.min.js?v=3.3.5"></script>
+        <script src="vendor/bootstrap-treeview/bootstrap-treeview.min.js?v=1.2.0"></script>
         <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=f8a373714e961e623c9c631096410d71"></script>
-        <script src="examples.js?v=0.2.0-dev&amp;b=f8a373714e961e623c9c631096410d71"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=f8a373714e961e623c9c631096410d71"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=f295b9fdd561c9ed1159d1973130aed1"></script>
+        <script src="examples.js?v=0.2.0-dev&amp;b=f295b9fdd561c9ed1159d1973130aed1"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=f295b9fdd561c9ed1159d1973130aed1"></script>
     </body>
 </html>

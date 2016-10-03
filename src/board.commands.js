@@ -277,7 +277,7 @@
             directory = null;
 
             // update directories size
-            for (var i = tree.length - 1; i > 0; i--) {
+            for (var i = tree.length - 1; i >= 0; i--) {
                 // current file
                 file = tree[i];
 
