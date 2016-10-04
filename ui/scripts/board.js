@@ -13,22 +13,29 @@ var BoardModel = function(board) {
     var names = store.get('boards.names', {});
     var name  = names[board.address] || board.address;
 
-    // set initial board info
-    self.name = ko.observable(name);
-    self.info = ko.observable(board.info);
-
     // set initial board state
-    self.online            = ko.observable(board.online);
-    self.connected         = ko.observable(board.connected);
-    self.waitConnect       = ko.observable(false);
-    self.waitLookup        = ko.observable(false);
-    self.waitFilesTree     = ko.observable(false);
-    self.filesTree         = ko.observableArray();
-    self.dirsTree          = ko.observableArray();
-    self.selectedDirectory = ko.observable();
+    self.name                  = ko.observable(name);
+    self.info                  = ko.observable(board.info);
+    self.online                = ko.observable(board.online);
+    self.connected             = ko.observable(board.connected);
+    self.waitConnect           = ko.observable(false);
+    self.waitLookup            = ko.observable(false);
+    self.waitFilesTree         = ko.observable(false);
+    self.filesTree             = ko.observableArray();
+    self.dirsTree              = ko.observableArray();
+    self.selectedDirectoryText = ko.observable();
+    self.selectedDirectory     = ko.observable();
+    self.uploadFileData        = ko.observable();
+    self.uploadFileName        = ko.observable();
+    self.uploadFileSize        = ko.observable();
 
     // set default directory
     self.setSelectedDirectory('/');
+
+    // get board tooltip text
+    self.uploadEnabled = ko.pureComputed(function() {
+        return self.dirsTree().length && self.selectedDirectory() != '/';
+    });
 
     // get board tooltip text
     self.tooltip = ko.pureComputed(function() {
@@ -268,11 +275,13 @@ BoardModel.prototype._makeFilesTree = function(nodes) {
 };
 
 BoardModel.prototype.setSelectedDirectory = function(path) {
+    this.selectedDirectory(path);
+
     if (path == '/') {
         path += ' (All files on the board)';
     }
 
-    this.selectedDirectory(path);
+    this.selectedDirectoryText(path);
 };
 
 BoardModel.prototype.populateFilesTree = function() {
@@ -329,7 +338,7 @@ BoardModel.prototype.refreshFilesTree = function(board, event) {
     var dirsTree  = null;
 
     // get all files or directories
-    self.board.lsAll().then(function(event) {
+    self.board.lsAll('/').then(function(event) {
         //console.info('lsAll:', event.name, event.data);
         var ft = self._makeFilesTree(event.data);
         filesTree = ft.files;
@@ -344,5 +353,42 @@ BoardModel.prototype.refreshFilesTree = function(board, event) {
         self.filesTree(filesTree);
         self.waitFilesTree(false);
         self.populateFilesTree();
+    });
+};
+
+BoardModel.prototype.uploadFile = function(board, event) {
+    var file = event.target.files[0];
+    event.target.value = null; // allow upload same file name next time
+
+    this.uploadFileData(file);
+    this.uploadFileName(file.name);
+    this.uploadFileSize(filesize(file.size));
+    $('#board-upload-modal').modal('show');
+};
+
+BoardModel.prototype.sendFile = function(board, event) {
+    // self alias
+    var self = this;
+
+    // file path and data
+    var file = self.uploadFileData();
+    var name = self.uploadFileName();
+    var path = self.selectedDirectory();
+
+    // upload timeout
+    var timeout = 0;
+
+    // upload the file to sd card
+    self.board.upload(file, name, timeout).onUploadProgress(function(event) {
+        console.info(self.board.address, '>> progress >>',  event.percent, '%');
+    })
+    .then(function(event) {
+        // move the file to target path
+        if (path != '/sd') {
+            return self.board.mv('/sd/' + name, path + '/' + name, timeout);
+        }
+
+        // resolve the promise
+        return Promise.resolve(event);
     });
 };

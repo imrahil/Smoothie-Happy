@@ -2,10 +2,34 @@
     <button data-bind="disable: waitFilesTree, click: refreshFilesTree" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
-    <button type="button" class="btn btn-default">
-        <i class="fa fa-upload"></i> Upload
-    </button>
+    <span data-bind="css: uploadEnabled() ? '' : 'disabled'" class="btn btn-default btn-file">
+        <i class="fa fa-upload"></i> Upload <input data-bind="enable: uploadEnabled, event: { change: uploadFile }" type="file" name="file" />
+    </span>
 </div>
+
+<div id="board-upload-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    <i class="fa fa-upload"></i> File upload
+                </h4>
+            </div>
+            <div class="modal-body">
+                Upload <strong data-bind="text: uploadFileName"></strong> <small>(<span data-bind="text: uploadFileSize"></span>)</small> file
+                in to <strong data-bind="text: selectedDirectory"></strong> directory ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                    <i class="fa fa-close"></i> Dismiss
+                </button>
+                <button data-bind="click: sendFile" type="button" class="btn btn-success" data-dismiss="modal">
+                    <i class="fa fa-upload"></i> Upload
+                </button>
+            </div>
+        </div>
+    </div>
+</div><!-- #board-upload-modal -->
 
 <hr />
 
@@ -31,7 +55,7 @@
         <div id="board-dirs-tree"></div>
     </div>
     <div class="col-xs-12 col-md-8">
-        <h3>Files : <span data-bind="text: selectedDirectory"></span></h3>
+        <h3>Files : <span data-bind="text: selectedDirectoryText"></span></h3>
         <div id="board-files-tree"></div>
     </div>
 </div>

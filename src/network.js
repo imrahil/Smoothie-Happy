@@ -309,7 +309,7 @@
 
             // set request headers
             for (var header in self._headers) {
-                self._xhr.setRequestHeader(header, self._headers[key]);
+                self._xhr.setRequestHeader(header, self._headers[header]);
             }
 
             // send the request
