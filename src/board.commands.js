@@ -113,6 +113,19 @@
     };
 
     /**
+    * Return a normalized path.
+    *
+    * @method
+    *
+    * @param {String} path The path to normalize.
+    *
+    * @return {String}
+    */
+    sh.Board.prototype.normalizePath = function(path) {
+        return path.replace(/\/+$/gm, '');
+    };
+
+    /**
     * List files.
     *
     * @method
@@ -134,7 +147,7 @@
         }
 
         // remove trailing slash
-        path = path.replace(/\/+$/gm, '');
+        path = self.normalizePath(path);
 
         // get board version (raw)
         return this.command('ls -s ' + path, timeout).then(function(event) {
@@ -302,6 +315,64 @@
 
             // resolve the promise with updated tree
             return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
+        });
+    };
+
+    /**
+    * Move a file.
+    *
+    * @method
+    *
+    * @param {String}  source   Absolute source file path.
+    * @param {String}  target   Absolute target file path.
+    * @param {Integer}          [timeout] Connection timeout.
+    *
+    * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.upload}
+    */
+    sh.Board.prototype.mv = function(source, target, timeout) {
+        // remove trailing slash
+        source = this.normalizePath(source);
+        target = this.normalizePath(target);
+
+        // get board version (raw)
+        console.log('mv ' + source + ' ' + target);
+        return this.command('mv ' + source + ' ' + target, timeout);
+    };
+
+    /**
+    * Upload a file.
+    *
+    * @method
+    *
+    * @param {File|Blob|String} file       An File or Blob object. Or a string to put in the file.
+    * @param {String}           [filename] The file name. Not optional if the file param is a string.
+    * @param {Integer}          [timeout]  Connection timeout.
+    *
+    * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.upload}
+    */
+    sh.Board.prototype.upload = function(file, filename, timeout) {
+        // self alias
+        var self = this;
+
+        // file is a string
+        if (typeof file === 'string') {
+            // convert to Blob object
+            file = new Blob([file], { 'type': 'text/plain' });
+        }
+        else {
+            filename = filename || file.name;
+        }
+
+        // return POST request (promise)
+        return sh.network.post({
+            url    : 'http://' + self.address + '/upload',
+            headers: { 'X-Filename': filename },
+            timeout: timeout,
+            data   : file
         });
     };
 

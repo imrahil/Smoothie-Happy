@@ -42,10 +42,10 @@
 
         /**
         * @property {Integer} timeout Default scan response timeout in milliseconds.
-        * @default 1000
+        * @default 2000
         * @readonly
         */
-        this.timeout = settings.timeout === undefined ? 1000 : settings.timeout;
+        this.timeout = settings.timeout === undefined ? 2000 : settings.timeout;
 
         /**
         * @property {Integer} boardTimeout Default board response timeout in milliseconds.
