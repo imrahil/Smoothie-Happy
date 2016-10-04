@@ -337,7 +337,6 @@
         target = this.normalizePath(target);
 
         // get board version (raw)
-        console.log('mv ' + source + ' ' + target);
         return this.command('mv ' + source + ' ' + target, timeout);
     };
 
