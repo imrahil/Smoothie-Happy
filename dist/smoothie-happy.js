@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    56be3ac911d199805f40557728af9b5e
-* @date     Tue, 04 Oct 2016 14:35:43 +0000
+* @build    b3bca35ca1be482c2f600fc9d92fcd2c
+* @date     Tue, 04 Oct 2016 14:45:53 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -25,7 +25,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = '56be3ac911d199805f40557728af9b5e';
+    sh.build = 'b3bca35ca1be482c2f600fc9d92fcd2c';
 
     /**
     * @property {String} id API id.
@@ -1612,10 +1612,10 @@ var sh = sh || {};
 
         /**
         * @property {Integer} timeout Default scan response timeout in milliseconds.
-        * @default 1000
+        * @default 2000
         * @readonly
         */
-        this.timeout = settings.timeout === undefined ? 1000 : settings.timeout;
+        this.timeout = settings.timeout === undefined ? 2000 : settings.timeout;
 
         /**
         * @property {Integer} boardTimeout Default board response timeout in milliseconds.

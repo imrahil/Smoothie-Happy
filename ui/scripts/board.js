@@ -358,12 +358,13 @@ BoardModel.prototype.refreshFilesTree = function(board, event) {
 
 BoardModel.prototype.uploadFile = function(board, event) {
     var file = event.target.files[0];
-    event.target.value = null; // allow upload same file name next time
 
     this.uploadFileData(file);
     this.uploadFileName(file.name);
     this.uploadFileSize(filesize(file.size));
     $('#board-upload-modal').modal('show');
+
+    event.target.value = null; // allow re-uploading same filename
 };
 
 BoardModel.prototype.sendFile = function(board, event) {
