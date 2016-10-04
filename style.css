@@ -180,3 +180,7 @@
 #board-files-pane h3 {
     margin-top: 0;
 }
+
+.node-board-files-tree .icon:first-child {
+    display: none;
+}

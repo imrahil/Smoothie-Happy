@@ -158,19 +158,40 @@ BoardModel.prototype.lookup = function() {
 };
 
 BoardModel.prototype._makeFileNode = function(node) {
-    var isFile = node.type == 'file';
-    var icon   = isFile ? 'file' : 'folder';
-
     node = {
-        text        : node.name || '/',
-        icon        : 'fa fa-' + icon + '-o',
-        selectedIcon: 'fa fa-' + icon,
-        node        : node
+        text: node.name || '/',
+        node: node
     };
 
     node.tags = [
-        'size: ' + node.node.size
+        filesize(node.node.size)
     ];
+
+    if (node.node.type == 'file') {
+        var icon = 'file-o';
+        var ext  = node.text.split('.').pop();
+
+        if (ext == 'gcode' || ext == 'nc') {
+            icon = 'file-code-o';
+            //node.tags.push('P'); // printable file
+        }
+        else if (['svg', 'dxf'].indexOf(ext) != -1) {
+            icon = 'object-group';
+        }
+        else if (['png', 'jpeg', 'jpg', 'gif'].indexOf(ext) != -1) {
+            icon = 'file-image-o';
+        }
+        else if (node.text == 'config' || node.text == 'config.txt') {
+            icon = 'cogs';
+            node.tags.push('S'); // system file
+        }
+        else if (node.text == 'firmware.cur') {
+            icon = 'leaf';
+            node.tags.push('S'); // system file
+        }
+
+        node.icon = 'fa fa-fw fa-' + icon;
+    }
 
     node.state = { selected: !node.node.root };
 
@@ -248,7 +269,7 @@ BoardModel.prototype._makeFilesTree = function(nodes) {
 
 BoardModel.prototype.setSelectedDirectory = function(path) {
     if (path == '/') {
-        path += ' (All file on the board)';
+        path += ' (All files on the board)';
     }
 
     this.selectedDirectory(path);
@@ -267,6 +288,8 @@ BoardModel.prototype.populateFilesTree = function() {
         data          : dirsTree,
         levels        : 10,
         showTags      : true,
+        expandIcon    : 'fa fa-chevron-right',
+        collapseIcon  : 'fa fa-chevron-down',
         onNodeSelected: function(event, node) {
             // update selected directory path
             self.setSelectedDirectory(node.node.path);
@@ -281,12 +304,18 @@ BoardModel.prototype.populateFilesTree = function() {
             }
 
             // init files tree
-            $('#board-files-tree').treeview({ data: newFilesTree, showTags: true });
+            $('#board-files-tree').treeview({
+                data    : newFilesTree,
+                showTags: true
+            });
         }
     });
 
     // init files tree
-    $('#board-files-tree').treeview({ data: filesTree, showTags: true });
+    $('#board-files-tree').treeview({
+        data    : filesTree,
+        showTags: true
+    });
 };
 
 BoardModel.prototype.refreshFilesTree = function(board, event) {
