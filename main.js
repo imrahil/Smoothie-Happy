@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    b3bca35ca1be482c2f600fc9d92fcd2c
-* @date     Tue, 04 Oct 2016 14:45:53 +0000
+* @build    002df3a8820468f68b16d1e64689c947
+* @date     Tue, 04 Oct 2016 15:01:47 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -542,14 +542,20 @@ BoardModel.prototype.sendFile = function(board, event) {
     // upload timeout
     var timeout = 0;
 
+    // move file after upload
+    var moveFileAfterUpload = path != '/sd';
+
+    // temp name
+    var tempName = moveFileAfterUpload ? '___sh_upload___.' + name : name;
+
     // upload the file to sd card
-    self.board.upload(file, name, timeout).onUploadProgress(function(event) {
+    self.board.upload(file, tempName, timeout).onUploadProgress(function(event) {
         console.info(self.board.address, '>> progress >>',  event.percent, '%');
     })
     .then(function(event) {
         // move the file to target path
-        if (path != '/sd') {
-            return self.board.mv('/sd/' + name, path + '/' + name, timeout);
+        if (moveFileAfterUpload) {
+            return self.board.mv('/sd/' + tempName, path + '/' + name, timeout);
         }
 
         // resolve the promise

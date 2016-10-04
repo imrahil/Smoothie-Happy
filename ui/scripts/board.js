@@ -379,14 +379,20 @@ BoardModel.prototype.sendFile = function(board, event) {
     // upload timeout
     var timeout = 0;
 
+    // move file after upload
+    var moveFileAfterUpload = path != '/sd';
+
+    // temp name
+    var tempName = moveFileAfterUpload ? '___sh_upload___.' + name : name;
+
     // upload the file to sd card
-    self.board.upload(file, name, timeout).onUploadProgress(function(event) {
+    self.board.upload(file, tempName, timeout).onUploadProgress(function(event) {
         console.info(self.board.address, '>> progress >>',  event.percent, '%');
     })
     .then(function(event) {
         // move the file to target path
-        if (path != '/sd') {
-            return self.board.mv('/sd/' + name, path + '/' + name, timeout);
+        if (moveFileAfterUpload) {
+            return self.board.mv('/sd/' + tempName, path + '/' + name, timeout);
         }
 
         // resolve the promise
