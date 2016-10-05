@@ -326,11 +326,9 @@ BoardModel.prototype.populateFilesTree = function() {
         }
     });
 
-    filesTree = self.sortFilesTree(filesTree);
-
     // init files tree
     $('#board-files-tree').treeview({
-        data    : filesTree,
+        data    : self.sortFilesTree(filesTree),
         showTags: true
     });
 };
