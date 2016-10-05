@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    002df3a8820468f68b16d1e64689c947
-* @date     Tue, 04 Oct 2016 15:01:47 +0000
+* @build    ea28bf9708d170b634ce3570427c9592
+* @date     Wed, 05 Oct 2016 06:36:09 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -447,6 +447,12 @@ BoardModel.prototype.setSelectedDirectory = function(path) {
     this.selectedDirectoryText(path);
 };
 
+BoardModel.prototype.sortFilesTree = function(tree) {
+    return tree.sort(function(a, b) {
+        return (a.text < b.text) ? -1 : ((a.text > b.text) ? 1 : 0);
+    });
+};
+
 BoardModel.prototype.populateFilesTree = function() {
     // self alias
     var self = this;
@@ -477,11 +483,13 @@ BoardModel.prototype.populateFilesTree = function() {
 
             // init files tree
             $('#board-files-tree').treeview({
-                data    : newFilesTree,
+                data    : self.sortFilesTree(newFilesTree),
                 showTags: true
             });
         }
     });
+
+    filesTree = self.sortFilesTree(filesTree);
 
     // init files tree
     $('#board-files-tree').treeview({
