@@ -10,7 +10,7 @@
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap-treeview/bootstrap-treeview.min.css?v=1.2.0" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=c82f223b4d359487909ea4de1b53b3c4" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=9872d1daca62fc63fec422591d329622" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -320,17 +320,54 @@
             <!-- Tab panes -->
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="board-files-pane">
-                    <div class="btn-group" role="group">
-    <button data-bind="disable: waitFilesTree, click: refreshFilesTree" type="button" class="btn btn-default">
+                    <!-- ko ifnot: waitFilesTree -->
+<div class="btn-group" role="group">
+    <button data-bind="click: refreshFilesTree" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
-    <span data-bind="css: uploadEnabled() ? '' : 'disabled'" class="btn btn-default btn-file">
-        <i class="fa fa-upload"></i> Upload <input data-bind="enable: uploadEnabled, event: { change: uploadFile }" type="file" name="file" />
+    <!-- ko if: uploadEnabled -->
+    <span class="btn btn-default btn-file">
+        <i class="fa fa-upload"></i> Upload <input data-bind="event: { change: uploadFile }" type="file" name="file" />
     </span>
-    <button data-bind="disable: waitFilesTree, click: removeFiles" type="button" class="btn btn-default">
+    <!-- /ko -->
+    <!-- ko if: selectedFiles().length -->
+    <button data-bind="click: removeFiles" type="button" class="btn btn-default">
         <i class="fa fa-trash"></i> Remove
     </button>
+    <!-- /ko -->
 </div>
+
+<hr />
+<!-- /ko -->
+
+<!-- ko if: waitFilesTree -->
+<div class="alert alert-info" role="alert">
+    <i class="fa fa-spinner fa-pulse fa-fw"></i>
+    <strong>Please wait...</strong> Loading the file tree. Thanks to be patient, this can take some time.
+</div>
+<!-- /ko -->
+
+<!-- ko ifnot: waitFilesTree -->
+<!-- ko ifnot: filesTree().length -->
+<div class="alert alert-warning" role="alert">
+    <strong>No files or directories found!</strong> Please click ont the <button data-bind="click: refreshFilesTree" type="button" class="btn btn-default">
+        <i class="fa fa-refresh"></i> Refresh
+    </button> button to list all files on your board.
+</div>
+<!-- /ko -->
+<!-- ko if: filesTree().length -->
+<div class="row">
+    <div class="col-xs-12 col-md-4">
+        <h3>Directories</h3>
+        <div id="board-dirs-tree"></div>
+    </div>
+    <div class="col-xs-12 col-md-8">
+        <h3>Files : <span data-bind="text: selectedDirectoryText"></span></h3>
+        <div id="board-files-tree"></div>
+    </div>
+</div>
+<!-- /ko -->
+<!-- /ko -->
 
 <div id="board-upload-modal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -391,37 +428,6 @@
     </div>
 </div><!-- #board-remove-files-modal -->
 
-<hr />
-
-<!-- ko if: waitFilesTree -->
-<div class="alert alert-info" role="alert">
-    <i class="fa fa-spinner fa-pulse fa-fw"></i>
-    <strong>Please wait...</strong> Loading the file list. Thanks to be patient, this can take some time.
-</div>
-<!-- /ko -->
-
-<!-- ko ifnot: waitFilesTree -->
-<!-- ko ifnot: filesTree().length -->
-<div class="alert alert-warning" role="alert">
-    <strong>No files or directories found!</strong> Please click ont the <button data-bind="click: refreshFilesTree" type="button" class="btn btn-default">
-        <i class="fa fa-refresh"></i> Refresh
-    </button> button to list all files on your board.
-</div>
-<!-- /ko -->
-<!-- ko if: filesTree().length -->
-<div class="row">
-    <div class="col-xs-12 col-md-4">
-        <h3>Directories</h3>
-        <div id="board-dirs-tree"></div>
-    </div>
-    <div class="col-xs-12 col-md-8">
-        <h3>Files : <span data-bind="text: selectedDirectoryText"></span></h3>
-        <div id="board-files-tree"></div>
-    </div>
-</div>
-<!-- /ko -->
-<!-- /ko -->
-
                 </div>
                 <div role="tabpanel" class="tab-pane" id="board-jog-pane">
                     jog pane...
@@ -480,8 +486,8 @@
         <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="vendor/filesize.min.js?v=3.3.0"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=c82f223b4d359487909ea4de1b53b3c4"></script>
-        <script src="examples.js?v=0.2.0-dev&amp;b=c82f223b4d359487909ea4de1b53b3c4"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=c82f223b4d359487909ea4de1b53b3c4"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=9872d1daca62fc63fec422591d329622"></script>
+        <script src="examples.js?v=0.2.0-dev&amp;b=9872d1daca62fc63fec422591d329622"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=9872d1daca62fc63fec422591d329622"></script>
     </body>
 </html>
