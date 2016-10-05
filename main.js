@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    ea28bf9708d170b634ce3570427c9592
-* @date     Wed, 05 Oct 2016 06:36:09 +0000
+* @build    c82f223b4d359487909ea4de1b53b3c4
+* @date     Wed, 05 Oct 2016 12:14:47 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -191,6 +191,7 @@ var BoardModel = function(board) {
     self.uploadFileData        = ko.observable();
     self.uploadFileName        = ko.observable();
     self.uploadFileSize        = ko.observable();
+    self.selectedFiles         = ko.observableArray();
 
     // set default directory
     self.setSelectedDirectory('/');
@@ -428,8 +429,6 @@ BoardModel.prototype._makeFilesTree = function(nodes) {
     tree = makeTree(tree);
     dirs = makeTree(dirs);
 
-    // console.log(nodes);
-    // console.log(tree);
     return {
         tree : tree,
         dirs : dirs,
@@ -453,6 +452,26 @@ BoardModel.prototype.sortFilesTree = function(tree) {
     });
 };
 
+BoardModel.prototype._populateFilesTree = function(filesTree) {
+    // self alias
+    var self = this;
+
+    var $tree = $('#board-files-tree');
+
+    var updateSelectedNode = function(event, node) {
+        self.selectedFiles($tree.treeview('getSelected'));
+    };
+
+    // init files tree
+    $('#board-files-tree').treeview({
+        data            : self.sortFilesTree(filesTree),
+        showTags        : true,
+        multiSelect     : true,
+        onNodeSelected  : updateSelectedNode,
+        onNodeUnselected: updateSelectedNode
+    });
+};
+
 BoardModel.prototype.populateFilesTree = function() {
     // self alias
     var self = this;
@@ -463,11 +482,13 @@ BoardModel.prototype.populateFilesTree = function() {
 
     // init dirs tree
     $('#board-dirs-tree').treeview({
-        data          : dirsTree,
-        levels        : 10,
-        showTags      : true,
-        expandIcon    : 'fa fa-chevron-right',
-        collapseIcon  : 'fa fa-chevron-down',
+        data             : dirsTree,
+        levels           : 10,
+        showTags         : true,
+        expandIcon       : 'fa fa-chevron-right',
+        collapseIcon     : 'fa fa-chevron-down',
+        selectedColor    : 'inherit',
+        selectedBackColor: 'inherit',
         onNodeSelected: function(event, node) {
             // update selected directory path
             self.setSelectedDirectory(node.node.path);
@@ -482,20 +503,12 @@ BoardModel.prototype.populateFilesTree = function() {
             }
 
             // init files tree
-            $('#board-files-tree').treeview({
-                data    : self.sortFilesTree(newFilesTree),
-                showTags: true
-            });
+            self._populateFilesTree(newFilesTree);
         }
     });
 
-    filesTree = self.sortFilesTree(filesTree);
-
     // init files tree
-    $('#board-files-tree').treeview({
-        data    : filesTree,
-        showTags: true
-    });
+    self._populateFilesTree(filesTree);
 };
 
 BoardModel.prototype.refreshFilesTree = function(board, event) {
@@ -542,6 +555,9 @@ BoardModel.prototype.sendFile = function(board, event) {
     // self alias
     var self = this;
 
+    // close modal
+    $('#board-upload-modal').modal('hide');
+
     // file path and data
     var file = self.uploadFileData();
     var name = self.uploadFileName();
@@ -568,6 +584,77 @@ BoardModel.prototype.sendFile = function(board, event) {
 
         // resolve the promise
         return Promise.resolve(event);
+    });
+};
+
+BoardModel.prototype.removeFiles = function(board, event) {
+    $('#board-remove-files-modal').modal('show');
+};
+
+BoardModel.prototype.deleteFiles = function() {
+    // self alias
+    var self = this;
+
+    // close modal
+    $('#board-remove-files-modal').modal('hide');
+
+    // get selected files
+    var selectedFiles = this.selectedFiles();
+
+    // get files paths
+    var paths = [];
+    var tree  = self.filesTree();
+    var $tree = $('#board-files-tree');
+
+    for (var i = 0, il = selectedFiles.length; i < il; i++) {
+        // add path to delete collection
+        paths.push(selectedFiles[i].node.path);
+
+        // disable/unselect file node
+        $tree.treeview('disableNode', [ selectedFiles[i] ]);
+        $tree.treeview('unselectNode', [ selectedFiles[i] ]);
+
+        // update nodes state
+        for (var j = 0, jl = tree.length; j < jl; j++) {
+            if (tree[j].node.path == selectedFiles[i].node.path) {
+                tree[j].state.selected = false;
+                tree[j].state.disabled = true;
+            }
+        }
+    }
+
+    // update file tree
+    self.filesTree(tree);
+
+    // remove selected files
+    self.board.rm(paths).then(function(event) {
+        // remove node
+        for (var i = 0, il = paths.length; i < il; i++) {
+            for (var j = 0; j < tree.length; j++) {
+                if (paths[i] == tree[j].node.path) {
+                    tree.splice(j, 1); // remove node
+                }
+            }
+        }
+
+        // update file tree
+        self.filesTree(tree);
+
+        var selectedDirectory = self.selectedDirectory();
+
+        if (selectedDirectory != '/') {
+            tree = tree.filter(function(file) {
+                return file.node.root == selectedDirectory;
+            });
+        }
+
+        self._populateFilesTree(tree);
+    })
+    .catch(function(event) {
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'An error occurred when deleting the following files : ' + paths.join(', ')
+        }, { type: 'danger' });
     });
 };
 

@@ -345,19 +345,30 @@
     *
     * @method
     *
-    * @param {String}  path      Absolute file path.
-    * @param {Integer} [timeout] Connection timeout.
+    * @param {String|Array} paths     Absolute file path or array of paths.
+    * @param {Integer}      [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
     *
     * {$examples sh.Board.rm}
     */
-    sh.Board.prototype.rm = function(source, timeout) {
+    sh.Board.prototype.rm = function(paths, timeout) {
+        // multiple files
+        if (typeof paths != 'string') {
+            var promises = [];
+
+            for (var i = 0, il = paths.length; i < il; i++) {
+                promises.push(this.rm(paths[i], timeout));
+            }
+
+            return Promise.all(promises);
+        }
+
         // remove trailing slash
-        source = this.normalizePath(source);
+        paths = this.normalizePath(paths);
 
         // send the command (promise)
-        return this.command('rm ' + source, timeout);
+        return this.command('rm ' + paths, timeout);
     };
 
     /**

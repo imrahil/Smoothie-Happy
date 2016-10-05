@@ -5,12 +5,18 @@
     <span data-bind="css: uploadEnabled() ? '' : 'disabled'" class="btn btn-default btn-file">
         <i class="fa fa-upload"></i> Upload <input data-bind="enable: uploadEnabled, event: { change: uploadFile }" type="file" name="file" />
     </span>
+    <button data-bind="disable: waitFilesTree, click: removeFiles" type="button" class="btn btn-default">
+        <i class="fa fa-trash"></i> Remove
+    </button>
 </div>
 
 <div id="board-upload-modal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
+                <button type="button" class="pull-right btn btn-sm btn-default" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-close"></i> Close
+                </button>
                 <h4 class="modal-title">
                     <i class="fa fa-upload"></i> File upload
                 </h4>
@@ -20,16 +26,48 @@
                 in to <strong data-bind="text: selectedDirectory"></strong> directory ?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">
-                    <i class="fa fa-close"></i> Dismiss
-                </button>
-                <button data-bind="click: sendFile" type="button" class="btn btn-success" data-dismiss="modal">
+                <button data-bind="click: sendFile" type="button" class="btn btn-success">
                     <i class="fa fa-upload"></i> Upload
                 </button>
             </div>
         </div>
     </div>
 </div><!-- #board-upload-modal -->
+
+<div id="board-remove-files-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="pull-right btn btn-sm btn-default" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-close"></i> Close
+                </button>
+                <h4 class="modal-title">
+                    <i class="fa fa-trash"></i> Remove files
+                </h4>
+            </div>
+            <div class="modal-body">
+                <!-- ko ifnot: selectedFiles().length -->
+                <div class="alert alert-warning" role="alert">
+                    <strong>No files selected!</strong> Please select one or more files before clicking the delete button.
+                </div>
+                <!-- /ko -->
+                <!-- ko if: selectedFiles().length -->
+                The following files will be removed :
+                <ul data-bind="foreach: selectedFiles">
+                    <li data-bind="text: node.path"></li>
+                </ul>
+                <!-- /ko -->
+            </div>
+            <!-- ko if: selectedFiles().length -->
+            <div class="modal-footer">
+                <button data-bind="click: deleteFiles" type="button" class="btn btn-danger">
+                    <i class="fa fa-trash"></i> Remove
+                </button>
+            </div>
+            <!-- /ko -->
+        </div>
+    </div>
+</div><!-- #board-remove-files-modal -->
 
 <hr />
 

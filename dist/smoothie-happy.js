@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    2460846e346130a52ddb71e7b3f07d52
-* @date     Wed, 05 Oct 2016 07:47:05 +0000
+* @build    c82f223b4d359487909ea4de1b53b3c4
+* @date     Wed, 05 Oct 2016 12:14:47 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -25,7 +25,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = '2460846e346130a52ddb71e7b3f07d52';
+    sh.build = 'c82f223b4d359487909ea4de1b53b3c4';
 
     /**
     * @property {String} id API id.
@@ -1502,19 +1502,30 @@ var sh = sh || {};
     *
     * @method
     *
-    * @param {String}  path      Absolute file path.
-    * @param {Integer} [timeout] Connection timeout.
+    * @param {String|Array} paths     Absolute file path or array of paths.
+    * @param {Integer}      [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
     *
     * 
     */
-    sh.Board.prototype.rm = function(source, timeout) {
+    sh.Board.prototype.rm = function(paths, timeout) {
+        // multiple files
+        if (typeof paths != 'string') {
+            var promises = [];
+
+            for (var i = 0, il = paths.length; i < il; i++) {
+                promises.push(this.rm(paths[i], timeout));
+            }
+
+            return Promise.all(promises);
+        }
+
         // remove trailing slash
-        source = this.normalizePath(source);
+        paths = this.normalizePath(paths);
 
         // send the command (promise)
-        return this.command('rm ' + source, timeout);
+        return this.command('rm ' + paths, timeout);
     };
 
     /**
