@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    ea28bf9708d170b634ce3570427c9592
-* @date     Wed, 05 Oct 2016 06:36:09 +0000
+* @build    2460846e346130a52ddb71e7b3f07d52
+* @date     Wed, 05 Oct 2016 07:47:05 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -25,7 +25,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = 'ea28bf9708d170b634ce3570427c9592';
+    sh.build = '2460846e346130a52ddb71e7b3f07d52';
 
     /**
     * @property {String} id API id.
@@ -1480,9 +1480,9 @@ var sh = sh || {};
     *
     * @method
     *
-    * @param {String}  source   Absolute source file path.
-    * @param {String}  target   Absolute target file path.
-    * @param {Integer}          [timeout] Connection timeout.
+    * @param {String}  source    Absolute source file path.
+    * @param {String}  target    Absolute target file path.
+    * @param {Integer} [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
     *
@@ -1493,8 +1493,28 @@ var sh = sh || {};
         source = this.normalizePath(source);
         target = this.normalizePath(target);
 
-        // get board version (raw)
+        // send the command (promise)
         return this.command('mv ' + source + ' ' + target, timeout);
+    };
+
+    /**
+    * Remove a file.
+    *
+    * @method
+    *
+    * @param {String}  path      Absolute file path.
+    * @param {Integer} [timeout] Connection timeout.
+    *
+    * @return {sh.network.Request}
+    *
+    * 
+    */
+    sh.Board.prototype.rm = function(source, timeout) {
+        // remove trailing slash
+        source = this.normalizePath(source);
+
+        // send the command (promise)
+        return this.command('rm ' + source, timeout);
     };
 
     /**

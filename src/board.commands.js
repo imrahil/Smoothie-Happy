@@ -323,21 +323,41 @@
     *
     * @method
     *
-    * @param {String}  source   Absolute source file path.
-    * @param {String}  target   Absolute target file path.
-    * @param {Integer}          [timeout] Connection timeout.
+    * @param {String}  source    Absolute source file path.
+    * @param {String}  target    Absolute target file path.
+    * @param {Integer} [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
     *
-    * {$examples sh.Board.upload}
+    * {$examples sh.Board.mv}
     */
     sh.Board.prototype.mv = function(source, target, timeout) {
         // remove trailing slash
         source = this.normalizePath(source);
         target = this.normalizePath(target);
 
-        // get board version (raw)
+        // send the command (promise)
         return this.command('mv ' + source + ' ' + target, timeout);
+    };
+
+    /**
+    * Remove a file.
+    *
+    * @method
+    *
+    * @param {String}  path      Absolute file path.
+    * @param {Integer} [timeout] Connection timeout.
+    *
+    * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.rm}
+    */
+    sh.Board.prototype.rm = function(source, timeout) {
+        // remove trailing slash
+        source = this.normalizePath(source);
+
+        // send the command (promise)
+        return this.command('rm ' + source, timeout);
     };
 
     /**
