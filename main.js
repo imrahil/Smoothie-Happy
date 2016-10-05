@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    9872d1daca62fc63fec422591d329622
-* @date     Wed, 05 Oct 2016 12:33:07 +0000
+* @build    5fbbc8f340c94a7a3ff1f87530735d75
+* @date     Wed, 05 Oct 2016 13:00:09 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -459,7 +459,27 @@ BoardModel.prototype._populateFilesTree = function(filesTree) {
     var $tree = $('#board-files-tree');
 
     var updateSelectedNode = function(event, node) {
-        self.selectedFiles($tree.treeview('getSelected'));
+        var selectedFiles    = $tree.treeview('getSelected');
+        var newFilesTree     = self.filesTree();
+        var $fileTreeListist = $(event.target).find('ul');
+
+        var scrollTop = $fileTreeListist.scrollTop();
+
+        // update nodes state
+        for (var i = 0, il = selectedFiles.length; i < il; i++) {
+            for (var j = 0; j < newFilesTree.length; j++) {
+                if (newFilesTree[j].node.path == selectedFiles[i].node.path) {
+                    newFilesTree[j].state.selected = event.type == 'nodeSelected';
+                }
+            }
+        }
+
+        self.filesTree(newFilesTree);
+        self.selectedFiles(selectedFiles);
+
+        setTimeout(function() {
+            $fileTreeListist.scrollTop(scrollTop);
+        }, 0);
     };
 
     // init files tree

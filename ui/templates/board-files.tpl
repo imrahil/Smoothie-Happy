@@ -10,7 +10,7 @@
     <!-- /ko -->
     <!-- ko if: selectedFiles().length -->
     <button data-bind="click: removeFiles" type="button" class="btn btn-default">
-        <i class="fa fa-trash"></i> Remove
+        <i class="fa fa-trash"></i> Remove (<span data-bind="text: selectedFiles().length"></span>)
     </button>
     <!-- /ko -->
 </div>

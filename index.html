@@ -10,7 +10,7 @@
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap-treeview/bootstrap-treeview.min.css?v=1.2.0" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=9872d1daca62fc63fec422591d329622" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=5fbbc8f340c94a7a3ff1f87530735d75" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -332,7 +332,7 @@
     <!-- /ko -->
     <!-- ko if: selectedFiles().length -->
     <button data-bind="click: removeFiles" type="button" class="btn btn-default">
-        <i class="fa fa-trash"></i> Remove
+        <i class="fa fa-trash"></i> Remove (<span data-bind="text: selectedFiles().length"></span>)
     </button>
     <!-- /ko -->
 </div>
@@ -486,8 +486,8 @@
         <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="vendor/filesize.min.js?v=3.3.0"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=9872d1daca62fc63fec422591d329622"></script>
-        <script src="examples.js?v=0.2.0-dev&amp;b=9872d1daca62fc63fec422591d329622"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=9872d1daca62fc63fec422591d329622"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=5fbbc8f340c94a7a3ff1f87530735d75"></script>
+        <script src="examples.js?v=0.2.0-dev&amp;b=5fbbc8f340c94a7a3ff1f87530735d75"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=5fbbc8f340c94a7a3ff1f87530735d75"></script>
     </body>
 </html>

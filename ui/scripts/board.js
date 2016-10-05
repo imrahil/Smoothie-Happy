@@ -296,7 +296,27 @@ BoardModel.prototype._populateFilesTree = function(filesTree) {
     var $tree = $('#board-files-tree');
 
     var updateSelectedNode = function(event, node) {
-        self.selectedFiles($tree.treeview('getSelected'));
+        var selectedFiles    = $tree.treeview('getSelected');
+        var newFilesTree     = self.filesTree();
+        var $fileTreeListist = $(event.target).find('ul');
+
+        var scrollTop = $fileTreeListist.scrollTop();
+
+        // update nodes state
+        for (var i = 0, il = selectedFiles.length; i < il; i++) {
+            for (var j = 0; j < newFilesTree.length; j++) {
+                if (newFilesTree[j].node.path == selectedFiles[i].node.path) {
+                    newFilesTree[j].state.selected = event.type == 'nodeSelected';
+                }
+            }
+        }
+
+        self.filesTree(newFilesTree);
+        self.selectedFiles(selectedFiles);
+
+        setTimeout(function() {
+            $fileTreeListist.scrollTop(scrollTop);
+        }, 0);
     };
 
     // init files tree
