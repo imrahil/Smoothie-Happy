@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    73e90712c513c3fde76538061064b098
-* @date     Wed, 05 Oct 2016 16:52:27 +0000
+* @build    2c0bed28cf6edcfec2f442e18a2cf7cc
+* @date     Thu, 06 Oct 2016 14:42:56 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -162,6 +162,127 @@ model.scanner = {
 };
 
 // -----------------------------------------------------------------------------
+// board tree model
+// -----------------------------------------------------------------------------
+
+var TreeNodeModel = function(node, parent) {
+    // self alias
+    var self = this;
+
+    // copy node properties
+    for (var prop in node) {
+        self[prop] = node[prop];
+    }
+
+    // set parent model
+    self.parent = parent;
+
+    // set parents paths
+    self.parents = self.root ? self.root.split('/') : [];
+    self.parents = self.parents.filter(function(p) { return p.length; });
+
+    // set node icon
+    self._setIconFromName();
+
+    // node state
+    self.active  = ko.observable(node.active == undefined ? false : true);
+    self.visible = ko.observable(node.visible == undefined ? true : false);
+
+    // node text
+    self.text = ko.pureComputed(function() {
+        var text = self.path;
+
+        if (self.type == 'file' && self.parent.selectedFolder() != '/') {
+            text = self.name;
+        }
+
+        return text.replace(/^\/sd(\/)?/, '/sd$1');
+    });
+};
+
+TreeNodeModel.prototype._setIconFromName = function() {
+    // default icon
+    var icon = 'folder-o';
+
+    // if file type...
+    if (this.type == 'file') {
+        // default icon
+        icon = 'file-o';
+
+        // get file extension
+        var ext = this.name.split('.').pop();
+
+        // get icon by extension
+        if (ext == 'gcode' || ext == 'nc') {
+            icon = 'file-code-o';
+        }
+        else if (['svg', 'dxf'].indexOf(ext) != -1) {
+            icon = 'object-group';
+        }
+        else if (['png', 'jpeg', 'jpg', 'gif'].indexOf(ext) != -1) {
+            icon = 'file-image-o';
+        }
+        else if (name == 'config' || name == 'config.txt') {
+            icon = 'cogs';
+        }
+        else if (name == 'firmware.cur') {
+            icon = 'leaf';
+        }
+    }
+
+    // set node icon
+    this.icon = 'fa fa-fw fa-' + icon;
+};
+
+TreeNodeModel.prototype.onSelect = function(selectedNode, event) {
+    // update selected nodes
+    if (this.type != 'file') {
+        // current selected folder
+        var selectedFolder = this.parent.selectedFolder();
+
+        // already selected
+        if (selectedFolder == this.path) {
+            return;
+        }
+
+        // set new selected folder
+        this.parent.selectedFolder(this.path);
+
+        // unselect all
+        var folders = this.parent.folders();
+
+        for (var j = 0, jl = folders.length; j < jl; j++) {
+            folders[j].active(false);
+        }
+
+        // set selected active
+        this.active(true);
+
+        // filter files tree
+        var lsAll = this.path == '/';
+        var files = this.parent.files();
+
+        for (var j = 0, jl = files.length; j < jl; j++) {
+            files[j].visible(lsAll || files[j].root == this.path);
+        }
+    }
+    else {
+        // new state
+        var state = ! this.active();
+
+        // toggle state
+        this.active(state);
+
+        // update selected
+        if (state) {
+            this.parent.selectedFiles.push(this);
+        } else {
+            this.parent.selectedFiles.remove(this);
+        }
+    }
+};
+
+// -----------------------------------------------------------------------------
 // board model
 // -----------------------------------------------------------------------------
 
@@ -189,8 +310,8 @@ var BoardModel = function(board) {
     self.files   = ko.observableArray();
     self.folders = ko.observableArray();
 
+    self.selectedFolder = ko.observable();
     self.selectedFiles  = ko.observableArray();
-    self.selectedFolder = ko.observable('/');
 
     // get board tooltip text
     self.uploadEnabled = ko.pureComputed(function() {
@@ -237,6 +358,9 @@ var BoardModel = function(board) {
         //console.error('on.error:', event);
         self.updateState();
     });
+
+    // reset tree
+    self.resetTree();
 };
 
 // -----------------------------------------------------------------------------
@@ -328,33 +452,6 @@ BoardModel.prototype.lookup = function() {
 
 // -----------------------------------------------------------------------------
 
-BoardModel._getIconFromFilename = function(filename) {
-    // default icon
-    var icon = 'file-o';
-
-    // file extenssion
-    var ext = filename.split('.').pop();
-
-    // get icon by extenssion
-    if (ext == 'gcode' || ext == 'nc') {
-        icon = 'file-code-o';
-    }
-    else if (['svg', 'dxf'].indexOf(ext) != -1) {
-        icon = 'object-group';
-    }
-    else if (['png', 'jpeg', 'jpg', 'gif'].indexOf(ext) != -1) {
-        icon = 'file-image-o';
-    }
-    else if (filename == 'config' || filename == 'config.txt') {
-        icon = 'cogs';
-    }
-    else if (filename == 'firmware.cur') {
-        icon = 'leaf';
-    }
-
-    return 'fa fa-fw fa-' + icon;
-};
-
 BoardModel.prototype.sortTree = function(tree) {
     return tree.sort(function(a, b) {
         var la = a.path.split('/').length;
@@ -377,53 +474,34 @@ BoardModel.prototype._makeTree = function(nodes) {
     // first pass, normalize nodes
     for (var node, i = 0, il = nodes.length; i < il; i++) {
         // current node
-        node = nodes[i];
+        node = new TreeNodeModel(nodes[i], self);
 
         // node state
-        node.active = ko.observable(false);
-
-        // on node selected
-        node.onSelect = function(selectedNode, event) {
-            //console.log(selectedNode, event);
-
-            // get all parent children nodes
-            var $parent   = $(event.target).parent();
-            var $children = $parent.children('a');
-
-            // update selected nodes
-            if (selectedNode.type != 'file') {
-                // unselect all
-                var folders = self.folders();
-
-                for (var j = 0, jl = folders.length; j < jl; j++) {
-                    folders[j].active(false);
-                }
-
-                // set selected active
-                selectedNode.active(true);
-            }
-            else {
-                // toggle selected active
-                selectedNode.active(! selectedNode.active());
-            }
-        };
+        node.active(self.selectedFolder() == node.path);
 
         // add node in file/folder collection
         if (node.type == 'file') {
-            node.icon = BoardModel._getIconFromFilename(node.name);
             tree.files.push(node);
         }
         else {
-            node.icon = 'folder-o';
             tree.folders.push(node);
         }
     }
 
     // ...
-    console.log(tree);
+    //console.log(tree);
 
     // return the tree
     return tree;
+};
+
+BoardModel.prototype.resetTree = function(tree) {
+    this.selectedFiles([]);
+    this.selectedFolder('/');
+    tree = this._makeTree(tree || []);
+    this.folders(tree.folders || []);
+    this.files(tree.files || []);
+    this.waitTree(false);
 };
 
 BoardModel.prototype.refreshTree = function(board, event) {
@@ -444,10 +522,7 @@ BoardModel.prototype.refreshTree = function(board, event) {
         console.error('refreshTree:', event.name, event);
     })
     .then(function(event) {
-        tree = self._makeTree(tree);
-        self.folders(tree.folders);
-        self.files(tree.files);
-        self.waitTree(false);
+        self.resetTree(tree);
         self.updateState();
     });
 };

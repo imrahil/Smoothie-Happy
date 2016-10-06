@@ -20,6 +20,11 @@
     text-overflow: ellipsis;
 }
 
+.indent {
+    width: 10px;
+    display: inline-block;
+}
+
 /* navbar */
 
 #navbar, .navbar {

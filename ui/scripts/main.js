@@ -11,6 +11,7 @@
 {$store.js}
 {$model.js}
 {$scanner.js}
+{$board-tree.js}
 {$board.js}
 {$boards.js}
 {$init.js}

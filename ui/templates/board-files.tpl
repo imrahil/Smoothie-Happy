@@ -39,12 +39,16 @@
         <h3>Folders</h3>
         <div id="board-folders" data-bind="foreach: folders" class="files-tree list-group">
             <a data-bind="click: onSelect, css: active() ? 'active' : null" href="#" class="list-group-item">
-                <i data-bind="css: icon"></i>
                 <!-- ko if: path == '/' -->
-                <span>List all</span>
+                <i class="fa fa-eye"></i> <span>View all files</span>
                 <!-- /ko -->
                 <!-- ko ifnot: path == '/' -->
-                <span data-bind="text: path"></span>
+                <!-- ko if: parents.length -->
+                <span data-bind="foreach: parents">
+                    <span class="indent"></span>
+                </span>
+                <!-- /ko -->
+                <i data-bind="css: icon"></i> <span data-bind="text: name"></span>
                 <!-- /ko -->
             </a>
         </div>
@@ -52,17 +56,19 @@
     <div class="col-xs-12 col-md-8">
         <h3>
             <!-- ko if: selectedFolder() == '/' -->
-            <span>All files on the board</span>
+            <i class="fa fa-eye"></i> <span>All files on the board</span>
             <!-- /ko -->
             <!-- ko ifnot: selectedFolder() == '/' -->
-            Files : <span data-bind="text: selectedFolder"></span>
+            <i class="fa fa-folder-open-o"></i> <span data-bind="text: selectedFolder"></span>
             <!-- /ko -->
         </h3>
         <div id="board-files" data-bind="foreach: files" class="files-tree list-group">
+            <!-- ko if: visible -->
             <a data-bind="click: onSelect, css: active() ? 'active' : null" href="#" class="list-group-item">
                 <i data-bind="css: icon"></i>
-                <span data-bind="text: path"></span>
+                <span data-bind="text: text"></span>
             </a>
+            <!-- /ko -->
         </div>
     </div>
 </div>
