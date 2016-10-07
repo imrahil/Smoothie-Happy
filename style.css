@@ -231,3 +231,16 @@
 #board .files-tree.list-group .list-group-item:last-child {
     border-bottom: 0;
 }
+
+/* upload */
+
+#board-upload-files-modal .label {
+    padding: 6px;
+    margin-right: 2px;
+}
+
+#board-upload-files-modal .filename.truncate {
+    vertical-align: top;
+    display: inline-block;
+    max-width: calc(100% - 130px);
+}

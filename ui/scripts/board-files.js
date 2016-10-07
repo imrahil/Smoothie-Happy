@@ -37,38 +37,44 @@ var TreeNodeModel = function(node, parent) {
     });
 };
 
-TreeNodeModel.prototype._setIconFromName = function() {
+TreeNodeModel.getIconFromName = function(name) {
     // default icon
-    var icon = 'folder-o';
+    var icon = 'file-o';
 
-    // if file type...
-    if (this.type == 'file') {
-        // default icon
-        icon = 'file-o';
+    // get file extension
+    var ext = name.split('.').pop().toLowerCase();
 
-        // get file extension
-        var ext = this.name.split('.').pop();
-
-        // get icon by extension
-        if (ext == 'gcode' || ext == 'nc') {
-            icon = 'file-code-o';
-        }
-        else if (['svg', 'dxf'].indexOf(ext) != -1) {
-            icon = 'object-group';
-        }
-        else if (['png', 'jpeg', 'jpg', 'gif'].indexOf(ext) != -1) {
-            icon = 'file-image-o';
-        }
-        else if (name == 'config' || name == 'config.txt') {
-            icon = 'cogs';
-        }
-        else if (name == 'firmware.cur') {
-            icon = 'leaf';
-        }
+    // get icon by extension
+    if (ext == 'gcode' || ext == 'nc') {
+        icon = 'file-code-o';
+    }
+    else if (ext == 'pdf') {
+        icon = 'file-pdf-o';
+    }
+    else if (['svg', 'dxf'].indexOf(ext) != -1) {
+        icon = 'object-group';
+    }
+    else if (['png', 'jpeg', 'jpg', 'gif'].indexOf(ext) != -1) {
+        icon = 'file-image-o';
+    }
+    else if (['zip', 'tar', 'gz', 'tar.gz', '7z'].indexOf(ext) != -1) {
+        icon = 'file-archive-o';
+    }
+    else if (name == 'config' || name == 'config.txt' || ext == 'ini') {
+        icon = 'cogs';
+    }
+    else if (name == 'firmware.cur') {
+        icon = 'leaf';
     }
 
-    // set node icon
-    this.icon = 'fa fa-fw fa-' + icon;
+    // return icon class
+    return 'fa fa-fw fa-' + icon;
+};
+
+TreeNodeModel.prototype._setIconFromName = function() {
+    this.icon = this.type == 'file'
+        ? TreeNodeModel.getIconFromName(this.name)
+        : 'fa fa-fw fa-folder-o';
 };
 
 TreeNodeModel.prototype.onSelect = function(selectedNode, event) {

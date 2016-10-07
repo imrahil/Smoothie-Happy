@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    2c0bed28cf6edcfec2f442e18a2cf7cc
-* @date     Thu, 06 Oct 2016 14:42:56 +0000
+* @build    80a377206bb2452d4217ead6bedc0fc3
+* @date     Fri, 07 Oct 2016 16:13:18 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -200,38 +200,44 @@ var TreeNodeModel = function(node, parent) {
     });
 };
 
-TreeNodeModel.prototype._setIconFromName = function() {
+TreeNodeModel.getIconFromName = function(name) {
     // default icon
-    var icon = 'folder-o';
+    var icon = 'file-o';
 
-    // if file type...
-    if (this.type == 'file') {
-        // default icon
-        icon = 'file-o';
+    // get file extension
+    var ext = name.split('.').pop().toLowerCase();
 
-        // get file extension
-        var ext = this.name.split('.').pop();
-
-        // get icon by extension
-        if (ext == 'gcode' || ext == 'nc') {
-            icon = 'file-code-o';
-        }
-        else if (['svg', 'dxf'].indexOf(ext) != -1) {
-            icon = 'object-group';
-        }
-        else if (['png', 'jpeg', 'jpg', 'gif'].indexOf(ext) != -1) {
-            icon = 'file-image-o';
-        }
-        else if (name == 'config' || name == 'config.txt') {
-            icon = 'cogs';
-        }
-        else if (name == 'firmware.cur') {
-            icon = 'leaf';
-        }
+    // get icon by extension
+    if (ext == 'gcode' || ext == 'nc') {
+        icon = 'file-code-o';
+    }
+    else if (ext == 'pdf') {
+        icon = 'file-pdf-o';
+    }
+    else if (['svg', 'dxf'].indexOf(ext) != -1) {
+        icon = 'object-group';
+    }
+    else if (['png', 'jpeg', 'jpg', 'gif'].indexOf(ext) != -1) {
+        icon = 'file-image-o';
+    }
+    else if (['zip', 'tar', 'gz', 'tar.gz', '7z'].indexOf(ext) != -1) {
+        icon = 'file-archive-o';
+    }
+    else if (name == 'config' || name == 'config.txt' || ext == 'ini') {
+        icon = 'cogs';
+    }
+    else if (name == 'firmware.cur') {
+        icon = 'leaf';
     }
 
-    // set node icon
-    this.icon = 'fa fa-fw fa-' + icon;
+    // return icon class
+    return 'fa fa-fw fa-' + icon;
+};
+
+TreeNodeModel.prototype._setIconFromName = function() {
+    this.icon = this.type == 'file'
+        ? TreeNodeModel.getIconFromName(this.name)
+        : 'fa fa-fw fa-folder-o';
 };
 
 TreeNodeModel.prototype.onSelect = function(selectedNode, event) {
@@ -283,6 +289,96 @@ TreeNodeModel.prototype.onSelect = function(selectedNode, event) {
 };
 
 // -----------------------------------------------------------------------------
+// board: upload model
+// -----------------------------------------------------------------------------
+
+var UploadModel = function(parent) {
+    // self alias
+    var self = this;
+
+    // set initial state
+    self.parent = parent;
+    self.queue  = ko.observableArray();
+
+    // remove item
+    self.removeFile = function(file) {
+        self.queue.remove(file);
+    };
+
+    // remove item
+    self.onAddFiles = function(self, event) {
+        self.addFiles(event.target.files);
+    };
+};
+
+UploadModel.prototype.addFile = function(file) {
+    this.queue.push({
+        icon   : TreeNodeModel.getIconFromName(file.name),
+        size   : filesize(file.size),
+        name   : file.name,
+        data   : file,
+        path   : this.parent.selectedFolder(),
+        percent: ko.observable()
+    });
+};
+
+UploadModel.prototype.addFiles = function(files) {
+    for (var i = 0; i < files.length; i++) {
+        this.addFile(files[i]);
+    };
+};
+
+UploadModel.prototype._processQueue = function() {
+    // self alias
+    var self = this;
+
+    // all files uploaded
+    if (! self.queue().length) {
+        return;
+    }
+
+    // get first file in the queue
+    var file = self.queue()[0];
+
+    // move file after upload
+    var move = file.path != '/sd';
+
+    // file name
+    var name = move ? '___sh_tmp___.' + file.name : file.name;
+
+    // upload the file to sd card
+    self.parent.board.upload(file.data, name, 0).onUploadProgress(function(event) {
+        //console.info(self.parent.board.address, '>> progress >>',  event.percent, '%');
+        file.percent(event.percent + '%');
+    })
+    .then(function(event) {
+        // move the file to target path
+        if (move) {
+            return self.parent.board.mv('/sd/' + name, file.path + '/' + file.name);
+        }
+
+        // resolve the promise
+        return Promise.resolve(event);
+    })
+    .catch(function(event) {
+        return event;
+    })
+    .then(function(event) {
+        // in any case...
+        self.queue.shift();
+        self._processQueue();
+    });
+};
+
+UploadModel.prototype.start = function() {
+    // self alias
+    var self = this;
+
+    // uploaded files
+    self._processQueue();
+};
+
+// -----------------------------------------------------------------------------
 // board model
 // -----------------------------------------------------------------------------
 
@@ -312,6 +408,8 @@ var BoardModel = function(board) {
 
     self.selectedFolder = ko.observable();
     self.selectedFiles  = ko.observableArray();
+
+    self.upload = new UploadModel(self);
 
     // get board tooltip text
     self.uploadEnabled = ko.pureComputed(function() {
@@ -488,9 +586,6 @@ BoardModel.prototype._makeTree = function(nodes) {
         }
     }
 
-    // ...
-    //console.log(tree);
-
     // return the tree
     return tree;
 };
@@ -530,11 +625,8 @@ BoardModel.prototype.refreshTree = function(board, event) {
 // -----------------------------------------------------------------------------
 
 BoardModel.prototype.openUploadModal = function(board, event) {
-    // self alias
-    var self = this;
+    $('#board-upload-files-modal').modal('show');
 };
-
-// -----------------------------------------------------------------------------
 
 BoardModel.prototype.openRemoveFilesModal = function(board, event) {
     // self alias

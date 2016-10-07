@@ -4,9 +4,12 @@
         <i class="fa fa-refresh"></i> Refresh
     </button>
     <!-- ko if: uploadEnabled -->
-    <span class="btn btn-default btn-file">
-        <i class="fa fa-upload"></i> Upload <input data-bind="event: { change: openUploadModal }" type="file" name="file" />
-    </span>
+    <button data-bind="click: openUploadModal" type="button" class="btn btn-default">
+        <i class="fa fa-upload"></i> Upload
+        <!-- ko if: upload.queue().length -->
+        (<span data-bind="text: upload.queue().length"></span>)
+        <!-- /ko -->
+    </button>
     <!-- /ko -->
     <!-- ko if: selectedFiles().length -->
     <button data-bind="click: openRemoveFilesModal" type="button" class="btn btn-default">
@@ -28,7 +31,7 @@
 <!-- ko ifnot: waitTree -->
 <!-- ko ifnot: files().length -->
 <div class="alert alert-warning" role="alert">
-    <strong>No files or directories found!</strong> Please click ont the <button data-bind="click: refreshTree" type="button" class="btn btn-default">
+    <strong>No files or directories found!</strong> Please click on the <button data-bind="click: refreshTree" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button> button to list all files on your board.
 </div>
@@ -74,3 +77,81 @@
 </div>
 <!-- /ko -->
 <!-- /ko -->
+
+<div data-bind="with: upload" id="board-upload-files-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="pull-right btn btn-sm btn-default" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-close"></i> Close
+                </button>
+                <h4 class="modal-title">
+                    <i class="fa fa-upload"></i> File upload
+                </h4>
+            </div>
+            <div class="modal-body">
+                <!-- ko ifnot: queue().length -->
+                <div class="alert alert-info" role="alert">
+                    <strong>Upload queue empty!</strong>
+                    <p>
+                        Please click on the
+                        <span class="btn btn-default btn-file">
+                            <i class="fa fa-plus"></i> Add files <input data-bind="event: { change: onAddFiles }" type="file" multiple />
+                        </span> button ton select some files to upload.
+                    </p>
+                </div>
+                <!-- /ko -->
+                <!-- ko if: queue().length -->
+                The following files will be uploaded :
+                <!-- /ko -->
+                <ul data-bind="foreach: queue" class="list-group">
+                    <li class="list-group-item">
+                        <!-- ko if: percent -->
+                        <div class="progress">
+                            <div data-bind="attr: { width: percent }" class="progress-bar progress-bar-success progress-bar-striped" role="progressbar">
+                                <span data-bind="text: percent">0%</span>
+                            </div>
+                        </div>
+                        <!-- /ko -->
+                        <i data-bind="css: icon"></i>
+                        <span class="filename truncate"></span>
+                        <span data-bind="text: path"></span>/<strong data-bind="text: name"></strong>
+                        <button data-bind="click: $parent.removeFile" type="button" class="pull-right btn btn-xs btn-danger">
+                            <i class="fa fa-close"></i>
+                        </button>
+                        <span data-bind="text: size" class="pull-right label label-info"></span>
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <span class="dropup">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                        <i class="fa fa-folder-o"></i> Target
+                    </button>
+                    <ul data-bind="foreach: parent.folders()" class="dropdown-menu">
+                        <!-- ko ifnot: path == '/' -->
+                        <li data-bind="click: onSelect, css: active() ? 'active' : null">
+                            <a data-bind="css: active() ? 'active' : null" href="#">
+                                <!-- ko if: parents.length -->
+                                <span data-bind="foreach: parents">
+                                    <span class="indent"></span>
+                                </span>
+                                <!-- /ko -->
+                                <i data-bind="css: icon"></i>
+                                <span data-bind="text: name"></span>
+                            </a>
+                        </li>
+                        <!-- /ko -->
+                    </ul>
+                </span>
+                <span class="btn btn-default btn-file">
+                    <i class="fa fa-plus"></i>
+                    Add files <input data-bind="event: { change: onAddFiles }" type="file" multiple />
+                </span>
+                <button data-bind="click: start" type="button" class="btn btn-success">
+                    <i class="fa fa-upload"></i> Upload
+                </button>
+            </div>
+        </div>
+    </div>
+</div><!-- #board-upload-modal -->

@@ -29,6 +29,8 @@ var BoardModel = function(board) {
     self.selectedFolder = ko.observable();
     self.selectedFiles  = ko.observableArray();
 
+    self.upload = new UploadModel(self);
+
     // get board tooltip text
     self.uploadEnabled = ko.pureComputed(function() {
         return self.folders().length && self.selectedFolder() != '/';
@@ -243,11 +245,8 @@ BoardModel.prototype.refreshTree = function(board, event) {
 // -----------------------------------------------------------------------------
 
 BoardModel.prototype.openUploadModal = function(board, event) {
-    // self alias
-    var self = this;
+    $('#board-upload-files-modal').modal('show');
 };
-
-// -----------------------------------------------------------------------------
 
 BoardModel.prototype.openRemoveFilesModal = function(board, event) {
     // self alias
