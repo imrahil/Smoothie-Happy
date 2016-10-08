@@ -32,6 +32,9 @@
                                 <span data-bind="text: root"></span>/<strong data-bind="text: name"></strong>
                             </span>
                             <span class="pull-right">
+                                <!-- ko if: exists -->
+                                <span class="label label-warning">EXISTS</span>
+                                <!-- /ko -->
                                 <span data-bind="text: size" class="label label-info"></span>
                                 <!-- ko ifnot: percent -->
                                 <button data-bind="click: $parent.removeFile" type="button" class="btn btn-xs btn-danger">

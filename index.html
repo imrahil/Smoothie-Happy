@@ -9,7 +9,7 @@
         <meta name="description" content="A SmoothieBoard network communication API">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=6d27eb135896ea030a62608bc65cfa74" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=0bff574810f55fc297354a3c88eb23fc" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -435,6 +435,9 @@
                                 <span data-bind="text: root"></span>/<strong data-bind="text: name"></strong>
                             </span>
                             <span class="pull-right">
+                                <!-- ko if: exists -->
+                                <span class="label label-warning">EXISTS</span>
+                                <!-- /ko -->
                                 <span data-bind="text: size" class="label label-info"></span>
                                 <!-- ko ifnot: percent -->
                                 <button data-bind="click: $parent.removeFile" type="button" class="btn btn-xs btn-danger">
@@ -537,7 +540,7 @@
             <!-- ko if: selectedFiles().length -->
             <div class="modal-footer">
                 <!-- ko if: waitRemove -->
-                <p>Deleting files ...</p>
+                <p><i class="fa fa-spinner fa-pulse fa-fw"></i> Deleting files ...</p>
                 <!-- /ko -->
                 <!-- ko ifnot: waitRemove -->
                 <button data-bind="click: removeFiles" type="button" class="btn btn-danger">
@@ -608,8 +611,8 @@
         <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="vendor/filesize.min.js?v=3.3.0"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=6d27eb135896ea030a62608bc65cfa74"></script>
-        <script src="examples.js?v=0.2.0-dev&amp;b=6d27eb135896ea030a62608bc65cfa74"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=6d27eb135896ea030a62608bc65cfa74"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=0bff574810f55fc297354a3c88eb23fc"></script>
+        <script src="examples.js?v=0.2.0-dev&amp;b=0bff574810f55fc297354a3c88eb23fc"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=0bff574810f55fc297354a3c88eb23fc"></script>
     </body>
 </html>

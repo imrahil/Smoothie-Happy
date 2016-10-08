@@ -26,6 +26,17 @@ UploadModel.prototype.addFile = function(file) {
     var root = this.parent.selectedFolder();
     var path = root + '/' + file.name;
 
+    // test if file exists
+    var exists = false;
+    var files  = this.parent.files();
+
+    for (var i = 0, il = files.length; i < il; i++) {
+        if (files[i].path == path) {
+            exists = true;
+            break;
+        }
+    }
+
     this.queue.push({
         icon   : TreeNodeModel.getIconFromName(file.name),
         size   : filesize(file.size),
@@ -34,7 +45,8 @@ UploadModel.prototype.addFile = function(file) {
         root   : root,
         path   : path,
         percent: ko.observable(),
-        type   : 'file'
+        type   : 'file',
+        exists : exists
     });
 };
 

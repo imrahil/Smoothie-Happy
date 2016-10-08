@@ -40,7 +40,7 @@
             <!-- ko if: selectedFiles().length -->
             <div class="modal-footer">
                 <!-- ko if: waitRemove -->
-                <p>Deleting files ...</p>
+                <p><i class="fa fa-spinner fa-pulse fa-fw"></i> Deleting files ...</p>
                 <!-- /ko -->
                 <!-- ko ifnot: waitRemove -->
                 <button data-bind="click: removeFiles" type="button" class="btn btn-danger">
