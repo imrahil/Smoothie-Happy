@@ -244,3 +244,8 @@
     display: inline-block;
     max-width: calc(100% - 130px);
 }
+
+#board-upload-files-modal .progress {
+    margin-top: 10px;
+    margin-bottom: 0;
+}

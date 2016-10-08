@@ -7,8 +7,9 @@ var UploadModel = function(parent) {
     var self = this;
 
     // set initial state
-    self.parent = parent;
-    self.queue  = ko.observableArray();
+    self.parent    = parent;
+    self.queue     = ko.observableArray();
+    self.uploading = ko.observable(false);
 
     // remove item
     self.removeFile = function(file) {
@@ -22,13 +23,18 @@ var UploadModel = function(parent) {
 };
 
 UploadModel.prototype.addFile = function(file) {
+    var root = this.parent.selectedFolder();
+    var path = root + '/' + file.name;
+
     this.queue.push({
         icon   : TreeNodeModel.getIconFromName(file.name),
         size   : filesize(file.size),
         name   : file.name,
         data   : file,
-        path   : this.parent.selectedFolder(),
-        percent: ko.observable()
+        root   : root,
+        path   : path,
+        percent: ko.observable(),
+        type   : 'file'
     });
 };
 
@@ -42,8 +48,9 @@ UploadModel.prototype._processQueue = function() {
     // self alias
     var self = this;
 
-    // all files uploaded
-    if (! self.queue().length) {
+    // upload aborted or files queue empty
+    if (! self.uploading() || ! self.queue().length) {
+        self.uploading(false);
         return;
     }
 
@@ -51,7 +58,7 @@ UploadModel.prototype._processQueue = function() {
     var file = self.queue()[0];
 
     // move file after upload
-    var move = file.path != '/sd';
+    var move = file.root != '/sd';
 
     // file name
     var name = move ? '___sh_tmp___.' + file.name : file.name;
@@ -62,9 +69,36 @@ UploadModel.prototype._processQueue = function() {
         file.percent(event.percent + '%');
     })
     .then(function(event) {
-        // move the file to target path
+        // create node
+        file.size = file.data.size;
+        var node  = new TreeNodeModel(file, self.parent);
+
+        // replace old file if exists
+        var files    = self.parent.files();
+        var replaced = false;
+
+        for (var i = 0; i < files.length; i++) {
+            if (files[i].path == file.path) {
+                self.parent.files.splice(i, 1, node);
+                replaced = true;
+                break;
+            }
+        }
+
+        // add node to files list
+        if (! replaced) {
+            self.parent.files.push(node);
+            self.parent.files.sort(function(a, b) {
+                return a.path < b.path ? -1 : (a.path > b.path ? 1 : 0);
+            });
+        }
+
+        // set node visibility
+        node.visible(self.parent.selectedFolder() == file.root);
+
+        // move the file to target root
         if (move) {
-            return self.parent.board.mv('/sd/' + name, file.path + '/' + file.name);
+            return self.parent.board.mv('/sd/' + name, file.path);
         }
 
         // resolve the promise
@@ -81,9 +115,14 @@ UploadModel.prototype._processQueue = function() {
 };
 
 UploadModel.prototype.start = function() {
-    // self alias
-    var self = this;
+    // set uploading flag
+    this.uploading(true);
 
     // uploaded files
-    self._processQueue();
+    this._processQueue();
+};
+
+UploadModel.prototype.abort = function() {
+    // unset uploading flag
+    this.uploading(false);
 };
