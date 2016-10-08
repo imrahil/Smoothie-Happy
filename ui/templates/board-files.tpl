@@ -52,6 +52,7 @@
                 </span>
                 <!-- /ko -->
                 <i data-bind="css: icon"></i> <span data-bind="text: name"></span>
+                <span data-bind="text: size" class="pull-right label label-info"></span>
                 <!-- /ko -->
             </a>
         </div>
@@ -70,6 +71,7 @@
             <a data-bind="click: onSelect, css: active() ? 'active' : null" href="#" class="list-group-item">
                 <i data-bind="css: icon"></i>
                 <span data-bind="text: text"></span>
+                <span data-bind="text: size" class="pull-right label label-info"></span>
             </a>
             <!-- /ko -->
         </div>

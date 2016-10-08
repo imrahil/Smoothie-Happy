@@ -21,6 +21,9 @@ var TreeNodeModel = function(node, parent) {
     // set node icon
     self._setIconFromName();
 
+    // human readable file size
+    self.size = filesize(node.size);
+
     // node state
     self.active  = ko.observable(node.active == undefined ? false : true);
     self.visible = ko.observable(node.visible == undefined ? true : false);
