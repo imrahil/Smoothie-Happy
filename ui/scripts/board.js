@@ -245,10 +245,15 @@ BoardModel.prototype.refreshTree = function(board, event) {
 // -----------------------------------------------------------------------------
 
 BoardModel.prototype.openUploadModal = function(board, event) {
-    $('#board-upload-files-modal').modal('show');
+    $('#board-files-upload-modal').modal('show');
 };
 
 BoardModel.prototype.openRemoveFilesModal = function(board, event) {
-    // self alias
-    var self = this;
+    $('#board-files-remove-modal').modal('show');
+};
+
+// -----------------------------------------------------------------------------
+
+BoardModel.prototype.removeFiles = function(board, event) {
+    console.log('remove...');
 };

@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    a4f0f3b4ec65c5b7978af0eb6f484fb6
-* @date     Sat, 08 Oct 2016 07:44:05 +0000
+* @build    08b996490da66929e8124916ed3c402b
+* @date     Sat, 08 Oct 2016 08:46:21 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -673,12 +673,17 @@ BoardModel.prototype.refreshTree = function(board, event) {
 // -----------------------------------------------------------------------------
 
 BoardModel.prototype.openUploadModal = function(board, event) {
-    $('#board-upload-files-modal').modal('show');
+    $('#board-files-upload-modal').modal('show');
 };
 
 BoardModel.prototype.openRemoveFilesModal = function(board, event) {
-    // self alias
-    var self = this;
+    $('#board-files-remove-modal').modal('show');
+};
+
+// -----------------------------------------------------------------------------
+
+BoardModel.prototype.removeFiles = function(board, event) {
+    console.log('remove...');
 };
 
 // -----------------------------------------------------------------------------
