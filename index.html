@@ -9,7 +9,7 @@
         <meta name="description" content="A SmoothieBoard network communication API">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=a40b95c96112c4df5c547c0a411ef123" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=60e465994746be2a0a02492053fa2dd6" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -389,7 +389,7 @@
         </h3>
         <div id="board-files" data-bind="foreach: files" class="files-tree list-group">
             <!-- ko if: visible -->
-            <a data-bind="click: onSelect, css: active() ? 'active' : null" href="#" class="list-group-item">
+            <a data-bind="click: onSelect, css: (active() ? 'active' : null) + ' ' + (enabled() ? '' : 'disabled') " href="#" class="list-group-item">
                 <i data-bind="css: icon"></i>
                 <span data-bind="text: text"></span>
                 <span data-bind="text: size" class="pull-right label label-info"></span>
@@ -507,15 +507,15 @@
                 </h4>
             </div>
             <div class="modal-body">
+                The following files will be removed :
                 <!-- ko ifnot: selectedFiles().length -->
-                <div class="alert alert-warning" role="alert">
-                    <strong>No files selected!</strong> Please select one or more files before clicking the delete button.
+                <div class="alert alert-info" role="alert">
+                    <strong>Empty queue!</strong>
                 </div>
                 <!-- /ko -->
                 <!-- ko if: selectedFiles().length -->
-                The following files will be removed :
                 <ul data-bind="foreach: selectedFiles" class="list-group">
-                    <li class="list-group-item">
+                    <li data-bind="css: enabled() ? '' : 'disabled'" class="list-group-item">
                         <div class="clearfix">
                             <i data-bind="css: icon"></i>
                             <span class="filename truncate">
@@ -523,9 +523,11 @@
                             </span>
                             <span class="pull-right">
                                 <span data-bind="text: size" class="label label-info"></span>
-                                <button data-bind="click: $parent.removeFile" type="button" class="btn btn-xs btn-danger">
+                                <!-- ko if: enabled -->
+                                <button data-bind="click: $parent.unselectedFile" type="button" class="btn btn-xs btn-danger">
                                     <i class="fa fa-close"></i>
                                 </button>
+                                <!-- /ko -->
                             </span>
                         </div>
                     </li>
@@ -601,8 +603,8 @@
         <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="vendor/filesize.min.js?v=3.3.0"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=a40b95c96112c4df5c547c0a411ef123"></script>
-        <script src="examples.js?v=0.2.0-dev&amp;b=a40b95c96112c4df5c547c0a411ef123"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=a40b95c96112c4df5c547c0a411ef123"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=60e465994746be2a0a02492053fa2dd6"></script>
+        <script src="examples.js?v=0.2.0-dev&amp;b=60e465994746be2a0a02492053fa2dd6"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=60e465994746be2a0a02492053fa2dd6"></script>
     </body>
 </html>

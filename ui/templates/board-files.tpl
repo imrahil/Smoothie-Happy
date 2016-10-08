@@ -68,7 +68,7 @@
         </h3>
         <div id="board-files" data-bind="foreach: files" class="files-tree list-group">
             <!-- ko if: visible -->
-            <a data-bind="click: onSelect, css: active() ? 'active' : null" href="#" class="list-group-item">
+            <a data-bind="click: onSelect, css: (active() ? 'active' : null) + ' ' + (enabled() ? '' : 'disabled') " href="#" class="list-group-item">
                 <i data-bind="css: icon"></i>
                 <span data-bind="text: text"></span>
                 <span data-bind="text: size" class="pull-right label label-info"></span>

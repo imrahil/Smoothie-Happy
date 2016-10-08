@@ -254,6 +254,52 @@ BoardModel.prototype.openRemoveFilesModal = function(board, event) {
 
 // -----------------------------------------------------------------------------
 
+BoardModel.prototype.unselectedFile = function(node, event) {
+    node.select(false);
+};
+
 BoardModel.prototype.removeFiles = function(board, event) {
-    console.log('remove...');
+    // self alias
+    var self = this;
+
+    // get selected files
+    var files = [].concat(self.selectedFiles());
+
+    // get files paths
+    var paths = [];
+
+    for (var file, i = 0, il = files.length; i < il; i++) {
+        // current file
+        file = files[i];
+
+        // disable node
+        file.enabled(false);
+
+        // add path to delete collection
+        paths.push(file.path);
+    }
+
+    // remove selected files
+    self.board.rm(paths).then(function(event) {
+        // get all files
+        var files = self.files();
+
+        // remove file nodes
+        for (var i = 0, il = paths.length; i < il; i++) {
+            for (var file, j = 0; j < files.length; j++) {
+                file = files[j];
+
+                if (paths[i] == file.path) {
+                    self.files.remove(file);
+                    self.selectedFiles.remove(file);
+                }
+            }
+        }
+    })
+    .catch(function(event) {
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'An error occurred when deleting the following files : ' + paths.join(', ')
+        }, { type: 'danger' });
+    });
 };

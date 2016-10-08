@@ -10,15 +10,15 @@
                 </h4>
             </div>
             <div class="modal-body">
+                The following files will be removed :
                 <!-- ko ifnot: selectedFiles().length -->
-                <div class="alert alert-warning" role="alert">
-                    <strong>No files selected!</strong> Please select one or more files before clicking the delete button.
+                <div class="alert alert-info" role="alert">
+                    <strong>Empty queue!</strong>
                 </div>
                 <!-- /ko -->
                 <!-- ko if: selectedFiles().length -->
-                The following files will be removed :
                 <ul data-bind="foreach: selectedFiles" class="list-group">
-                    <li class="list-group-item">
+                    <li data-bind="css: enabled() ? '' : 'disabled'" class="list-group-item">
                         <div class="clearfix">
                             <i data-bind="css: icon"></i>
                             <span class="filename truncate">
@@ -26,9 +26,11 @@
                             </span>
                             <span class="pull-right">
                                 <span data-bind="text: size" class="label label-info"></span>
-                                <button data-bind="click: $parent.removeFile" type="button" class="btn btn-xs btn-danger">
+                                <!-- ko if: enabled -->
+                                <button data-bind="click: $parent.unselectedFile" type="button" class="btn btn-xs btn-danger">
                                     <i class="fa fa-close"></i>
                                 </button>
+                                <!-- /ko -->
                             </span>
                         </div>
                     </li>

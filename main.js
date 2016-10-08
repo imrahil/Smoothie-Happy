@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    a40b95c96112c4df5c547c0a411ef123
-* @date     Sat, 08 Oct 2016 09:04:13 +0000
+* @build    60e465994746be2a0a02492053fa2dd6
+* @date     Sat, 08 Oct 2016 10:14:15 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -190,6 +190,7 @@ var TreeNodeModel = function(node, parent) {
     // node state
     self.active  = ko.observable(node.active == undefined ? false : true);
     self.visible = ko.observable(node.visible == undefined ? true : false);
+    self.enabled = ko.observable(node.enabled == undefined ? true : false);
 
     // node text
     self.text = ko.pureComputed(function() {
@@ -243,7 +244,7 @@ TreeNodeModel.prototype._setIconFromName = function() {
         : 'fa fa-fw fa-folder-o';
 };
 
-TreeNodeModel.prototype.onSelect = function(selectedNode, event) {
+TreeNodeModel.prototype.select = function(selected) {
     // update selected nodes
     if (this.type != 'file') {
         // current selected folder
@@ -275,20 +276,25 @@ TreeNodeModel.prototype.onSelect = function(selectedNode, event) {
             files[j].visible(lsAll || files[j].root == this.path);
         }
     }
+    else if (! this.enabled()) {
+        return;
+    }
     else {
         // new state
-        var state = ! this.active();
-
-        // toggle state
-        this.active(state);
+        this.active(selected);
 
         // update selected
-        if (state) {
+        if (selected) {
             this.parent.selectedFiles.push(this);
         } else {
             this.parent.selectedFiles.remove(this);
         }
     }
+};
+
+TreeNodeModel.prototype.onSelect = function(selectedNode, event) {
+    // toggle state
+    this.select(! this.active());
 };
 
 // -----------------------------------------------------------------------------
@@ -682,8 +688,54 @@ BoardModel.prototype.openRemoveFilesModal = function(board, event) {
 
 // -----------------------------------------------------------------------------
 
+BoardModel.prototype.unselectedFile = function(node, event) {
+    node.select(false);
+};
+
 BoardModel.prototype.removeFiles = function(board, event) {
-    console.log('remove...');
+    // self alias
+    var self = this;
+
+    // get selected files
+    var files = [].concat(self.selectedFiles());
+
+    // get files paths
+    var paths = [];
+
+    for (var file, i = 0, il = files.length; i < il; i++) {
+        // current file
+        file = files[i];
+
+        // disable node
+        file.enabled(false);
+
+        // add path to delete collection
+        paths.push(file.path);
+    }
+
+    // remove selected files
+    self.board.rm(paths).then(function(event) {
+        // get all files
+        var files = self.files();
+
+        // remove file nodes
+        for (var i = 0, il = paths.length; i < il; i++) {
+            for (var file, j = 0; j < files.length; j++) {
+                file = files[j];
+
+                if (paths[i] == file.path) {
+                    self.files.remove(file);
+                    self.selectedFiles.remove(file);
+                }
+            }
+        }
+    })
+    .catch(function(event) {
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'An error occurred when deleting the following files : ' + paths.join(', ')
+        }, { type: 'danger' });
+    });
 };
 
 // -----------------------------------------------------------------------------

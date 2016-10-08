@@ -27,6 +27,7 @@ var TreeNodeModel = function(node, parent) {
     // node state
     self.active  = ko.observable(node.active == undefined ? false : true);
     self.visible = ko.observable(node.visible == undefined ? true : false);
+    self.enabled = ko.observable(node.enabled == undefined ? true : false);
 
     // node text
     self.text = ko.pureComputed(function() {
@@ -80,7 +81,7 @@ TreeNodeModel.prototype._setIconFromName = function() {
         : 'fa fa-fw fa-folder-o';
 };
 
-TreeNodeModel.prototype.onSelect = function(selectedNode, event) {
+TreeNodeModel.prototype.select = function(selected) {
     // update selected nodes
     if (this.type != 'file') {
         // current selected folder
@@ -112,18 +113,23 @@ TreeNodeModel.prototype.onSelect = function(selectedNode, event) {
             files[j].visible(lsAll || files[j].root == this.path);
         }
     }
+    else if (! this.enabled()) {
+        return;
+    }
     else {
         // new state
-        var state = ! this.active();
-
-        // toggle state
-        this.active(state);
+        this.active(selected);
 
         // update selected
-        if (state) {
+        if (selected) {
             this.parent.selectedFiles.push(this);
         } else {
             this.parent.selectedFiles.remove(this);
         }
     }
+};
+
+TreeNodeModel.prototype.onSelect = function(selectedNode, event) {
+    // toggle state
+    this.select(! this.active());
 };

@@ -207,14 +207,6 @@
     padding: 5px;
 }
 
-/*#board .list-group .pull-right .label {
-    margin-right: 5px;
-}
-
-#board .list-group .pull-right :last-child {
-    margin-right: 0;
-}*/
-
 /* board: files */
 
 #board-files-pane h3 {
@@ -250,18 +242,13 @@
 
 /* upload */
 
-#board-upload-files-modal .label {
-    padding: 6px;
-    margin-right: 2px;
-}
-
-#board-upload-files-modal .filename.truncate {
+#board-files-upload-modal .filename.truncate {
     vertical-align: top;
     display: inline-block;
     max-width: calc(100% - 130px);
 }
 
-#board-upload-files-modal .progress {
+#board-files-upload-modal .progress {
     margin-top: 10px;
     margin-bottom: 0;
 }
