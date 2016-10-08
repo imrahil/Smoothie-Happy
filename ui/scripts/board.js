@@ -193,7 +193,7 @@ BoardModel.prototype._makeTree = function(nodes) {
     // first pass, normalize nodes
     for (var node, i = 0, il = nodes.length; i < il; i++) {
         // current node
-        node = new TreeNodeModel(nodes[i], self);
+        node = new FileModel(nodes[i], self);
 
         // node state
         node.active(self.selectedFolder() == node.path);

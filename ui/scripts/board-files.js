@@ -2,7 +2,7 @@
 // board tree model
 // -----------------------------------------------------------------------------
 
-var TreeNodeModel = function(node, parent) {
+var FileModel = function(node, parent) {
     // self alias
     var self = this;
 
@@ -41,7 +41,7 @@ var TreeNodeModel = function(node, parent) {
     });
 };
 
-TreeNodeModel.getIconFromName = function(name) {
+FileModel.getIconFromName = function(name) {
     // default icon
     var icon = 'file-o';
 
@@ -75,13 +75,13 @@ TreeNodeModel.getIconFromName = function(name) {
     return 'fa fa-fw fa-' + icon;
 };
 
-TreeNodeModel.prototype._setIconFromName = function() {
+FileModel.prototype._setIconFromName = function() {
     this.icon = this.type == 'file'
-        ? TreeNodeModel.getIconFromName(this.name)
+        ? FileModel.getIconFromName(this.name)
         : 'fa fa-fw fa-folder-o';
 };
 
-TreeNodeModel.prototype.select = function(selected) {
+FileModel.prototype.select = function(selected) {
     // update selected nodes
     if (this.type != 'file') {
         // current selected folder
@@ -129,7 +129,7 @@ TreeNodeModel.prototype.select = function(selected) {
     }
 };
 
-TreeNodeModel.prototype.onSelect = function(selectedNode, event) {
+FileModel.prototype.onSelect = function(selectedNode, event) {
     // toggle state
     this.select(! this.active());
 };

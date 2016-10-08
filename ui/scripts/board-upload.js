@@ -38,7 +38,7 @@ UploadModel.prototype.addFile = function(file) {
     }
 
     this.queue.push({
-        icon   : TreeNodeModel.getIconFromName(file.name),
+        icon   : FileModel.getIconFromName(file.name),
         size   : filesize(file.size),
         name   : file.name,
         data   : file,
@@ -83,7 +83,7 @@ UploadModel.prototype._processQueue = function() {
     .then(function(event) {
         // create node
         file.size = file.data.size;
-        var node  = new TreeNodeModel(file, self.parent);
+        var node  = new FileModel(file, self.parent);
 
         // replace old file if exists
         var files    = self.parent.files();
