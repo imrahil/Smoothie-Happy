@@ -370,7 +370,7 @@ foreach (glob($templates_path . '/*.tpl') as $template_path) {
 
             // get template contents
             $template_buffer = file_get_contents($template_path);
-            $template_buffer = tags_replace($settings, $template_buffer);
+            //$template_buffer = tags_replace($settings, $template_buffer);
             $template_buffer = trim($template_buffer) . "\n";
         }
 
@@ -384,7 +384,8 @@ foreach ($templates_buffers as $template_name => $template_buffer) {
     $template_buffer = tags_replace($templates_buffers, $template_buffer);
 
     // save parsed template buffer in settings
-    $settings[$template_name] = $template_buffer;
+    $settings[$template_name]          = $template_buffer;
+    $templates_buffers[$template_name] = $template_buffer;
 
     // update cache
     cache($templates_path . '/' . $template_name, $template_buffer);
