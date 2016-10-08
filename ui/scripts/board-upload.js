@@ -114,8 +114,18 @@ UploadModel.prototype._processQueue = function() {
         // set node visibility
         node.visible(self.parent.selectedFolder() == file.root);
 
-        // move the file to target root
+        // move the file ?
         if (move) {
+            // overwrite ?
+            if (node.exists) {
+                // remove target file
+                return self.parent.board.rm(file.path).then(function(event) {
+                    // then move the file to target
+                    return self.parent.board.mv('/sd/' + name, file.path);
+                });
+            }
+
+            // move the file to target root
             return self.parent.board.mv('/sd/' + name, file.path);
         }
 
@@ -123,6 +133,7 @@ UploadModel.prototype._processQueue = function() {
         return Promise.resolve(event);
     })
     .catch(function(event) {
+        console.error(event);
         return event;
     })
     .then(function(event) {
