@@ -9,7 +9,7 @@
         <meta name="description" content="A SmoothieBoard network communication API">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=60e465994746be2a0a02492053fa2dd6" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=6d27eb135896ea030a62608bc65cfa74" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -536,9 +536,14 @@
             </div>
             <!-- ko if: selectedFiles().length -->
             <div class="modal-footer">
+                <!-- ko if: waitRemove -->
+                <p>Deleting files ...</p>
+                <!-- /ko -->
+                <!-- ko ifnot: waitRemove -->
                 <button data-bind="click: removeFiles" type="button" class="btn btn-danger">
                     <i class="fa fa-trash"></i> Remove
                 </button>
+                <!-- /ko -->
             </div>
             <!-- /ko -->
         </div>
@@ -603,8 +608,8 @@
         <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="vendor/filesize.min.js?v=3.3.0"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=60e465994746be2a0a02492053fa2dd6"></script>
-        <script src="examples.js?v=0.2.0-dev&amp;b=60e465994746be2a0a02492053fa2dd6"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=60e465994746be2a0a02492053fa2dd6"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=6d27eb135896ea030a62608bc65cfa74"></script>
+        <script src="examples.js?v=0.2.0-dev&amp;b=6d27eb135896ea030a62608bc65cfa74"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=6d27eb135896ea030a62608bc65cfa74"></script>
     </body>
 </html>

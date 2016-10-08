@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    60e465994746be2a0a02492053fa2dd6
-* @date     Sat, 08 Oct 2016 10:14:15 +0000
+* @build    6d27eb135896ea030a62608bc65cfa74
+* @date     Sat, 08 Oct 2016 10:22:48 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -456,6 +456,7 @@ var BoardModel = function(board) {
     self.waitConnect = ko.observable(false);
     self.waitLookup  = ko.observable(false);
     self.waitTree    = ko.observable(false);
+    self.waitRemove  = ko.observable(false);
 
     self.files   = ko.observableArray();
     self.folders = ko.observableArray();
@@ -696,6 +697,14 @@ BoardModel.prototype.removeFiles = function(board, event) {
     // self alias
     var self = this;
 
+    // skip if already in remove
+    if (self.waitRemove()) {
+        return;
+    }
+
+    // set wait remove flag
+    self.waitRemove(true);
+
     // get selected files
     var files = [].concat(self.selectedFiles());
 
@@ -735,6 +744,12 @@ BoardModel.prototype.removeFiles = function(board, event) {
             icon: 'fa fa-warning',
             message: 'An error occurred when deleting the following files : ' + paths.join(', ')
         }, { type: 'danger' });
+
+        return event;
+    })
+    .then(function(event) {
+        // set wait remove flag
+        self.waitRemove(false);
     });
 };
 

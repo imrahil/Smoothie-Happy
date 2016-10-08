@@ -22,6 +22,7 @@ var BoardModel = function(board) {
     self.waitConnect = ko.observable(false);
     self.waitLookup  = ko.observable(false);
     self.waitTree    = ko.observable(false);
+    self.waitRemove  = ko.observable(false);
 
     self.files   = ko.observableArray();
     self.folders = ko.observableArray();
@@ -262,6 +263,14 @@ BoardModel.prototype.removeFiles = function(board, event) {
     // self alias
     var self = this;
 
+    // skip if already in remove
+    if (self.waitRemove()) {
+        return;
+    }
+
+    // set wait remove flag
+    self.waitRemove(true);
+
     // get selected files
     var files = [].concat(self.selectedFiles());
 
@@ -301,5 +310,11 @@ BoardModel.prototype.removeFiles = function(board, event) {
             icon: 'fa fa-warning',
             message: 'An error occurred when deleting the following files : ' + paths.join(', ')
         }, { type: 'danger' });
+
+        return event;
+    })
+    .then(function(event) {
+        // set wait remove flag
+        self.waitRemove(false);
     });
 };
