@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    6b2994bedc4c0442422e9cbe53d8ab69
-* @date     Sat, 08 Oct 2016 07:34:14 +0000
+* @build    a4f0f3b4ec65c5b7978af0eb6f484fb6
+* @date     Sat, 08 Oct 2016 07:44:05 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -372,7 +372,12 @@ UploadModel.prototype._processQueue = function() {
 
         for (var i = 0; i < files.length; i++) {
             if (files[i].path == file.path) {
-                node.active(files[i].active());
+                if (files[i].active()) {
+                    self.parent.selectedFiles.remove(files[i]);
+                    self.parent.selectedFiles.push(node);
+                    node.active(true);
+                }
+
                 self.parent.files.splice(i, 1, node);
                 replaced = true;
                 break;
