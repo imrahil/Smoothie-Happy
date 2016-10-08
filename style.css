@@ -203,6 +203,18 @@
     margin-top: 10px;
 }
 
+#board .list-group .label {
+    padding: 5px;
+}
+
+/*#board .list-group .pull-right .label {
+    margin-right: 5px;
+}
+
+#board .list-group .pull-right :last-child {
+    margin-right: 0;
+}*/
+
 /* board: files */
 
 #board-files-pane h3 {

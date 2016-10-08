@@ -9,7 +9,7 @@
         <meta name="description" content="A SmoothieBoard network communication API">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=08b996490da66929e8124916ed3c402b" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=a40b95c96112c4df5c547c0a411ef123" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -434,12 +434,14 @@
                             <span class="filename truncate">
                                 <span data-bind="text: root"></span>/<strong data-bind="text: name"></strong>
                             </span>
-                            <!-- ko ifnot: percent -->
-                            <button data-bind="click: $parent.removeFile" type="button" class="pull-right btn btn-xs btn-danger">
-                                <i class="fa fa-close"></i>
-                            </button>
-                            <!-- /ko -->
-                            <span data-bind="text: size" class="pull-right label label-info"></span>
+                            <span class="pull-right">
+                                <span data-bind="text: size" class="label label-info"></span>
+                                <!-- ko ifnot: percent -->
+                                <button data-bind="click: $parent.removeFile" type="button" class="btn btn-xs btn-danger">
+                                    <i class="fa fa-close"></i>
+                                </button>
+                                <!-- /ko -->
+                            </span>
                         </div>
                         <!-- ko if: percent -->
                         <div class="progress">
@@ -519,10 +521,12 @@
                             <span class="filename truncate">
                                 <span data-bind="text: root"></span>/<strong data-bind="text: name"></strong>
                             </span>
-                            <button data-bind="click: $parent.removeFile" type="button" class="pull-right btn btn-xs btn-danger">
-                                <i class="fa fa-close"></i>
-                            </button>
-                            <span data-bind="text: size" class="pull-right label label-info"></span>
+                            <span class="pull-right">
+                                <span data-bind="text: size" class="label label-info"></span>
+                                <button data-bind="click: $parent.removeFile" type="button" class="btn btn-xs btn-danger">
+                                    <i class="fa fa-close"></i>
+                                </button>
+                            </span>
                         </div>
                     </li>
                 </ul>
@@ -597,8 +601,8 @@
         <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="vendor/filesize.min.js?v=3.3.0"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=08b996490da66929e8124916ed3c402b"></script>
-        <script src="examples.js?v=0.2.0-dev&amp;b=08b996490da66929e8124916ed3c402b"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=08b996490da66929e8124916ed3c402b"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=a40b95c96112c4df5c547c0a411ef123"></script>
+        <script src="examples.js?v=0.2.0-dev&amp;b=a40b95c96112c4df5c547c0a411ef123"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=a40b95c96112c4df5c547c0a411ef123"></script>
     </body>
 </html>

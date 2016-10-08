@@ -31,12 +31,14 @@
                             <span class="filename truncate">
                                 <span data-bind="text: root"></span>/<strong data-bind="text: name"></strong>
                             </span>
-                            <!-- ko ifnot: percent -->
-                            <button data-bind="click: $parent.removeFile" type="button" class="pull-right btn btn-xs btn-danger">
-                                <i class="fa fa-close"></i>
-                            </button>
-                            <!-- /ko -->
-                            <span data-bind="text: size" class="pull-right label label-info"></span>
+                            <span class="pull-right">
+                                <span data-bind="text: size" class="label label-info"></span>
+                                <!-- ko ifnot: percent -->
+                                <button data-bind="click: $parent.removeFile" type="button" class="btn btn-xs btn-danger">
+                                    <i class="fa fa-close"></i>
+                                </button>
+                                <!-- /ko -->
+                            </span>
                         </div>
                         <!-- ko if: percent -->
                         <div class="progress">
