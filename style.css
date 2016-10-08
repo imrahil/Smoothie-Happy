@@ -224,6 +224,10 @@
     border-right: 0;
 }
 
+#board .files-tree.list-group .list-group-item.active {
+    border-color: #eee;
+}
+
 #board .files-tree.list-group .list-group-item:first-child {
     border-top: 0;
 }

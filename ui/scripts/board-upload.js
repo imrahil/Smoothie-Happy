@@ -79,6 +79,7 @@ UploadModel.prototype._processQueue = function() {
 
         for (var i = 0; i < files.length; i++) {
             if (files[i].path == file.path) {
+                node.active(files[i].active());
                 self.parent.files.splice(i, 1, node);
                 replaced = true;
                 break;
