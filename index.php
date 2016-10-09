@@ -3,7 +3,13 @@
 // Smoothie-Happy : Source compiler - v0.01-alpha
 // -----------------------------------------------------------------------------
 // library modules
-$modules = ['network', 'board', 'board.commands', 'network.scanner'];
+$modules = [
+    'network',
+    'network.scanner',
+    'board',
+    'board.commands',
+    'board.config'
+];
 
 // library settings
 $settings = [

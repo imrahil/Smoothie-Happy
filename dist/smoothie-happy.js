@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    4ea00693eda28358921562904b7f8c3c
-* @date     Sat, 08 Oct 2016 11:45:21 +0000
+* @build    428b6b01efb72b86655470c8cc17ebad
+* @date     Sun, 09 Oct 2016 10:30:20 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -25,7 +25,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = '4ea00693eda28358921562904b7f8c3c';
+    sh.build = '428b6b01efb72b86655470c8cc17ebad';
 
     /**
     * @property {String} id API id.
@@ -577,6 +577,533 @@ var sh = sh || {};
 
         // create and return the request
         return sh.network.Request(settings);
+    };
+
+    /**
+    * Network scanner.
+    *
+    * @class
+    *
+    * @param {Object}       settings         Scanner settings.
+    * @param {String|Array} settings.input   Ip's scan pattern. See {@link sh.network.Scanner#setInput|setInput} for details.
+    * @param {Integer}      settings.timeout Scan timeout in milliseconds. See {@link sh.network.Scanner#setTimeout|setTimeout} for details.
+    *
+    * @example
+    * ### Scanne the network
+    * ```
+    * // create the scanner instance
+    * var scanner = sh.network.Scanner();
+    * 
+    * // register events callbacks
+    * scanner.on('start', function(scan) {
+    *     console.log('scan:', 'start:', scan.total);
+    * });
+    * 
+    * scanner.on('pause', function(scan) {
+    *     console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
+    * });
+    * 
+    * scanner.on('resume', function(scan) {
+    *     console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
+    * });
+    * 
+    * scanner.on('stop', function(scan) {
+    *     console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
+    * });
+    * 
+    * scanner.on('progress', function(scan) {
+    *     console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
+    * });
+    * 
+    * scanner.on('board', function(scan, board) {
+    *     console.log('scan:', 'board:', board);
+    * });
+    * 
+    * scanner.on('end', function(scan) {
+    *     console.log('scan:', 'end:', scan.scanned, '/', scan.total);
+    *     console.log('scan:', 'found:', scan.found, '/', scan.total);
+    * });
+    * 
+    * // start scan
+    * scanner.start('192.168.1.100-115');
+    * ```
+    */
+    sh.network.Scanner = function(settings) {
+        // instance factory
+        if (! (this instanceof sh.network.Scanner)) {
+            return new sh.network.Scanner(settings);
+        }
+
+        // defaults settings
+        settings = settings || {};
+
+        /**
+        * @property {Object} - Registred callbacks.
+        * @protected
+        */
+        this._on = {};
+
+        /**
+        * @property {String} input Input to scan.
+        * @default 192.168.1.*.
+        * @readonly
+        */
+        this.input = settings.input || '192.168.1.*';
+
+        /**
+        * @property {Array} queue Ip's queue to scann.
+        * @readonly
+        */
+        this.queue = [];
+
+        /**
+        * @property {Integer} timeout Default scan response timeout in milliseconds.
+        * @default 2000
+        * @readonly
+        */
+        this.timeout = settings.timeout === undefined ? 2000 : settings.timeout;
+
+        /**
+        * @property {Integer} boardTimeout Default board response timeout in milliseconds.
+        * @default 1000
+        * @readonly
+        */
+        this.boardTimeout = settings.boardTimeout === undefined ? 5000 : settings.boardTimeout;
+
+        /**
+        * @property {Boolean} scanning Is scanning.
+        * @readonly
+        */
+        this.scanning = false;
+
+        /**
+        * @property {Boolean} aborted Aborted scann status.
+        * @readonly
+        */
+        this.aborted = false;
+
+        /**
+        * @property {Integer} total Total number of ip to scan.
+        * @readonly
+        */
+        this.total = 0;
+
+        /**
+        *@property {Integer} scanned Number of ip scanned.
+        * @readonly
+        */
+        this.scanned = 0;
+
+        /**
+        * @property {Integer} found Number of boards found.
+        * @readonly
+        */
+        this.found = 0;
+
+        /**
+        * @property {Object} boards Known boards list.
+        * @readonly
+        */
+        this.boards = {};
+
+    };
+
+    // -------------------------------------------------------------------------
+
+    /**
+    * On scan start callback.
+    *
+    * @callback sh.network.Scanner~onStart
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
+    */
+
+    /**
+    * On scan pause callback.
+    *
+    * @callback sh.network.Scanner~onPause
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
+    */
+
+    /**
+    * On scan resume callback.
+    *
+    * @callback sh.network.Scanner~onResume
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
+    */
+
+    /**
+    * On scan stop callback.
+    *
+    * @callback sh.network.Scanner~onStop
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
+    */
+
+    /**
+    * On board found callback.
+    *
+    * @callback sh.network.Scanner~onBoard
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
+    * @param {sh.Board}           board   Board instance.
+    */
+
+    /**
+    * On scan end callback.
+    *
+    * @callback sh.network.Scanner~onEnd
+    *
+    * @param {sh.network.Scanner} scanner Scanner instance.
+    */
+
+    // -------------------------------------------------------------------------
+
+    /**
+    * Register an event callback.
+    *
+    * @method
+    *
+    * @param {String}   event    Event name.
+    * @param {Function} callback Function to call on event is fired.
+    *
+    * @return {this}
+    *
+    * @callbacks
+    * | Name   | Type                                         | Description                |
+    * | -------| -------------------------------------------- | -------------------------- |
+    * | start  | {@link sh.network.Scanner~onStart|onStart}   | Called before scan start.  |
+    * | pause  | {@link sh.network.Scanner~onPause|onPause}   | Called after scan pause.   |
+    * | resume | {@link sh.network.Scanner~onResume|onResume} | Called before scan resume. |
+    * | stop   | {@link sh.network.Scanner~onStop|onStop}     | Called after scan stop.    |
+    * | stop   | {@link sh.network.Scanner~onBoard|onBoard}   | Called after board found.  |
+    * | stop   | {@link sh.network.Scanner~onEnd|onEnd}       | Called after scan end.     |
+    */
+    sh.network.Scanner.prototype.on = function(event, callback) {
+        // register callback
+        this._on[event] = callback;
+
+        // -> this (chainable)
+        return this;
+    };
+
+    /**
+    * Trigger an user defined callback with the scope of this class.
+    *
+    * @method
+    * @protected
+    *
+    * @param {String} event Event name.
+    * @param {Array}  args  Arguments to pass to the callback.
+    *
+    * @return {this}
+    */
+    sh.network.Scanner.prototype._trigger = function(name, args) {
+        // if defined, call user callback
+        this._on[name] && this._on[name].apply(this, args || []);
+
+        // -> this (chainable)
+        return this;
+    };
+
+    // -------------------------------------------------------------------------
+
+    /**
+    * Set the input and compute the scan queue.
+    *
+    * **Allowed inputs :**
+    * ```
+    * - Wildcard  : '192.168.1.*'
+    * - Single IP : '192.168.1.100'
+    * - IP Range  : '192.168.1.100-120'
+    * - Hostname  : 'my.smoothie.board'
+    * - Mixed     : '192.168.1.100, my.smoothie.board'
+    * - Array     : ['192.168.1.100-120', 'my.smoothie.board']
+    * ```
+    *
+    * @method
+    *
+    * @param {String|Array} input Ip's scan pattern.
+    *
+    * @return {this}
+    */
+    sh.network.Scanner.prototype.setInput = function(input) {
+        // Not alowed in scan mode.
+        if (this.scanning) {
+            throw new Error('Already in scan mode.');
+        }
+
+        // reset queue
+        this.queue = [];
+
+        // input array
+        var inputArray = input;
+
+        // split input on comma if not an array
+        if (typeof inputArray === 'string') {
+            inputArray = inputArray.split(',');
+        }
+
+        // too short or not defined
+        if (! inputArray || inputArray.length === 0) {
+            throw new Error('Invalid input.');
+        }
+
+        // trim input parts
+        inputArray = inputArray.map(function(part) {
+            return part.trim();
+        });
+
+        // for each parts
+        for (var y = 0, yl = inputArray.length; y < yl; y++) {
+            // current part
+            var currentInput = inputArray[y];
+
+            // Wildcard | ex.: [192.168.1.*]
+            if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.\*$/.test(currentInput)) {
+                var currentInputParts = currentInput.split('.');
+                currentInputParts.pop(); // remove last part (*)
+                var baseIp = currentInputParts.join('.');
+                for (var i = 0; i <= 255; i++) {
+                    this.queue.push(baseIp + '.' + i);
+                }
+            }
+
+            // Single ip | ex.: [192.168.1.55]
+            else if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(currentInput)) {
+                this.queue.push(currentInput);
+            }
+
+            // Ip's range | ex.: [192.168.1.50-100]
+            else if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\-[0-9]{1,3}$/.test(currentInput)) {
+                var currentInputParts = currentInput.split('.');
+                var currentInputRange = currentInputParts.pop().split('-'); // last part (xxx-xxx)
+                var baseIp     = currentInputParts.join('.');
+                for (var i = currentInputRange[0], il = currentInputRange[1]; i <= il; i++) {
+                    this.queue.push(baseIp + '.' + i);
+                }
+            }
+
+            // Hostname | ex.: [www.host.name]
+            else if (/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/.test(currentInput)) {
+                this.queue.push(currentInput);
+            }
+
+            // Invalid...
+            else {
+                throw new Error('Invalid input.');
+            }
+        }
+
+        // update input
+        this.input = input;
+
+        // return self
+        return this;
+    };
+
+    /**
+    * Set scan timeout.
+    *
+    * @method
+    *
+    * @param {Integer} timeout Scan timeout in milliseconds [min: 100, max: 2000].
+    *
+    * @return {this}
+    */
+    sh.network.Scanner.prototype.setTimeout = function(timeout) {
+        // out of range test
+        if (timeout < 100 || timeout > 2000) {
+            throw new Error('Timeout is out of range [100, 2000].');
+        }
+
+        // set the timeout
+        this.timeout = timeout;
+
+        // return self
+        return this;
+    };
+
+    // -------------------------------------------------------------------------
+
+    /**
+    * Shift and scan an ip from the queue looking for a SmoothieBoard.
+    *
+    * @method
+    * @protected
+    *
+    * @return {Boolean|null}
+    */
+    sh.network.Scanner.prototype._processQueue = function() {
+        // not in scan mode
+        if (! this.scanning) {
+            return false;
+        }
+
+        // shift first address from the queue
+        var address = this.queue.shift();
+
+        // end of queue
+        if (! address) {
+            this._trigger('end', [this]);
+            this.scanning = false;
+            return true;
+        }
+
+        // increment scanned counter
+        this.scanned++;
+
+        // self alias
+        var self  = this;
+
+        try {
+            // create board instance
+            var board = sh.Board({
+                address: address,
+                timeout: this.timeout
+            });
+
+            // get board version
+            board.version().then(function(event) {
+                // increment counters
+                self.found++;
+
+                // add the board
+                self.boards[address] = event.board;
+
+                // set board default timeout
+                event.board.timeout = self.boardTimeout;
+
+                // trigger board event
+                self._trigger('board', [self, event.board]);
+            })
+            .catch(function(event) {
+                // return event
+                return event;
+            })
+            .then(function(event) {
+                // trigger progress event
+                self._trigger('progress', [self]);
+
+                // process queue
+                self._processQueue();
+            });
+        }
+        catch(error) {
+            // trigger progress event
+            self._trigger('progress', [self]);
+
+            // process queue
+            self._processQueue();
+        }
+
+        // return null
+        return null;
+    };
+
+    // -------------------------------------------------------------------------
+
+    /**
+    * Start new scan.
+    *
+    * @method
+    *
+    * @param {String|Array} input   Ip's scan pattern. See {@link sh.network.Scanner#setInput|setInput} for details.
+    * @param {Integer}      timeout Scan timeout in milliseconds. See {@link sh.network.Scanner#setTimeout|setTimeout} for details.
+    *
+    * @return {this}
+    */
+    sh.network.Scanner.prototype.start = function(input, timeout) {
+        // set the input
+        this.setInput(input || this.input);
+
+        // set the timeout
+        timeout && this.setTimeout(timeout);
+
+        // set scan status
+        this.scanning = true;
+        this.aborted  = false;
+        this.total    = this.queue.length;
+        this.scanned  = 0;
+        this.found    = 0;
+        this.boards   = {};
+
+        // call user callback
+        this._trigger('start', [this]);
+
+        // process queue
+        this._processQueue();
+
+        // -> this (chainable)
+        return this;
+    };
+
+    /**
+    * Stop current scan.
+    *
+    * @method
+    *
+    * @return {this}
+    */
+    sh.network.Scanner.prototype.stop = function() {
+        if (this.scanning || this.aborted) {
+            // set scan status
+            this.scanning = false;
+            this.aborted  = false;
+
+            // call user callback
+            this._trigger('stop', [this]);
+        }
+
+        // -> this (chainable)
+        return this;
+    };
+
+    /**
+    * Pause current scan.
+    *
+    * @method
+    *
+    * @return {this}
+    */
+    sh.network.Scanner.prototype.pause = function() {
+        if (this.scanning) {
+            // set scan status
+            this.scanning = false;
+            this.aborted  = true;
+
+            // call user callback
+            this._trigger('pause', [this]);
+       }
+
+        // -> this (chainable)
+        return this;
+    };
+
+    /**
+    * Resume current scan.
+    *
+    * @method
+    *
+    * @return {this}
+    */
+    sh.network.Scanner.prototype.resume = function() {
+        if (this.aborted) {
+            // set scan status
+            this.aborted  = false;
+            this.scanning = true;
+
+            // call user callback
+            this._trigger('resume', [this]);
+
+            // process queue
+            this._processQueue();
+        }
+
+        // -> this (chainable)
+        return this;
     };
 
     /**
@@ -1261,8 +1788,8 @@ var sh = sh || {};
     *
     * @method
     *
-    * @param {String}  [path='/'] The path to list file.
-    * @param {Integer} [timeout]  Connection timeout.
+    * @param {String}  [path='/']  The path to list file.
+    * @param {Integer} [timeout=0] Connection timeout.
     *
     * @return {sh.network.Request}
     *
@@ -1292,6 +1819,9 @@ var sh = sh || {};
 
         // remove trailing slash
         path = self.normalizePath(path);
+
+        // default timeout
+        timeout = timeout === undefined ? 0 : timeout;
 
         // get board version (raw)
         return this.command('ls -s ' + path, timeout).then(function(event) {
@@ -1485,8 +2015,6 @@ var sh = sh || {};
     * @param {Integer} [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
-    *
-    * 
     */
     sh.Board.prototype.mv = function(source, target, timeout) {
         // remove trailing slash
@@ -1506,8 +2034,6 @@ var sh = sh || {};
     * @param {Integer}      [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
-    *
-    * 
     */
     sh.Board.prototype.rm = function(paths, timeout) {
         // multiple files
@@ -1538,8 +2064,6 @@ var sh = sh || {};
     * @param {Integer}          [timeout]  Connection timeout.
     *
     * @return {sh.network.Request}
-    *
-    * 
     */
     sh.Board.prototype.upload = function(file, filename, timeout) {
         // self alias
@@ -1564,530 +2088,796 @@ var sh = sh || {};
     };
 
     /**
-    * Network scanner.
+    * Get file content.
+    *
+    * @method
+    *
+    * @param {String}  path      File path.
+    * @param {Integer} [limit]   Number of lines.
+    * @param {Integer} [timeout] Connection timeout.
+    *
+    * @return {Promise}
+    */
+    sh.Board.prototype.cat = function(path, limit, timeout) {
+        // self alias
+        var self = this;
+
+        // command
+        var command = 'cat ' + path;
+
+        if (limit !== undefined) {
+            command += ' ' + limit;
+        }
+
+        // send the command (promise)
+        return self.command(command, timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw;
+
+            // file not found
+            if (raw.indexOf('File not found:') == 0) {
+                return Promise.reject(sh.BoardEvent('cat', self, event, raw));
+            }
+
+            // normalize line endding
+            var text = raw.replace('\r\n', '\n');
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('cat', self, event, text));
+        });
+    };
+
+    /**
+    * Handle an configuration value.
     *
     * @class
     *
-    * @param {Object}       settings         Scanner settings.
-    * @param {String|Array} settings.input   Ip's scan pattern. See {@link sh.network.Scanner#setInput|setInput} for details.
-    * @param {Integer}      settings.timeout Scan timeout in milliseconds. See {@link sh.network.Scanner#setTimeout|setTimeout} for details.
-    *
-    * @example
-    * ### Scanne the network
-    * ```
-    * // create the scanner instance
-    * var scanner = sh.network.Scanner();
-    * 
-    * // register events callbacks
-    * scanner.on('start', function(scan) {
-    *     console.log('scan:', 'start:', scan.total);
-    * });
-    * 
-    * scanner.on('pause', function(scan) {
-    *     console.log('scan:', 'pause:', scan.scanned, '/', scan.total);
-    * });
-    * 
-    * scanner.on('resume', function(scan) {
-    *     console.log('scan:', 'resume:', scan.scanned, '/', scan.total);
-    * });
-    * 
-    * scanner.on('stop', function(scan) {
-    *     console.log('scan:', 'stop:', scan.scanned, '/', scan.total);
-    * });
-    * 
-    * scanner.on('progress', function(scan) {
-    *     console.log('scan:', 'progress:', scan.scanned, '/', scan.total);
-    * });
-    * 
-    * scanner.on('board', function(scan, board) {
-    *     console.log('scan:', 'board:', board);
-    * });
-    * 
-    * scanner.on('end', function(scan) {
-    *     console.log('scan:', 'end:', scan.scanned, '/', scan.total);
-    *     console.log('scan:', 'found:', scan.found, '/', scan.total);
-    * });
-    * 
-    * // start scan
-    * scanner.start('192.168.1.100-115');
-    * ```
+    * @param {String} value The value as string.
     */
-    sh.network.Scanner = function(settings) {
+    sh.BoardConfigValue = function(value) {
         // instance factory
-        if (! (this instanceof sh.network.Scanner)) {
-            return new sh.network.Scanner(settings);
+        if (! (this instanceof sh.BoardConfigValue)) {
+            return new sh.BoardConfigValue(value);
         }
 
-        // defaults settings
-        settings = settings || {};
-
         /**
-        * @property {Object} - Registred callbacks.
+        * @property {String}
         * @protected
         */
-        this._on = {};
+        this._lastValue = null;
 
         /**
-        * @property {String} input Input to scan.
-        * @default 192.168.1.*.
-        * @readonly
+        * @property {String}
+        * @protected
         */
-        this.input = settings.input || '192.168.1.*';
+        this._currentValue = null;
+
+        this.set(value);
 
         /**
-        * @property {Array} queue Ip's queue to scann.
-        * @readonly
+        * @property {String}
+        * @protected
         */
-        this.queue = [];
-
-        /**
-        * @property {Integer} timeout Default scan response timeout in milliseconds.
-        * @default 2000
-        * @readonly
-        */
-        this.timeout = settings.timeout === undefined ? 2000 : settings.timeout;
-
-        /**
-        * @property {Integer} boardTimeout Default board response timeout in milliseconds.
-        * @default 1000
-        * @readonly
-        */
-        this.boardTimeout = settings.boardTimeout === undefined ? 5000 : settings.boardTimeout;
-
-        /**
-        * @property {Boolean} scanning Is scanning.
-        * @readonly
-        */
-        this.scanning = false;
-
-        /**
-        * @property {Boolean} aborted Aborted scann status.
-        * @readonly
-        */
-        this.aborted = false;
-
-        /**
-        * @property {Integer} total Total number of ip to scan.
-        * @readonly
-        */
-        this.total = 0;
-
-        /**
-        *@property {Integer} scanned Number of ip scanned.
-        * @readonly
-        */
-        this.scanned = 0;
-
-        /**
-        * @property {Integer} found Number of boards found.
-        * @readonly
-        */
-        this.found = 0;
-
-        /**
-        * @property {Object} boards Known boards list.
-        * @readonly
-        */
-        this.boards = {};
-
-    };
-
-    // -------------------------------------------------------------------------
-
-    /**
-    * On scan start callback.
-    *
-    * @callback sh.network.Scanner~onStart
-    *
-    * @param {sh.network.Scanner} scanner Scanner instance.
-    */
-
-    /**
-    * On scan pause callback.
-    *
-    * @callback sh.network.Scanner~onPause
-    *
-    * @param {sh.network.Scanner} scanner Scanner instance.
-    */
-
-    /**
-    * On scan resume callback.
-    *
-    * @callback sh.network.Scanner~onResume
-    *
-    * @param {sh.network.Scanner} scanner Scanner instance.
-    */
-
-    /**
-    * On scan stop callback.
-    *
-    * @callback sh.network.Scanner~onStop
-    *
-    * @param {sh.network.Scanner} scanner Scanner instance.
-    */
-
-    /**
-    * On board found callback.
-    *
-    * @callback sh.network.Scanner~onBoard
-    *
-    * @param {sh.network.Scanner} scanner Scanner instance.
-    * @param {sh.Board}           board   Board instance.
-    */
-
-    /**
-    * On scan end callback.
-    *
-    * @callback sh.network.Scanner~onEnd
-    *
-    * @param {sh.network.Scanner} scanner Scanner instance.
-    */
-
-    // -------------------------------------------------------------------------
-
-    /**
-    * Register an event callback.
-    *
-    * @method
-    *
-    * @param {String}   event    Event name.
-    * @param {Function} callback Function to call on event is fired.
-    *
-    * @return {this}
-    *
-    * @callbacks
-    * | Name   | Type                                         | Description                |
-    * | -------| -------------------------------------------- | -------------------------- |
-    * | start  | {@link sh.network.Scanner~onStart|onStart}   | Called before scan start.  |
-    * | pause  | {@link sh.network.Scanner~onPause|onPause}   | Called after scan pause.   |
-    * | resume | {@link sh.network.Scanner~onResume|onResume} | Called before scan resume. |
-    * | stop   | {@link sh.network.Scanner~onStop|onStop}     | Called after scan stop.    |
-    * | stop   | {@link sh.network.Scanner~onBoard|onBoard}   | Called after board found.  |
-    * | stop   | {@link sh.network.Scanner~onEnd|onEnd}       | Called after scan end.     |
-    */
-    sh.network.Scanner.prototype.on = function(event, callback) {
-        // register callback
-        this._on[event] = callback;
-
-        // -> this (chainable)
-        return this;
+        this._firstValue = this._currentValue;
     };
 
     /**
-    * Trigger an user defined callback with the scope of this class.
+    * Set new value.
     *
     * @method
-    * @protected
     *
-    * @param {String} event Event name.
-    * @param {Array}  args  Arguments to pass to the callback.
+    * @param {String} value The new value.
     *
-    * @return {this}
+    * @return {String} The old value.
     */
-    sh.network.Scanner.prototype._trigger = function(name, args) {
-        // if defined, call user callback
-        this._on[name] && this._on[name].apply(this, args || []);
+    sh.BoardConfigValue.prototype.set = function(value) {
+        if (typeof value != 'string') {
+            throw new Error('The value must be a string.');
+        }
 
-        // -> this (chainable)
-        return this;
+        value = value.trim();
+
+        this._lastValue    = this._currentValue || value;
+        this._currentValue = value;
+
+        return this._lastValue;
     };
 
-    // -------------------------------------------------------------------------
+    /**
+    * Set value from first value.
+    *
+    * @method
+    * @return {String} The old value.
+    */
+    sh.BoardConfigValue.prototype.setFromFirstValue = function() {
+        return this.set(this._firstValue);
+    };
 
     /**
-    * Set the input and compute the scan queue.
+    * Set value from last value.
     *
-    * **Allowed inputs :**
-    * ```
-    * - Wildcard  : '192.168.1.*'
-    * - Single IP : '192.168.1.100'
-    * - IP Range  : '192.168.1.100-120'
-    * - Hostname  : 'my.smoothie.board'
-    * - Mixed     : '192.168.1.100, my.smoothie.board'
-    * - Array     : ['192.168.1.100-120', 'my.smoothie.board']
-    * ```
+    * @method
+    * @return {String} The old value.
+    */
+    sh.BoardConfigValue.prototype.setFromLastValue = function() {
+        return this.set(this._lastValue);
+    };
+
+    /**
+    * Get current value as string.
+    *
+    * @method
+    * @return {String}
+    */
+    sh.BoardConfigValue.prototype.get = function() {
+        return this._currentValue;
+    };
+
+    /**
+    * Get first value as string.
+    *
+    * @method
+    * @return {String}
+    */
+    sh.BoardConfigValue.prototype.getFirstValue = function() {
+        return this._firstValue;
+    };
+
+    /**
+    * Get last value as string.
+    *
+    * @method
+    * @return {String}
+    */
+    sh.BoardConfigValue.prototype.getLastValue = function() {
+        return this._lastValue;
+    };
+
+    /**
+    * Get current value as string.
+    *
+    * @method
+    * @return {String}
+    */
+    sh.BoardConfigValue.prototype.toString = function() {
+        return this.get();
+    };
+
+    /**
+    * Get current value as integer.
+    *
+    * @method
+    * @return {Integer}
+    */
+    sh.BoardConfigValue.prototype.toInteger = function() {
+        return parseInt(this._currentValue);
+    };
+
+    /**
+    * Get current value as float.
+    *
+    * @method
+    * @return {Float}
+    */
+    sh.BoardConfigValue.prototype.toFloat = function(decimals) {
+        var floatValue = parseFloat(this._currentValue);
+
+        if (decimals === undefined) {
+            return floatValue;
+        }
+
+        return Number(floatValue.toFixed(decimals));
+    };
+
+    /**
+    * Handle an configuration item.
+    *
+    * @class
+    *
+    * @param {String} [comments] Comments as string.
+    */
+    sh.BoardConfigComments = function(comments) {
+        // instance factory
+        if (! (this instanceof sh.BoardConfigComments)) {
+            return new sh.BoardConfigComments(comments);
+        }
+
+        /**
+        * @property {Array[String]}
+        * @protected
+        */
+        this._comments = [];
+
+        this.comments(comments || '');
+    };
+
+    /**
+    * Get/Set/Append comments.
     *
     * @method
     *
-    * @param {String|Array} input Ip's scan pattern.
+    * @param {String}  [comments]     Comments as string.
+    * @param {Boolean} [append=false] If true append the comments.
     *
-    * @return {this}
+    * @return {Array}
     */
-    sh.network.Scanner.prototype.setInput = function(input) {
-        // Not alowed in scan mode.
-        if (this.scanning) {
-            throw new Error('Already in scan mode.');
+    sh.BoardConfigComments.prototype.comments = function(comments, append) {
+        if (comments === undefined) {
+            return this._comments;
         }
 
-        // reset queue
-        this.queue = [];
-
-        // input array
-        var inputArray = input;
-
-        // split input on comma if not an array
-        if (typeof inputArray === 'string') {
-            inputArray = inputArray.split(',');
+        if (typeof comments != 'string') {
+            throw new Error('The comments must be a string.');
         }
 
-        // too short or not defined
-        if (! inputArray || inputArray.length === 0) {
-            throw new Error('Invalid input.');
+        if (! append) {
+            this._comments = [];
         }
 
-        // trim input parts
-        inputArray = inputArray.map(function(part) {
-            return part.trim();
-        });
+        var lines = comments.trim().split('\n');
 
-        // for each parts
-        for (var y = 0, yl = inputArray.length; y < yl; y++) {
-            // current part
-            var currentInput = inputArray[y];
+        return this._comments = this._comments.concat(lines);
+    };
 
-            // Wildcard | ex.: [192.168.1.*]
-            if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.\*$/.test(currentInput)) {
-                var currentInputParts = currentInput.split('.');
-                currentInputParts.pop(); // remove last part (*)
-                var baseIp = currentInputParts.join('.');
-                for (var i = 0; i <= 255; i++) {
-                    this.queue.push(baseIp + '.' + i);
+    /**
+    * Handle an configuration item.
+    *
+    * @class
+    *
+    * @param {Object}  settings                  Item settings.
+    * @param {String}  settings.name             Item name.
+    * @param {String}  settings.value            Item value.
+    * @param {String}  [settings.comments]       Item comments.
+    * @param {Boolean} [settings.disabled=false] Item state.
+    */
+    sh.BoardConfigItem = function(settings) {
+        // instance factory
+        if (! (this instanceof sh.BoardConfigItem)) {
+            return new sh.BoardConfigItem(settings);
+        }
+
+        /**
+        * @property {String}
+        * @protected
+        */
+        this._name = '';
+
+        this.name(settings.name);
+
+        /**
+        * @property {sh.BoardConfigValue}
+        * @protected
+        */
+        this._value = null;
+
+        this.value(settings.value);
+
+        /**
+        * @property {sh.BoardConfigComments}
+        * @protected
+        */
+        this._comments = sh.BoardConfigComments(settings.comments);
+
+        /**
+        * @property {Boolean}
+        * @protected
+        */
+        this._disabled = false;
+
+        this.disabled(settings.disabled);
+    };
+
+    /**
+    * Get/Set the item name.
+    *
+    * @method
+    *
+    * @param {Boolean} [name] If provided set new name.
+    *
+    * @return {Boolean}
+    */
+    sh.BoardConfigItem.prototype.name = function(name) {
+        if (name === undefined) {
+            return this._name;
+        }
+
+        if (typeof name != 'string') {
+            throw new Error('The name must be a string.');
+        }
+
+        return this._name = name.trim();
+    };
+
+    /**
+    * Get/Set the item value.
+    *
+    * This method reload the item object when a new value is set,
+    * if you want to keep the value state, use `value().set(newValue)`.
+    *
+    * @method
+    *
+    * @param {String} [value] If provided reload item value.
+    *
+    * @return {sh.BoardConfigValue}
+    */
+    sh.BoardConfigItem.prototype.value = function(value) {
+        if (value === undefined) {
+            return this._value;
+        }
+
+        return this._value = sh.BoardConfigValue(value);
+    };
+
+    /**
+    * Get/Set/Append comments.
+    *
+    * @method
+    *
+    * @param {String}  [comments]     Comments as string.
+    * @param {Boolean} [append=false] If true append the comments.
+    *
+    * @return {Array}
+    */
+    sh.BoardConfigItem.prototype.comments = function(comments, append) {
+        return this._comments.comments(comments, append);
+    };
+
+    /**
+    * Enable/Disable item.
+    *
+    * @method
+    *
+    * @param {Boolean} [state] If provided set new state.
+    *
+    * @return {Boolean}
+    */
+    sh.BoardConfigItem.prototype.disabled = function(state) {
+        if (state === undefined) {
+            return this._disabled;
+        }
+
+        return this._disabled = !!state;
+    };
+
+    /**
+    * Handle the board configuration.
+    *
+    * @class
+    *
+    * @param {String} [source] Raw configuration as string.
+    */
+    sh.BoardConfig = function(source) {
+        // instance factory
+        if (! (this instanceof sh.BoardConfig)) {
+            return new sh.BoardConfig(source);
+        }
+
+        /**
+        * @property {String}
+        * @readonly
+        */
+        this._source = source || null;
+
+        /**
+        * @property {Object}
+        * @readonly
+        */
+        this._items = null;
+
+        /**
+        * @property {Array}
+        * @readonly
+        */
+        this._list = null;
+
+        /**
+        * @property {Boolean}
+        * @readonly
+        */
+        this._loaded = false;
+
+        // parse the source
+        if (source) {
+            this.parse(source);
+        }
+    };
+
+    /**
+    * Get all items as object (without sections comments).
+    *
+    * @method
+    * @return {Object|null}
+    * @throws {Error}
+    */
+    sh.BoardConfig.prototype.getItems = function() {
+        if (! this._loaded) {
+            throw new Error('No configuration loaded.');
+        }
+
+        return this._items;
+    };
+
+    /**
+    * Get all items as array (with sections comments).
+    *
+    * @method
+    * @return {Array|null}
+    * @throws {Error}
+    */
+    sh.BoardConfig.prototype.getList = function() {
+        if (! this._loaded) {
+            throw new Error('No configuration loaded.');
+        }
+
+        return this._list;
+    };
+
+    /**
+    * Return an config item if exists.
+    *
+    * @method
+    *
+    * @param {String} key            Configuration key.
+    * @param {Mixed}  [defaultValue] Default value to return if not defined.
+    *
+    * @return {null|sh.BoardConfigItem}
+    */
+    sh.BoardConfig.prototype.hasItem = function(key, defaultValue) {
+        return this.getItems()[key] || defaultValue;
+    };
+
+    /**
+    * Get an config item.
+    *
+    * @method
+    *
+    * @param {String}  [key]          Configuration key, if null return all items.
+    * @param {String}  [defaultValue] Default value to return if not defined.
+    *
+    * @return {sh.BoardConfigValue}
+    * @throws {Error} If not defined and no default value provided.
+    */
+    sh.BoardConfig.prototype.getItem = function(key, defaultValue) {
+        if (key === undefined) {
+            return this.getItems();
+        }
+
+        var item = this.hasItem(key);
+
+        if (item) {
+            return item;
+        }
+
+        if (defaultValue === undefined) {
+            throw new Error('Undefined item [' + key + ']');
+        }
+
+        return new sh.BoardConfigValue(defaultValue);
+    };
+
+    /**
+    * Get an config item value.
+    *
+    * @method
+    *
+    * @param {String} key                 Configuration key.
+    * @param {String} [defaultValue=null] Default value to return.
+    *
+    * @return {sh.BoardConfigValue|null}
+    */
+    sh.BoardConfig.prototype.getValue = function(key, defaultValue) {
+        return this.getItem(key, defaultValue).value();
+    };
+
+    /**
+    * Set an config item value.
+    *
+    * @method
+    *
+    * @param {String} key   Configuration key.
+    * @param {String} value The new value.
+    *
+    * @return {String} The old value.
+    */
+    sh.BoardConfig.prototype.setValue = function(key, value) {
+        return this.getItem(key).value(value);
+    };
+
+    /**
+    * Create an config item.
+    *
+    * @method
+    *
+    * @param {Object}         settings                  Item settings.
+    * @param {String}         settings.name             Item name.
+    * @param {String}         settings.value            Item value.
+    * @param {String}         [settings.comments]       Item comments.
+    * @param {Boolean}        [settings.disabled=false] Item state.
+    * @param {Object}         options                   Item settings.
+    * @param {Boolean}        [options.replace]         Replace item if already defined.
+    * @param {Integer|String} [options.position]        Insert position.
+    *
+    * @return {sh.BoardConfigItem}
+    * @throws {Error} If already defined.
+    */
+    sh.BoardConfig.prototype.createItem = function(settings, options) {
+        var newItem = sh.BoardConfigItem(settings);
+        var itemKey = newItem.name();
+
+        options = options || {};
+
+        if (this.hasItem(itemKey)) {
+            if (! options.replace) {
+                throw new Error('Item key [' + itemKey + '] already defined.');
+            }
+
+            for (var i = 0, il = this._list.length; i < il; i++) {
+                if (this._list[i]._name == itemKey) {
+                    this._list[i] = newItem;
                 }
             }
+        }
+        else {
+            if (options.position !== undefined) {
+                var pos = options.position;
 
-            // Single ip | ex.: [192.168.1.55]
-            else if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(currentInput)) {
-                this.queue.push(currentInput);
-            }
+                if (typeof pos === 'string') {
+                    var opt = pos.split(':');
 
-            // Ip's range | ex.: [192.168.1.50-100]
-            else if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\-[0-9]{1,3}$/.test(currentInput)) {
-                var currentInputParts = currentInput.split('.');
-                var currentInputRange = currentInputParts.pop().split('-'); // last part (xxx-xxx)
-                var baseIp     = currentInputParts.join('.');
-                for (var i = currentInputRange[0], il = currentInputRange[1]; i <= il; i++) {
-                    this.queue.push(baseIp + '.' + i);
+                    if (opt.length !== 2) {
+                        throw new Error('Invalid position option.');
+                    }
+
+                    var where = opt[0];
+
+                    if (['before', 'after'].indexOf(where) === -1) {
+                        throw new Error('Invalid position option.');
+                    }
+
+                    // find item position
+                    var key = opt[1];
+                        pos = null;
+
+                    for (var i = 0, il = this._list.length; i < il; i++) {
+                        if (this._list[i]._name == key) {
+                            pos = where === 'after' ? (i + 1) : i;
+                            break;
+                        }
+                    }
+
+                    if (pos === null) {
+                        throw new Error('Undefined target item [' + key + '].');
+                    }
                 }
-            }
 
-            // Hostname | ex.: [www.host.name]
-            else if (/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/.test(currentInput)) {
-                this.queue.push(currentInput);
+                this._list.splice(parseInt(pos), 0, newItem);
             }
-
-            // Invalid...
             else {
-                throw new Error('Invalid input.');
+                // at end of list
+                this._list.push(newItem);
             }
         }
 
-        // update input
-        this.input = input;
-
-        // return self
-        return this;
+        return this._items[itemKey] = newItem;
     };
 
     /**
-    * Set scan timeout.
+    * Parse a configuration file.
     *
     * @method
     *
-    * @param {Integer} timeout Scan timeout in milliseconds [min: 100, max: 2000].
+    * @param {String} [source] Raw configuration as string.
     *
     * @return {this}
     */
-    sh.network.Scanner.prototype.setTimeout = function(timeout) {
-        // out of range test
-        if (timeout < 100 || timeout > 2000) {
-            throw new Error('Timeout is out of range [100, 2000].');
+    sh.BoardConfig.prototype.parse = function(source) {
+        // default source
+        source = source || this._source;
+
+        // no source provided
+        if (! source) {
+            throw new Error('No source provided to parse.');
         }
 
-        // set the timeout
-        this.timeout = timeout;
+        // no source provided
+        if (typeof source != 'string') {
+            throw new Error('The source must be a string.');
+        }
 
-        // return self
+        // split text on new lines
+        var lines = source.trim().split('\n');
+
+        // no source provided
+        if (! lines.length) {
+            throw new Error('The source is empty.');
+        }
+
+        // reset config
+        this._loaded = false;
+        this._source = source;
+        this._items  = {};
+        this._list   = [];
+
+        // skip first line (# NOTE Lines must not exceed 132 characters)
+        if (lines[0].trim().indexOf('# NOTE Lines must') == 0) {
+            lines.shift();
+        }
+
+        var line, matches, disabled, name, value, comments, lastItem, lastComments;
+
+        for (var i = 0, il = lines.length; i < il; i++) {
+            // current line
+            line = lines[i];
+
+            // skip empty line
+            if (! line.trim().length) {
+                // reset last comment
+                lastComments = null;
+
+                // next item
+                continue;
+            }
+
+            // extract: item (name, value, comment, disabled)
+            matches = line.match(/^(#+)?([a-z0-9\.\_\-]+) ([^#]+)(.*)$/);
+
+            if (matches) {
+                // add new items
+                lastItem = sh.BoardConfigItem({
+                    disabled: matches[1],
+                    name    : matches[2],
+                    value   : matches[3],
+                    comments: matches[4].substr(1)
+                });
+
+                this._items[lastItem.name()] = lastItem;
+
+                // add to list
+                this._list.push(lastItem);
+
+                // next item
+                continue;
+            }
+
+            // extract: item comments (on next lines)
+            matches = line.match(/^\s{10,}#(.*)/);
+
+            if (matches) {
+                // add comments to last item comments list
+                lastItem.comments(matches[1], true);
+
+                // next item
+                continue;
+            }
+
+            // extract: section comments
+            comments = line.substr(1).trim();
+
+            if (lastComments) {
+                lastComments.comments(comments, true);
+            } else {
+                lastComments = sh.BoardConfigComments(comments);
+                this._list.push(lastComments);
+            }
+        }
+
+        // loaded ?
+        this._loaded = !!this._list.length;
+
+        // chainable
         return this;
-    };
-
-    // -------------------------------------------------------------------------
+    }
 
     /**
-    * Shift and scan an ip from the queue looking for a SmoothieBoard.
+    * Get the board configuration.
     *
     * @method
-    * @protected
     *
-    * @return {Boolean|null}
+    * @param {Boolean} [txtFirst=false] Test `config.txt` first.
+    * @param {Integer} [timeout=0]      Connection timeout.
+    *
+    * @return {Promise}
+    *
+    * @example
+    * ### Get the configuration
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * // get the configuration
+    * board.config(true).then(function(event) {
+    *     var config = event.data;
+    * 
+    *     console.info('config:', event.name, event);
+    * 
+    *     // from item value
+    *     console.log('extruder.hotend2.en_pin: ' + config.getItem('extruder.hotend2.en_pin').value());
+    *     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toString());
+    *     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toInteger());
+    *     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toFloat());
+    *     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toFloat(1));
+    * 
+    *     // set new value
+    *     console.log('extruder.hotend2.en_pin: ' + config.getItem('extruder.hotend2.en_pin').value('4.28'));
+    *     console.log('extruder.hotend2.en_pin: ' + config.setValue('extruder.hotend2.en_pin', '4.28'));
+    * 
+    *     // from item method
+    *     console.log('extruder.hotend2.en_pin: ' + config.getValue('extruder.hotend2.en_pin'));
+    *     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toString());
+    *     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toInteger());
+    *     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toFloat());
+    *     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toFloat(1));
+    * 
+    *     // create item
+    *     config.createItem({
+    *         disabled: false,
+    *         name    : 'custom.setting',
+    *         value   : '5.5',
+    *         comments: 'My setting usages...'
+    *     });
+    * 
+    *     console.log('custom.setting: ' + config.getValue('custom.setting'));
+    * 
+    *     // replace item
+    *     config.createItem({
+    *         disabled: true,
+    *         name    : 'custom.setting',
+    *         value   : '8.2',
+    *         comments: 'My new setting usages...'
+    *     },
+    *     {
+    *         replace: true
+    *     });
+    * 
+    *     console.log('custom.setting: ' + config.getValue('custom.setting'));
+    * 
+    *     // create and insert new item before another
+    *     config.createItem({
+    *         disabled: true,
+    *         name    : 'custom.setting2',
+    *         value   : '3.2',
+    *         comments: 'My new setting usages...'
+    *     },
+    *     {
+    *         position: 'before:custom.setting'
+    *     });
+    * 
+    *     console.log('custom.setting: ' + config.getValue('custom.setting'));
+    * })
+    * .catch(function(event) {
+    *     console.error('config:', event.name, event);
+    * });
+    * ```
     */
-    sh.network.Scanner.prototype._processQueue = function() {
-        // not in scan mode
-        if (! this.scanning) {
-            return false;
-        }
-
-        // shift first address from the queue
-        var address = this.queue.shift();
-
-        // end of queue
-        if (! address) {
-            this._trigger('end', [this]);
-            this.scanning = false;
-            return true;
-        }
-
-        // increment scanned counter
-        this.scanned++;
-
+    sh.Board.prototype.config = function(txtFirst, timeout) {
         // self alias
-        var self  = this;
+        var self = this;
 
-        try {
-            // create board instance
-            var board = sh.Board({
-                address: address,
-                timeout: this.timeout
+        // default timeout
+        timeout = timeout === undefined ? 0 : timeout;
+
+        // default filename
+        var paths = txtFirst
+            ? ['/sd/config.txt', '/sd/config']
+            : ['/sd/config', '/sd/config.txt'];
+
+        // no limit
+        var limit = undefined;
+
+        // get config file
+        return self.cat(paths[0], limit, timeout).catch(function(event) {
+            return self.cat(paths[1], limit, timeout).then(function(event) {
+                // resolve the promise
+                return Promise.resolve(event);
             });
+        })
+        .then(function(event) {
+            // parse config file contents
+            var config = new sh.BoardConfig(event.data);
 
-            // get board version
-            board.version().then(function(event) {
-                // increment counters
-                self.found++;
-
-                // add the board
-                self.boards[address] = event.board;
-
-                // set board default timeout
-                event.board.timeout = self.boardTimeout;
-
-                // trigger board event
-                self._trigger('board', [self, event.board]);
-            })
-            .catch(function(event) {
-                // return event
-                return event;
-            })
-            .then(function(event) {
-                // trigger progress event
-                self._trigger('progress', [self]);
-
-                // process queue
-                self._processQueue();
-            });
-        }
-        catch(error) {
-            // trigger progress event
-            self._trigger('progress', [self]);
-
-            // process queue
-            self._processQueue();
-        }
-
-        // return null
-        return null;
-    };
-
-    // -------------------------------------------------------------------------
-
-    /**
-    * Start new scan.
-    *
-    * @method
-    *
-    * @param {String|Array} input   Ip's scan pattern. See {@link sh.network.Scanner#setInput|setInput} for details.
-    * @param {Integer}      timeout Scan timeout in milliseconds. See {@link sh.network.Scanner#setTimeout|setTimeout} for details.
-    *
-    * @return {this}
-    */
-    sh.network.Scanner.prototype.start = function(input, timeout) {
-        // set the input
-        this.setInput(input || this.input);
-
-        // set the timeout
-        timeout && this.setTimeout(timeout);
-
-        // set scan status
-        this.scanning = true;
-        this.aborted  = false;
-        this.total    = this.queue.length;
-        this.scanned  = 0;
-        this.found    = 0;
-        this.boards   = {};
-
-        // call user callback
-        this._trigger('start', [this]);
-
-        // process queue
-        this._processQueue();
-
-        // -> this (chainable)
-        return this;
-    };
-
-    /**
-    * Stop current scan.
-    *
-    * @method
-    *
-    * @return {this}
-    */
-    sh.network.Scanner.prototype.stop = function() {
-        if (this.scanning || this.aborted) {
-            // set scan status
-            this.scanning = false;
-            this.aborted  = false;
-
-            // call user callback
-            this._trigger('stop', [this]);
-        }
-
-        // -> this (chainable)
-        return this;
-    };
-
-    /**
-    * Pause current scan.
-    *
-    * @method
-    *
-    * @return {this}
-    */
-    sh.network.Scanner.prototype.pause = function() {
-        if (this.scanning) {
-            // set scan status
-            this.scanning = false;
-            this.aborted  = true;
-
-            // call user callback
-            this._trigger('pause', [this]);
-       }
-
-        // -> this (chainable)
-        return this;
-    };
-
-    /**
-    * Resume current scan.
-    *
-    * @method
-    *
-    * @return {this}
-    */
-    sh.network.Scanner.prototype.resume = function() {
-        if (this.aborted) {
-            // set scan status
-            this.aborted  = false;
-            this.scanning = true;
-
-            // call user callback
-            this._trigger('resume', [this]);
-
-            // process queue
-            this._processQueue();
-        }
-
-        // -> this (chainable)
-        return this;
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('config', self, event, config));
+        });
     };
 
 })();

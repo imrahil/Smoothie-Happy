@@ -130,8 +130,8 @@
     *
     * @method
     *
-    * @param {String}  [path='/'] The path to list file.
-    * @param {Integer} [timeout]  Connection timeout.
+    * @param {String}  [path='/']  The path to list file.
+    * @param {Integer} [timeout=0] Connection timeout.
     *
     * @return {sh.network.Request}
     *
@@ -148,6 +148,9 @@
 
         // remove trailing slash
         path = self.normalizePath(path);
+
+        // default timeout
+        timeout = timeout === undefined ? 0 : timeout;
 
         // get board version (raw)
         return this.command('ls -s ' + path, timeout).then(function(event) {
@@ -328,8 +331,6 @@
     * @param {Integer} [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
-    *
-    * {$examples sh.Board.mv}
     */
     sh.Board.prototype.mv = function(source, target, timeout) {
         // remove trailing slash
@@ -349,8 +350,6 @@
     * @param {Integer}      [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
-    *
-    * {$examples sh.Board.rm}
     */
     sh.Board.prototype.rm = function(paths, timeout) {
         // multiple files
@@ -381,8 +380,6 @@
     * @param {Integer}          [timeout]  Connection timeout.
     *
     * @return {sh.network.Request}
-    *
-    * {$examples sh.Board.upload}
     */
     sh.Board.prototype.upload = function(file, filename, timeout) {
         // self alias
@@ -403,6 +400,46 @@
             headers: { 'X-Filename': filename },
             timeout: timeout,
             data   : file
+        });
+    };
+
+    /**
+    * Get file content.
+    *
+    * @method
+    *
+    * @param {String}  path      File path.
+    * @param {Integer} [limit]   Number of lines.
+    * @param {Integer} [timeout] Connection timeout.
+    *
+    * @return {Promise}
+    */
+    sh.Board.prototype.cat = function(path, limit, timeout) {
+        // self alias
+        var self = this;
+
+        // command
+        var command = 'cat ' + path;
+
+        if (limit !== undefined) {
+            command += ' ' + limit;
+        }
+
+        // send the command (promise)
+        return self.command(command, timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw;
+
+            // file not found
+            if (raw.indexOf('File not found:') == 0) {
+                return Promise.reject(sh.BoardEvent('cat', self, event, raw));
+            }
+
+            // normalize line endding
+            var text = raw.replace('\r\n', '\n');
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('cat', self, event, text));
         });
     };
 

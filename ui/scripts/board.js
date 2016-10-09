@@ -31,6 +31,7 @@ var BoardModel = function(board) {
     self.selectedFiles  = ko.observableArray();
 
     self.upload = new UploadModel(self);
+    self.config = new ConfigModel(self);
 
     // get board tooltip text
     self.uploadEnabled = ko.pureComputed(function() {

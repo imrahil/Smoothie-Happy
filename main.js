@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    4ea00693eda28358921562904b7f8c3c
-* @date     Sat, 08 Oct 2016 11:45:21 +0000
+* @build    428b6b01efb72b86655470c8cc17ebad
+* @date     Sun, 09 Oct 2016 10:30:20 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -165,7 +165,7 @@ model.scanner = {
 // board tree model
 // -----------------------------------------------------------------------------
 
-var TreeNodeModel = function(node, parent) {
+var FileModel = function(node, parent) {
     // self alias
     var self = this;
 
@@ -204,7 +204,7 @@ var TreeNodeModel = function(node, parent) {
     });
 };
 
-TreeNodeModel.getIconFromName = function(name) {
+FileModel.getIconFromName = function(name) {
     // default icon
     var icon = 'file-o';
 
@@ -238,13 +238,13 @@ TreeNodeModel.getIconFromName = function(name) {
     return 'fa fa-fw fa-' + icon;
 };
 
-TreeNodeModel.prototype._setIconFromName = function() {
+FileModel.prototype._setIconFromName = function() {
     this.icon = this.type == 'file'
-        ? TreeNodeModel.getIconFromName(this.name)
+        ? FileModel.getIconFromName(this.name)
         : 'fa fa-fw fa-folder-o';
 };
 
-TreeNodeModel.prototype.select = function(selected) {
+FileModel.prototype.select = function(selected) {
     // update selected nodes
     if (this.type != 'file') {
         // current selected folder
@@ -292,7 +292,7 @@ TreeNodeModel.prototype.select = function(selected) {
     }
 };
 
-TreeNodeModel.prototype.onSelect = function(selectedNode, event) {
+FileModel.prototype.onSelect = function(selectedNode, event) {
     // toggle state
     this.select(! this.active());
 };
@@ -337,7 +337,7 @@ UploadModel.prototype.addFile = function(file) {
     }
 
     this.queue.push({
-        icon   : TreeNodeModel.getIconFromName(file.name),
+        icon   : FileModel.getIconFromName(file.name),
         size   : filesize(file.size),
         name   : file.name,
         data   : file,
@@ -382,7 +382,7 @@ UploadModel.prototype._processQueue = function() {
     .then(function(event) {
         // create node
         file.size = file.data.size;
-        var node  = new TreeNodeModel(file, self.parent);
+        var node  = new FileModel(file, self.parent);
 
         // replace old file if exists
         var files    = self.parent.files();
@@ -456,6 +456,26 @@ UploadModel.prototype.abort = function() {
 };
 
 // -----------------------------------------------------------------------------
+// board config model
+// -----------------------------------------------------------------------------
+
+var ConfigModel = function(parent) {
+    // self alias
+    var self = this;
+
+    // set parent model
+    self.parent = parent;
+};
+
+ConfigModel.get = function(key) {
+
+};
+
+ConfigModel.set = function(key, value) {
+
+};
+
+// -----------------------------------------------------------------------------
 // board model
 // -----------------------------------------------------------------------------
 
@@ -488,6 +508,7 @@ var BoardModel = function(board) {
     self.selectedFiles  = ko.observableArray();
 
     self.upload = new UploadModel(self);
+    self.config = new ConfigModel(self);
 
     // get board tooltip text
     self.uploadEnabled = ko.pureComputed(function() {
@@ -650,7 +671,7 @@ BoardModel.prototype._makeTree = function(nodes) {
     // first pass, normalize nodes
     for (var node, i = 0, il = nodes.length; i < il; i++) {
         // current node
-        node = new TreeNodeModel(nodes[i], self);
+        node = new FileModel(nodes[i], self);
 
         // node state
         node.active(self.selectedFolder() == node.path);

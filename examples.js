@@ -202,6 +202,74 @@
 //     console.error('lsAll:', event.name, event);
 // });
 
+// // @example sh.Board.config - Get the configuration
+// // create the board instance
+// var board = sh.Board('192.168.1.102');
+//
+// // get the configuration
+// board.config(true).then(function(event) {
+//     var config = event.data;
+//
+//     console.info('config:', event.name, event);
+//
+//     // from item value
+//     console.log('extruder.hotend2.en_pin: ' + config.getItem('extruder.hotend2.en_pin').value());
+//     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toString());
+//     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toInteger());
+//     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toFloat());
+//     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toFloat(1));
+//
+//     // set new value
+//     console.log('extruder.hotend2.en_pin: ' + config.getItem('extruder.hotend2.en_pin').value('4.28'));
+//     console.log('extruder.hotend2.en_pin: ' + config.setValue('extruder.hotend2.en_pin', '4.28'));
+//
+//     // from item method
+//     console.log('extruder.hotend2.en_pin: ' + config.getValue('extruder.hotend2.en_pin'));
+//     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toString());
+//     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toInteger());
+//     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toFloat());
+//     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toFloat(1));
+//
+//     // create item
+//     config.createItem({
+//         disabled: false,
+//         name    : 'custom.setting',
+//         value   : '5.5',
+//         comments: 'My setting usages...'
+//     });
+//
+//     console.log('custom.setting: ' + config.getValue('custom.setting'));
+//
+//     // replace item
+//     config.createItem({
+//         disabled: true,
+//         name    : 'custom.setting',
+//         value   : '8.2',
+//         comments: 'My new setting usages...'
+//     },
+//     {
+//         replace: true
+//     });
+//
+//     console.log('custom.setting: ' + config.getValue('custom.setting'));
+//
+//     // create and insert new item before another
+//     config.createItem({
+//         disabled: true,
+//         name    : 'custom.setting2',
+//         value   : '3.2',
+//         comments: 'My new setting usages...'
+//     },
+//     {
+//         position: 'before:custom.setting'
+//     });
+//
+//     console.log('custom.setting: ' + config.getValue('custom.setting'));
+// })
+// .catch(function(event) {
+//     console.error('config:', event.name, event);
+// });
+
 // -----------------------------------------------------------------------------
 
 // // @example sh.network.Scanner - Scanne the network

@@ -41,7 +41,6 @@
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="vendor/filesize.min.js?v=3.3.0"></script>
         <script src="dist/smoothie-happy.js?v={$version}&amp;b={$build}"></script>
-        <script src="examples.js?v={$version}&amp;b={$build}"></script>
         <script src="main.js?v={$version}&amp;b={$build}"></script>
     </body>
 </html>
