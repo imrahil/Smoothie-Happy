@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    428b6b01efb72b86655470c8cc17ebad
-* @date     Sun, 09 Oct 2016 10:30:20 +0000
+* @build    9d9f5921c5cec78e19075fc723ee8f9f
+* @date     Mon, 10 Oct 2016 07:03:08 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -25,7 +25,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = '428b6b01efb72b86655470c8cc17ebad';
+    sh.build = '9d9f5921c5cec78e19075fc723ee8f9f';
 
     /**
     * @property {String} id API id.
@@ -456,17 +456,18 @@ var sh = sh || {};
     * @method
     *
     * @param {Function} progressHandler An function receiving an {@link sh.network.ProgressEvent} as first parameter.
+    * @param {Object}   [context]       The callback context
     *
     * @return {this}
     */
-    sh.network.Request.prototype.onProgress = function(progressHandler) {
+    sh.network.Request.prototype.onProgress = function(progressHandler, context) {
         // self alias
         var self = this;
 
         // register progress event
         this._xhr.onprogress = function(event) {
             if (event.lengthComputable) {
-                progressHandler.call(this, sh.network.ProgressEvent('progress', self, event));
+                progressHandler.call(context || this, sh.network.ProgressEvent('progress', self, event));
             }
         };
 
@@ -480,17 +481,18 @@ var sh = sh || {};
     * @method
     *
     * @param {Function} progressHandler An function receiving an {@link sh.network.ProgressEvent} as first parameter.
+    * @param {Object}   [context]       The callback context
     *
     * @return {this}
     */
-    sh.network.Request.prototype.onUploadProgress = function(progressHandler) {
+    sh.network.Request.prototype.onUploadProgress = function(progressHandler, context) {
         // self alias
         var self = this;
 
         // register upload progress event
         this._xhr.upload.onprogress = function(event) {
             if (event.lengthComputable) {
-                progressHandler.call(this, sh.network.ProgressEvent('upload.progress', self, event));
+                progressHandler.call(context || this, sh.network.ProgressEvent('upload.progress', self, event));
             }
         };
 
@@ -1705,9 +1707,34 @@ var sh = sh || {};
     * @param {Integer} [timeout] Response timeout.
     *
     * @return {sh.network.Request}
+    *
+    * @example
+    * ### Ping the board
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * board.ping().then(function(event) {
+    *     console.info('ping:', event.name, event);
+    * })
+    * .catch(function(event) {
+    *     console.error('ping:', event.name, event);
+    * });
+    * ```
     */
     sh.Board.prototype.ping = function(timeout) {
-        return this.command('ok', timeout);
+        // self alias
+        var self = this;
+
+        return this.command('ok', timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw.trim();
+
+            var data = raw === 'ok' ? 'pong' : raw;
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('ping', self, event, data));
+        });
     };
 
     /**
@@ -1826,7 +1853,7 @@ var sh = sh || {};
         // get board version (raw)
         return this.command('ls -s ' + path, timeout).then(function(event) {
             // raw response string
-            var raw = event.originalEvent.response.raw;
+            var raw = event.originalEvent.response.raw.trim();
 
             // file not found
             if (raw.indexOf('Could not open directory') === 0) {
@@ -1898,6 +1925,83 @@ var sh = sh || {};
     * })
     * .catch(function(event) {
     *     console.error('lsAll:', event.name, event);
+    * });
+    * 
+    * 
+    * // // @example sh.Board.upload - Upload a file
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * // upload from string
+    * var name1 = 'file1.gcode';
+    * var file1 = 'File1 contents...';
+    * 
+    * board.upload(file1, name1).onUploadProgress(function(event) {
+    *     console.info(board.address, '>> upload >>',  event.percent, '%');
+    * })
+    * .then(function(event) {
+    *     console.info('upload:', event.name, event);
+    * 
+    *     // get the first 10 lines
+    *     board.cat('/sd/' + name1, 10).then(function(event) {
+    *         console.info('cat:', event.name, event);
+    *     })
+    *     .catch(function(event) {
+    *         console.error('cat:', event.name, event);
+    *     });
+    * })
+    * .catch(function(event) {
+    *     console.error('upload:', event.name, event);
+    * });
+    * 
+    * // upload from Blob object (do not forget the EOF '\n')
+    * var name2 = 'file2.gcode';
+    * var file2 = new Blob(['File2 contents...\n'], { type: 'text/plain' });
+    * 
+    * board.upload(file2, name2).onUploadProgress(function(event) {
+    *     console.info(board.address, '>> upload >>',  event.percent, '%');
+    * })
+    * .then(function(event) {
+    *     console.info('upload:', event.name, event);
+    * 
+    *     // get the first 10 lines
+    *     board.cat('/sd/' + name2, 10).then(function(event) {
+    *         console.info('cat:', event.name, event);
+    *     })
+    *     .catch(function(event) {
+    *         console.error('cat:', event.name, event);
+    *     });
+    * })
+    * .catch(function(event) {
+    *     console.error('upload:', event.name, event);
+    * });
+    * 
+    * // upload from File object
+    * // create input element
+    * var input  = document.createElement('input');
+    * input.type = 'file';
+    * document.body.appendChild(input);
+    * 
+    * input.addEventListener('change', function(event) {
+    *     var file3 = event.target.files[0];
+    * 
+    *     board.upload(file3).onUploadProgress(function(event) {
+    *         console.info(board.address, '>> upload >>',  event.percent, '%');
+    *     })
+    *     .then(function(event) {
+    *         console.info('upload:', event.name, event);
+    * 
+    *         // get the first 10 lines
+    *         board.cat('/sd/' + file3.name, 10).then(function(event) {
+    *             console.info('cat:', event.name, event);
+    *         })
+    *         .catch(function(event) {
+    *             console.error('cat:', event.name, event);
+    *         });
+    *     })
+    *     .catch(function(event) {
+    *         console.error('upload:', event.name, event);
+    *     });
     * });
     * ```
     */
@@ -2015,18 +2119,48 @@ var sh = sh || {};
     * @param {Integer} [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
+    *
+    * @example
+    * ### Move file
+    * ```
+    * // create the board instance
+    * // var board = sh.Board('192.168.1.102');
+    * //
+    * // board.mv('/sd/source.gcode', '/sd/target/source.gcode').then(function(event) {
+    * //     console.info('mv:', event.name, event);
+    * // })
+    * // .catch(function(event) {
+    * //     console.error('mv:', event.name, event);
+    * // });
+    * ```
     */
     sh.Board.prototype.mv = function(source, target, timeout) {
+        // self alias
+        var self = this;
+
         // remove trailing slash
-        source = this.normalizePath(source);
-        target = this.normalizePath(target);
+        source = this.normalizePath(source || '');
+        target = this.normalizePath(target || '');
 
         // send the command (promise)
-        return this.command('mv ' + source + ' ' + target, timeout);
+        return this.command('mv ' + source + ' ' + target, timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw.trim();
+
+            // Error ?
+            if (raw.indexOf('Could not rename') === 0) {
+                return Promise.reject(sh.BoardEvent('mv', self, event, raw));
+            }
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('mv', self, event, raw));
+        });
     };
 
     /**
     * Remove a file.
+    *
+    * If multiple files is provided, the promise is rejected on first error!
     *
     * @method
     *
@@ -2034,8 +2168,36 @@ var sh = sh || {};
     * @param {Integer}      [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
+    *
+    * @example
+    * ### Remove file(s)
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * // remove one file
+    * board.rm('/sd/target/source.gcode').then(function(event) {
+    *     console.info('rm:', event.name, event);
+    * })
+    * .catch(function(event) {
+    *     console.error('rm:', event.name, event);
+    * });
+    * 
+    * // remove several files
+    * var paths = ['/sd/file1.gcode', '/sd/file2.gcode'];
+    * 
+    * board.rm(paths).then(function(event) {
+    *     console.info('rm:', event.name, event);
+    * })
+    * .catch(function(event) {
+    *     console.error('rm:', event.name, event);
+    * });
+    * ```
     */
     sh.Board.prototype.rm = function(paths, timeout) {
+        // self alias
+        var self = this;
+
         // multiple files
         if (typeof paths != 'string') {
             var promises = [];
@@ -2051,7 +2213,21 @@ var sh = sh || {};
         paths = this.normalizePath(paths);
 
         // send the command (promise)
-        return this.command('rm ' + paths, timeout);
+        return this.command('rm ' + paths, timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw.trim();
+
+            // Error ?
+            if (raw.indexOf('Could not delete') === 0) {
+                return Promise.reject(sh.BoardEvent('rm', self, event, raw));
+            }
+
+            // response data
+            var data = 'deleted ' + paths;
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('rm', self, event, data));
+        });
     };
 
     /**
@@ -2064,6 +2240,8 @@ var sh = sh || {};
     * @param {Integer}          [timeout]  Connection timeout.
     *
     * @return {sh.network.Request}
+    *
+    * 
     */
     sh.Board.prototype.upload = function(file, filename, timeout) {
         // self alias
@@ -2071,6 +2249,14 @@ var sh = sh || {};
 
         // file is a string
         if (typeof file === 'string') {
+            // normalize line endding
+            file = file.replace('\r\n', '\n');
+
+            // force EOF
+            if (file[file.length - 1] !== '\n') {
+                file += '\n';
+            }
+
             // convert to Blob object
             file = new Blob([file], { 'type': 'text/plain' });
         }
@@ -2097,6 +2283,21 @@ var sh = sh || {};
     * @param {Integer} [timeout] Connection timeout.
     *
     * @return {Promise}
+    *
+    * @example
+    * ### Get file contents
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * // get the first 10 lines of config.txt
+    * board.cat('/sd/config.txt', 10).then(function(event) {
+    *     console.info('cat:', event.name, event);
+    * })
+    * .catch(function(event) {
+    *     console.error('cat:', event.name, event);
+    * });
+    * ```
     */
     sh.Board.prototype.cat = function(path, limit, timeout) {
         // self alias
