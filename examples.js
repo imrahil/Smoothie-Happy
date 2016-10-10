@@ -94,6 +94,58 @@
 //     console.error('version:', event.name, event);
 // });
 
+// -----------------------------------------------------------------------------
+
+// // @example sh.Board.ping - Ping the board
+// // create the board instance
+// var board = sh.Board('192.168.1.102');
+//
+// board.ping().then(function(event) {
+//     console.info('ping:', event.name, event);
+// })
+// .catch(function(event) {
+//     console.error('ping:', event.name, event);
+// });
+
+// -----------------------------------------------------------------------------
+
+// @example sh.Board.mv - Move file
+// create the board instance
+// var board = sh.Board('192.168.1.102');
+//
+// board.mv('/sd/source.gcode', '/sd/target/source.gcode').then(function(event) {
+//     console.info('mv:', event.name, event);
+// })
+// .catch(function(event) {
+//     console.error('mv:', event.name, event);
+// });
+
+// -----------------------------------------------------------------------------
+
+// // @example sh.Board.rm - Remove file(s)
+// // create the board instance
+// var board = sh.Board('192.168.1.102');
+//
+// // remove one file
+// board.rm('/sd/target/source.gcode').then(function(event) {
+//     console.info('rm:', event.name, event);
+// })
+// .catch(function(event) {
+//     console.error('rm:', event.name, event);
+// });
+//
+// // remove several files
+// var paths = ['/sd/file1.gcode', '/sd/file2.gcode'];
+//
+// board.rm(paths).then(function(event) {
+//     console.info('rm:', event.name, event);
+// })
+// .catch(function(event) {
+//     console.error('rm:', event.name, event);
+// });
+
+// -----------------------------------------------------------------------------
+
 // // @example sh.Board.version - Get the board version
 // // create the board instance
 // var board = sh.Board('192.168.1.102');
@@ -106,6 +158,8 @@
 // .catch(function(event) {
 //     console.error('version:', event.name, event);
 // });
+
+// -----------------------------------------------------------------------------
 
 // // @example sh.Board.connect - Board connection
 // // create the board instance
@@ -154,6 +208,8 @@
 //     console.error('connect:', event.name, event);
 // });
 
+// -----------------------------------------------------------------------------
+
 // // @example sh.Board.disconnect - Board disconnection
 // // create the board instance
 // var board = sh.Board('192.168.1.102');
@@ -178,6 +234,8 @@
 //
 // }, 15000); // 15 sec.
 
+// -----------------------------------------------------------------------------
+
 // // @example sh.Board.ls - List files
 // // create the board instance
 // var board = sh.Board('192.168.1.102');
@@ -190,6 +248,22 @@
 //     console.error('ls:', event.name, event);
 // });
 
+// -----------------------------------------------------------------------------
+
+// // @example sh.Board.cat - Get file contents
+// // create the board instance
+// var board = sh.Board('192.168.1.102');
+//
+// // get the first 10 lines of config.txt
+// board.cat('/sd/config.txt', 10).then(function(event) {
+//     console.info('cat:', event.name, event);
+// })
+// .catch(function(event) {
+//     console.error('cat:', event.name, event);
+// });
+
+// -----------------------------------------------------------------------------
+
 // // @example sh.Board.lsAll - List all files (recursive)
 // // create the board instance
 // var board = sh.Board('192.168.1.102');
@@ -201,6 +275,86 @@
 // .catch(function(event) {
 //     console.error('lsAll:', event.name, event);
 // });
+
+// -----------------------------------------------------------------------------
+
+// // // @example sh.Board.upload - Upload a file
+// // create the board instance
+// var board = sh.Board('192.168.1.102');
+//
+// // upload from string
+// var name1 = 'file1.gcode';
+// var file1 = 'File1 contents...';
+//
+// board.upload(file1, name1).onUploadProgress(function(event) {
+//     console.info(board.address, '>> upload >>',  event.percent, '%');
+// })
+// .then(function(event) {
+//     console.info('upload:', event.name, event);
+//
+//     // get the first 10 lines
+//     board.cat('/sd/' + name1, 10).then(function(event) {
+//         console.info('cat:', event.name, event);
+//     })
+//     .catch(function(event) {
+//         console.error('cat:', event.name, event);
+//     });
+// })
+// .catch(function(event) {
+//     console.error('upload:', event.name, event);
+// });
+//
+// // upload from Blob object (do not forget the EOF '\n')
+// var name2 = 'file2.gcode';
+// var file2 = new Blob(['File2 contents...\n'], { type: 'text/plain' });
+//
+// board.upload(file2, name2).onUploadProgress(function(event) {
+//     console.info(board.address, '>> upload >>',  event.percent, '%');
+// })
+// .then(function(event) {
+//     console.info('upload:', event.name, event);
+//
+//     // get the first 10 lines
+//     board.cat('/sd/' + name2, 10).then(function(event) {
+//         console.info('cat:', event.name, event);
+//     })
+//     .catch(function(event) {
+//         console.error('cat:', event.name, event);
+//     });
+// })
+// .catch(function(event) {
+//     console.error('upload:', event.name, event);
+// });
+//
+// // upload from File object
+// // create input element
+// var input  = document.createElement('input');
+// input.type = 'file';
+// document.body.appendChild(input);
+//
+// input.addEventListener('change', function(event) {
+//     var file3 = event.target.files[0];
+//
+//     board.upload(file3).onUploadProgress(function(event) {
+//         console.info(board.address, '>> upload >>',  event.percent, '%');
+//     })
+//     .then(function(event) {
+//         console.info('upload:', event.name, event);
+//
+//         // get the first 10 lines
+//         board.cat('/sd/' + file3.name, 10).then(function(event) {
+//             console.info('cat:', event.name, event);
+//         })
+//         .catch(function(event) {
+//             console.error('cat:', event.name, event);
+//         });
+//     })
+//     .catch(function(event) {
+//         console.error('upload:', event.name, event);
+//     });
+// });
+
+// -----------------------------------------------------------------------------
 
 // // @example sh.Board.config - Get the configuration
 // // create the board instance
