@@ -628,8 +628,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) &lt;sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    9d9f5921c5cec78e19075fc723ee8f9f
-* @date     Mon, 10 Oct 2016 07:03:08 +0000
+* @build    277944b9993c0b4fff064e1f4343ad59
+* @date     Mon, 10 Oct 2016 07:10:12 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -651,7 +651,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = '9d9f5921c5cec78e19075fc723ee8f9f';
+    sh.build = '277944b9993c0b4fff064e1f4343ad59';
 
     /**
     * @property {String} id API id.
@@ -2552,83 +2552,6 @@ var sh = sh || {};
     * .catch(function(event) {
     *     console.error('lsAll:', event.name, event);
     * });
-    * 
-    * 
-    * // // @example sh.Board.upload - Upload a file
-    * // create the board instance
-    * var board = sh.Board('192.168.1.102');
-    * 
-    * // upload from string
-    * var name1 = 'file1.gcode';
-    * var file1 = 'File1 contents...';
-    * 
-    * board.upload(file1, name1).onUploadProgress(function(event) {
-    *     console.info(board.address, '>> upload >>',  event.percent, '%');
-    * })
-    * .then(function(event) {
-    *     console.info('upload:', event.name, event);
-    * 
-    *     // get the first 10 lines
-    *     board.cat('/sd/' + name1, 10).then(function(event) {
-    *         console.info('cat:', event.name, event);
-    *     })
-    *     .catch(function(event) {
-    *         console.error('cat:', event.name, event);
-    *     });
-    * })
-    * .catch(function(event) {
-    *     console.error('upload:', event.name, event);
-    * });
-    * 
-    * // upload from Blob object (do not forget the EOF '\n')
-    * var name2 = 'file2.gcode';
-    * var file2 = new Blob(['File2 contents...\n'], { type: 'text/plain' });
-    * 
-    * board.upload(file2, name2).onUploadProgress(function(event) {
-    *     console.info(board.address, '>> upload >>',  event.percent, '%');
-    * })
-    * .then(function(event) {
-    *     console.info('upload:', event.name, event);
-    * 
-    *     // get the first 10 lines
-    *     board.cat('/sd/' + name2, 10).then(function(event) {
-    *         console.info('cat:', event.name, event);
-    *     })
-    *     .catch(function(event) {
-    *         console.error('cat:', event.name, event);
-    *     });
-    * })
-    * .catch(function(event) {
-    *     console.error('upload:', event.name, event);
-    * });
-    * 
-    * // upload from File object
-    * // create input element
-    * var input  = document.createElement('input');
-    * input.type = 'file';
-    * document.body.appendChild(input);
-    * 
-    * input.addEventListener('change', function(event) {
-    *     var file3 = event.target.files[0];
-    * 
-    *     board.upload(file3).onUploadProgress(function(event) {
-    *         console.info(board.address, '>> upload >>',  event.percent, '%');
-    *     })
-    *     .then(function(event) {
-    *         console.info('upload:', event.name, event);
-    * 
-    *         // get the first 10 lines
-    *         board.cat('/sd/' + file3.name, 10).then(function(event) {
-    *             console.info('cat:', event.name, event);
-    *         })
-    *         .catch(function(event) {
-    *             console.error('cat:', event.name, event);
-    *         });
-    *     })
-    *     .catch(function(event) {
-    *         console.error('upload:', event.name, event);
-    *     });
-    * });
     * ```
     */
     sh.Board.prototype.lsAll = function(path, timeout, innerCall) {
@@ -2867,7 +2790,84 @@ var sh = sh || {};
     *
     * @return {sh.network.Request}
     *
+    * @example
+    * ### Upload a file
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
     * 
+    * // upload from string
+    * var name1 = 'file1.gcode';
+    * var file1 = 'File1 contents...';
+    * 
+    * board.upload(file1, name1).onUploadProgress(function(event) {
+    *     console.info(board.address, '>> upload >>',  event.percent, '%');
+    * })
+    * .then(function(event) {
+    *     console.info('upload:', event.name, event);
+    * 
+    *     // get the first 10 lines
+    *     board.cat('/sd/' + name1, 10).then(function(event) {
+    *         console.info('cat:', event.name, event);
+    *     })
+    *     .catch(function(event) {
+    *         console.error('cat:', event.name, event);
+    *     });
+    * })
+    * .catch(function(event) {
+    *     console.error('upload:', event.name, event);
+    * });
+    * 
+    * // upload from Blob object (do not forget the EOF '\n')
+    * var name2 = 'file2.gcode';
+    * var file2 = new Blob(['File2 contents...\n'], { type: 'text/plain' });
+    * 
+    * board.upload(file2, name2).onUploadProgress(function(event) {
+    *     console.info(board.address, '>> upload >>',  event.percent, '%');
+    * })
+    * .then(function(event) {
+    *     console.info('upload:', event.name, event);
+    * 
+    *     // get the first 10 lines
+    *     board.cat('/sd/' + name2, 10).then(function(event) {
+    *         console.info('cat:', event.name, event);
+    *     })
+    *     .catch(function(event) {
+    *         console.error('cat:', event.name, event);
+    *     });
+    * })
+    * .catch(function(event) {
+    *     console.error('upload:', event.name, event);
+    * });
+    * 
+    * // upload from File object
+    * // create input element
+    * var input  = document.createElement('input');
+    * input.type = 'file';
+    * document.body.appendChild(input);
+    * 
+    * input.addEventListener('change', function(event) {
+    *     var file3 = event.target.files[0];
+    * 
+    *     board.upload(file3).onUploadProgress(function(event) {
+    *         console.info(board.address, '>> upload >>',  event.percent, '%');
+    *     })
+    *     .then(function(event) {
+    *         console.info('upload:', event.name, event);
+    * 
+    *         // get the first 10 lines
+    *         board.cat('/sd/' + file3.name, 10).then(function(event) {
+    *             console.info('cat:', event.name, event);
+    *         })
+    *         .catch(function(event) {
+    *             console.error('cat:', event.name, event);
+    *         });
+    *     })
+    *     .catch(function(event) {
+    *         console.error('upload:', event.name, event);
+    *     });
+    * });
+    * ```
     */
     sh.Board.prototype.upload = function(file, filename, timeout) {
         // self alias
@@ -3720,7 +3720,7 @@ var sh = sh || {};
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Oct 10 2016 09:03:09 GMT+0200 (Europe de l’Ouest (heure d’été))
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Oct 10 2016 09:10:13 GMT+0200 (Europe de l’Ouest (heure d’été))
         </footer>
     </div>
 </div>

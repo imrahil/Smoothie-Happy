@@ -3641,7 +3641,7 @@ board.ls('sd/gcode/').then(function(event) {
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line2008">line 2008</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1931">line 1931</a>
         </div>
         
     </div>
@@ -3847,83 +3847,6 @@ board.lsAll('/sd/gcode/').then(function(event) {
 })
 .catch(function(event) {
     console.error('lsAll:', event.name, event);
-});
-
-
-// // @example sh.Board.upload - Upload a file
-// create the board instance
-var board = sh.Board('192.168.1.102');
-
-// upload from string
-var name1 = 'file1.gcode';
-var file1 = 'File1 contents...';
-
-board.upload(file1, name1).onUploadProgress(function(event) {
-    console.info(board.address, '>> upload >>',  event.percent, '%');
-})
-.then(function(event) {
-    console.info('upload:', event.name, event);
-
-    // get the first 10 lines
-    board.cat('/sd/' + name1, 10).then(function(event) {
-        console.info('cat:', event.name, event);
-    })
-    .catch(function(event) {
-        console.error('cat:', event.name, event);
-    });
-})
-.catch(function(event) {
-    console.error('upload:', event.name, event);
-});
-
-// upload from Blob object (do not forget the EOF '\n')
-var name2 = 'file2.gcode';
-var file2 = new Blob(['File2 contents...\n'], { type: 'text/plain' });
-
-board.upload(file2, name2).onUploadProgress(function(event) {
-    console.info(board.address, '>> upload >>',  event.percent, '%');
-})
-.then(function(event) {
-    console.info('upload:', event.name, event);
-
-    // get the first 10 lines
-    board.cat('/sd/' + name2, 10).then(function(event) {
-        console.info('cat:', event.name, event);
-    })
-    .catch(function(event) {
-        console.error('cat:', event.name, event);
-    });
-})
-.catch(function(event) {
-    console.error('upload:', event.name, event);
-});
-
-// upload from File object
-// create input element
-var input  = document.createElement('input');
-input.type = 'file';
-document.body.appendChild(input);
-
-input.addEventListener('change', function(event) {
-    var file3 = event.target.files[0];
-
-    board.upload(file3).onUploadProgress(function(event) {
-        console.info(board.address, '>> upload >>',  event.percent, '%');
-    })
-    .then(function(event) {
-        console.info('upload:', event.name, event);
-
-        // get the first 10 lines
-        board.cat('/sd/' + file3.name, 10).then(function(event) {
-            console.info('cat:', event.name, event);
-        })
-        .catch(function(event) {
-            console.error('cat:', event.name, event);
-        });
-    })
-    .catch(function(event) {
-        console.error('upload:', event.name, event);
-    });
 });</code></pre>
 
 
@@ -3941,7 +3864,7 @@ input.addEventListener('change', function(event) {
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line2137">line 2137</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line2060">line 2060</a>
         </div>
         
     </div>
@@ -4612,7 +4535,7 @@ board.ping().then(function(event) {
 
         
         <div class="tag-source">
-            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line2197">line 2197</a>
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line2120">line 2120</a>
         </div>
         
     </div>
@@ -4981,6 +4904,86 @@ board.rm(paths).then(function(event) {
 
 
     
+
+    
+        <h5>Example</h5>
+        
+
+    <h3>Upload a file</h3><pre class="prettyprint source"><code>// create the board instance
+var board = sh.Board('192.168.1.102');
+
+// upload from string
+var name1 = 'file1.gcode';
+var file1 = 'File1 contents...';
+
+board.upload(file1, name1).onUploadProgress(function(event) {
+    console.info(board.address, '>> upload >>',  event.percent, '%');
+})
+.then(function(event) {
+    console.info('upload:', event.name, event);
+
+    // get the first 10 lines
+    board.cat('/sd/' + name1, 10).then(function(event) {
+        console.info('cat:', event.name, event);
+    })
+    .catch(function(event) {
+        console.error('cat:', event.name, event);
+    });
+})
+.catch(function(event) {
+    console.error('upload:', event.name, event);
+});
+
+// upload from Blob object (do not forget the EOF '\n')
+var name2 = 'file2.gcode';
+var file2 = new Blob(['File2 contents...\n'], { type: 'text/plain' });
+
+board.upload(file2, name2).onUploadProgress(function(event) {
+    console.info(board.address, '>> upload >>',  event.percent, '%');
+})
+.then(function(event) {
+    console.info('upload:', event.name, event);
+
+    // get the first 10 lines
+    board.cat('/sd/' + name2, 10).then(function(event) {
+        console.info('cat:', event.name, event);
+    })
+    .catch(function(event) {
+        console.error('cat:', event.name, event);
+    });
+})
+.catch(function(event) {
+    console.error('upload:', event.name, event);
+});
+
+// upload from File object
+// create input element
+var input  = document.createElement('input');
+input.type = 'file';
+document.body.appendChild(input);
+
+input.addEventListener('change', function(event) {
+    var file3 = event.target.files[0];
+
+    board.upload(file3).onUploadProgress(function(event) {
+        console.info(board.address, '>> upload >>',  event.percent, '%');
+    })
+    .then(function(event) {
+        console.info('upload:', event.name, event);
+
+        // get the first 10 lines
+        board.cat('/sd/' + file3.name, 10).then(function(event) {
+            console.info('cat:', event.name, event);
+        })
+        .catch(function(event) {
+            console.error('cat:', event.name, event);
+        });
+    })
+    .catch(function(event) {
+        console.error('upload:', event.name, event);
+    });
+});</code></pre>
+
 
     
 </dd>
@@ -5987,7 +5990,7 @@ board.version().then(function(event) {
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Oct 10 2016 09:03:10 GMT+0200 (Europe de l’Ouest (heure d’été))
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Oct 10 2016 09:10:13 GMT+0200 (Europe de l’Ouest (heure d’été))
         </footer>
     </div>
 </div>
