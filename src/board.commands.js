@@ -61,9 +61,22 @@
     * @param {Integer} [timeout] Response timeout.
     *
     * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.ping}
     */
     sh.Board.prototype.ping = function(timeout) {
-        return this.command('ok', timeout);
+        // self alias
+        var self = this;
+
+        return this.command('ok', timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw.trim();
+
+            var data = raw === 'ok' ? 'pong' : raw;
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('ping', self, event, data));
+        });
     };
 
     /**
@@ -155,7 +168,7 @@
         // get board version (raw)
         return this.command('ls -s ' + path, timeout).then(function(event) {
             // raw response string
-            var raw = event.originalEvent.response.raw;
+            var raw = event.originalEvent.response.raw.trim();
 
             // file not found
             if (raw.indexOf('Could not open directory') === 0) {
@@ -331,18 +344,36 @@
     * @param {Integer} [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.mv}
     */
     sh.Board.prototype.mv = function(source, target, timeout) {
+        // self alias
+        var self = this;
+
         // remove trailing slash
-        source = this.normalizePath(source);
-        target = this.normalizePath(target);
+        source = this.normalizePath(source || '');
+        target = this.normalizePath(target || '');
 
         // send the command (promise)
-        return this.command('mv ' + source + ' ' + target, timeout);
+        return this.command('mv ' + source + ' ' + target, timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw.trim();
+
+            // Error ?
+            if (raw.indexOf('Could not rename') === 0) {
+                return Promise.reject(sh.BoardEvent('mv', self, event, raw));
+            }
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('mv', self, event, raw));
+        });
     };
 
     /**
     * Remove a file.
+    *
+    * If multiple files is provided, the promise is rejected on first error!
     *
     * @method
     *
@@ -350,8 +381,13 @@
     * @param {Integer}      [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.rm}
     */
     sh.Board.prototype.rm = function(paths, timeout) {
+        // self alias
+        var self = this;
+
         // multiple files
         if (typeof paths != 'string') {
             var promises = [];
@@ -367,7 +403,21 @@
         paths = this.normalizePath(paths);
 
         // send the command (promise)
-        return this.command('rm ' + paths, timeout);
+        return this.command('rm ' + paths, timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw.trim();
+
+            // Error ?
+            if (raw.indexOf('Could not delete') === 0) {
+                return Promise.reject(sh.BoardEvent('rm', self, event, raw));
+            }
+
+            // response data
+            var data = 'deleted ' + paths;
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('rm', self, event, data));
+        });
     };
 
     /**
@@ -380,6 +430,8 @@
     * @param {Integer}          [timeout]  Connection timeout.
     *
     * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.upload}
     */
     sh.Board.prototype.upload = function(file, filename, timeout) {
         // self alias
@@ -387,6 +439,14 @@
 
         // file is a string
         if (typeof file === 'string') {
+            // normalize line endding
+            file = file.replace('\r\n', '\n');
+
+            // force EOF
+            if (file[file.length - 1] !== '\n') {
+                file += '\n';
+            }
+
             // convert to Blob object
             file = new Blob([file], { 'type': 'text/plain' });
         }
@@ -413,6 +473,8 @@
     * @param {Integer} [timeout] Connection timeout.
     *
     * @return {Promise}
+    *
+    * {$examples sh.Board.cat}
     */
     sh.Board.prototype.cat = function(path, limit, timeout) {
         // self alias
