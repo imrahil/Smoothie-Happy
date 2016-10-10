@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    9d9f5921c5cec78e19075fc723ee8f9f
-* @date     Mon, 10 Oct 2016 07:03:08 +0000
+* @build    4a9f98cbaac326c61428aa39b4a4759d
+* @date     Mon, 10 Oct 2016 14:17:16 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -456,26 +456,6 @@ UploadModel.prototype.abort = function() {
 };
 
 // -----------------------------------------------------------------------------
-// board config model
-// -----------------------------------------------------------------------------
-
-var ConfigModel = function(parent) {
-    // self alias
-    var self = this;
-
-    // set parent model
-    self.parent = parent;
-};
-
-ConfigModel.get = function(key) {
-
-};
-
-ConfigModel.set = function(key, value) {
-
-};
-
-// -----------------------------------------------------------------------------
 // board model
 // -----------------------------------------------------------------------------
 
@@ -500,6 +480,7 @@ var BoardModel = function(board) {
     self.waitLookup  = ko.observable(false);
     self.waitTree    = ko.observable(false);
     self.waitRemove  = ko.observable(false);
+    self.waitConfig  = ko.observable(false);
 
     self.files   = ko.observableArray();
     self.folders = ko.observableArray();
@@ -508,7 +489,9 @@ var BoardModel = function(board) {
     self.selectedFiles  = ko.observableArray();
 
     self.upload = new UploadModel(self);
-    self.config = new ConfigModel(self);
+
+    self.config     = null;
+    self.configList = ko.observableArray();
 
     // get board tooltip text
     self.uploadEnabled = ko.pureComputed(function() {
@@ -719,6 +702,91 @@ BoardModel.prototype.refreshTree = function(board, event) {
         self.resetTree(tree);
         self.updateState();
     });
+};
+
+// -----------------------------------------------------------------------------
+
+BoardModel.prototype.setConfigList = function(configList) {
+    // empty list
+    var list = [];
+
+    var item, isValue, itemModel;
+
+    // first pass, normalize nodes
+    for (var i = 0, il = configList.length; i < il; i++) {
+        // current item
+        item = configList[i];
+
+        // is an value
+        isValue = (item instanceof sh.BoardConfigItem);
+
+        // model
+        itemModel = {
+            data    : item,
+            isValue : isValue,
+            comments: ko.observable(item.comments().join('\n'))
+        };
+
+        if (isValue) {
+            itemModel.name     = ko.observable(item.name());
+            itemModel.value    = ko.observable(item.value());
+            itemModel.disabled = ko.observable(item.disabled());
+            itemModel.modified = ko.pureComputed(function() {
+                return this.value().get() !== this.value().getFirstValue();
+            }, itemModel);
+        }
+
+        // push to list
+        list.push(itemModel);
+    }
+
+    // set new config list
+    this.configList(list);
+};
+
+BoardModel.prototype.resetConfig = function(config) {
+    this.config = config;
+    this.setConfigList(config.getList());
+    this.waitConfig(false);
+};
+
+BoardModel.prototype.refreshConfig = function(board, event) {
+    // self alias
+    var self = this;
+
+    // set wait config flag
+    self.waitConfig(true);
+
+    // config object
+    var config = null;
+
+    // get board config
+    self.board.config().then(function(event) {
+        config = event.data;
+    })
+    .catch(function(event) {
+        console.error('refreshConfig:', event.name, event);
+    })
+    .then(function(event) {
+        self.resetConfig(config);
+        self.updateState();
+    });
+};
+
+BoardModel.prototype.configItemChange = function(item, event) {
+    item.data.value().set(event.target.value);
+    item.value(item.data.value());
+};
+
+BoardModel.prototype.configItemReset = function(item, event) {
+    item.data.value().set(item.data.value().getFirstValue());
+    item.value(item.data.value());
+};
+
+BoardModel.prototype.configItemToggle = function(item, event) {
+    var toggle = !item.disabled();
+    item.data.disabled(toggle);
+    item.disabled(toggle);
 };
 
 // -----------------------------------------------------------------------------

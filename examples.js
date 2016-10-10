@@ -278,7 +278,7 @@
 
 // -----------------------------------------------------------------------------
 
-// // // @example sh.Board.upload - Upload a file
+// // @example sh.Board.upload - Upload a file
 // // create the board instance
 // var board = sh.Board('192.168.1.102');
 //

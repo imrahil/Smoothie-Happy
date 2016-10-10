@@ -9,7 +9,7 @@
         <meta name="description" content="A SmoothieBoard network communication API">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=9d9f5921c5cec78e19075fc723ee8f9f" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=4a9f98cbaac326c61428aa39b4a4759d" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -195,7 +195,7 @@
                         <!-- ko ifnot: online -->
                         <div class="alert alert-warning" role="alert">
     <strong>Oups!</strong> This board seems to be offline. Please, click ont the
-    <button data-bind="click: lookup" type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
+    <button data-bind="disable: waitLookup, click: lookup" type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
         <i class="fa fa-search"></i> Lookup
     </button> button to try to reach it.
 </div>
@@ -285,7 +285,7 @@
         <!-- ko ifnot: online -->
         <div class="alert alert-warning" role="alert">
     <strong>Oups!</strong> This board seems to be offline. Please, click ont the
-    <button data-bind="click: lookup" type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
+    <button data-bind="disable: waitLookup, click: lookup" type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
         <i class="fa fa-search"></i> Lookup
     </button> button to try to reach it.
 </div>
@@ -560,7 +560,75 @@
 
                 </div>
                 <div role="tabpanel" class="tab-pane" id="board-config-pane">
-                    config...
+                    <!-- ko ifnot: waitConfig -->
+<div class="btn-group" role="group">
+    <button data-bind="click: refreshConfig" type="button" class="btn btn-default">
+        <i class="fa fa-refresh"></i> Refresh
+    </button>
+</div>
+
+<hr />
+<!-- /ko -->
+
+<!-- ko if: waitConfig -->
+<div class="alert alert-info" role="alert">
+    <i class="fa fa-spinner fa-pulse fa-fw"></i>
+    <strong>Please wait...</strong> Loading the configuration. Thanks to be patient, this can take some time.
+</div>
+<!-- /ko -->
+
+<!-- ko ifnot: waitConfig -->
+<!-- ko ifnot: configList().length -->
+<div class="alert alert-warning" role="alert">
+    <strong>No configuration loaded!</strong> Please click on the <button data-bind="click: refreshConfig" type="button" class="btn btn-default">
+        <i class="fa fa-refresh"></i> Refresh
+    </button> button to load configuration.
+</div>
+<!-- /ko -->
+<!-- ko if: configList().length -->
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th style="width:200px">Value</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach: configList">
+        <!-- ko if: isValue -->
+        <tr data-bind="css: disabled() ? 'warning' : (modified() ? 'info' : 'default')">
+            <td>
+                <span data-bind="text: name()"></span>
+            </td>
+            <td style="min-width:200px">
+                <span class="input-group input-group-sm">
+                    <input data-bind="value: value(), event: { input: $parent.configItemChange }, disable: disabled()" type="text" class="form-control" />
+                    <span class="input-group-btn">
+                        <!-- ko if: modified -->
+                        <button data-bind="click: $parent.configItemReset, attr: { title: 'Reset value to : ' + value().getFirstValue() }" type="button" class="btn btn-default">
+                            <i class="fa fa-undo"></i>
+                        </button>
+                        <!-- /ko -->
+                        <button data-bind="click: $parent.configItemToggle, css: disabled() ? 'btn-warning' : 'btn-default', text: disabled() ? 'off' : 'on'" type="button" class="btn"></button>
+                    </span>
+                </span>
+            </td>
+            <td>
+                <span data-bind="text: comments()"></span>
+            </td>
+        </tr>
+        <!-- /ko -->
+        <!-- ko ifnot: isValue -->
+        <tr>
+            <th colspan="3" class="active">
+                <span data-bind="text: comments()"></span>
+            </th>
+        </tr>
+        <!-- /ko -->
+    </tbody>
+</table>
+<!-- /ko -->
+<!-- /ko -->
 
                 </div>
                 <div role="tabpanel" class="tab-pane" id="board-info-pane">
@@ -611,7 +679,7 @@
         <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="vendor/filesize.min.js?v=3.3.0"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=9d9f5921c5cec78e19075fc723ee8f9f"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=9d9f5921c5cec78e19075fc723ee8f9f"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=4a9f98cbaac326c61428aa39b4a4759d"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=4a9f98cbaac326c61428aa39b4a4759d"></script>
     </body>
 </html>
