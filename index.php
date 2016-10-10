@@ -38,6 +38,7 @@ $templates_path = './ui/templates';
 
 // index template
 $main_js_template = 'main.js';
+$debug_template   = 'debug.tpl';
 $index_template   = 'index.tpl';
 $index_file       = './index.html';
 $main_js_file     = './main.js';
@@ -67,6 +68,11 @@ if ($settings['build'] === 'auto') {
 // -----------------------------------------------------------------------------
 $noCache = isset($_GET['noCache']);
 $noDocs  = isset($_GET['noDocs']);
+$debug   = isset($_GET['debug']);
+
+if ($debug) {
+    $index_template = $debug_template;
+}
 
 // -----------------------------------------------------------------------------
 // check paths
