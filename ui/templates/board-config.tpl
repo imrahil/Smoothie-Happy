@@ -1,29 +1,60 @@
-<!-- ko ifnot: waitConfig -->
+<!-- ko with: config -->
+<!-- ko ifnot: loading -->
 <div class="btn-group" role="group">
-    <button data-bind="click: refreshConfig" type="button" class="btn btn-default">
+    <button data-bind="click: refresh" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
+    <!-- ko if: items().length -->
+    <!-- ko ifnot: sourceModified -->
+    <button data-bind="click: toggleEditMode" type="button" class="btn btn-default">
+        <!-- ko if: editMode() == 'form' -->
+        <i class="fa fa-file-text-o"></i> Raw edit
+        <!-- /ko -->
+        <!-- ko if: editMode() == 'raw' -->
+        <i class="fa fa-list"></i> Form edit
+        <!-- /ko -->
+    </button>
+    <!-- /ko -->
+    <!-- /ko -->
+    <!-- ko if: editMode() == 'form' -->
+    <!-- ko if: modified().length -->
+    <button data-bind="click: openSaveModal" type="button" class="btn btn-default">
+        <i class="fa fa-upload"></i> Save (<span data-bind="text: modified().length"></span>)
+    </button>
+    <!-- /ko -->
+    <!-- /ko -->
+    <!-- ko if: editMode() == 'raw' -->
+    <!-- ko if: sourceModified -->
+    <button data-bind="click: applySourceChange" type="button" class="btn btn-default">
+        <i class="fa fa-upload"></i> Apply
+    </button>
+    <button data-bind="click: discardSourceChange" type="button" class="btn btn-default">
+        <i class="fa fa-undo"></i> Discard
+    </button>
+    <!-- /ko -->
+    <!-- /ko -->
 </div>
 
 <hr />
 <!-- /ko -->
 
-<!-- ko if: waitConfig -->
+<!-- ko if: loading -->
 <div class="alert alert-info" role="alert">
     <i class="fa fa-spinner fa-pulse fa-fw"></i>
     <strong>Please wait...</strong> Loading the configuration. Thanks to be patient, this can take some time.
 </div>
 <!-- /ko -->
 
-<!-- ko ifnot: waitConfig -->
-<!-- ko ifnot: configList().length -->
+<!-- ko ifnot: loading -->
+<!-- ko ifnot: items().length -->
 <div class="alert alert-warning" role="alert">
-    <strong>No configuration loaded!</strong> Please click on the <button data-bind="click: refreshConfig" type="button" class="btn btn-default">
+    <strong>No configuration loaded!</strong> Please click on the <button data-bind="click: refresh" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button> button to load configuration.
 </div>
 <!-- /ko -->
-<!-- ko if: configList().length -->
+<!-- ko if: items().length -->
+<!-- ko if: editMode() == 'form' -->
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -32,22 +63,22 @@
             <th>Comments</th>
         </tr>
     </thead>
-    <tbody data-bind="foreach: configList">
+    <tbody data-bind="foreach: items">
         <!-- ko if: isValue -->
-        <tr data-bind="css: disabled() ? 'warning' : (modified() ? 'info' : 'default')">
+        <tr data-bind="css: modified() ? 'info' : (disabled() ? 'warning' : 'default')">
             <td>
                 <span data-bind="text: name()"></span>
             </td>
             <td style="min-width:200px">
                 <span class="input-group input-group-sm">
-                    <input data-bind="value: value(), event: { input: $parent.configItemChange }, disable: disabled()" type="text" class="form-control" />
+                    <input data-bind="value: value(), event: { input: change }, disable: disabled()" type="text" class="form-control" />
                     <span class="input-group-btn">
                         <!-- ko if: modified -->
-                        <button data-bind="click: $parent.configItemReset, attr: { title: 'Reset value to : ' + value().getFirstValue() }" type="button" class="btn btn-default">
+                        <button data-bind="click: reset, attr: { title: 'Reset value to : ' + value().getFirstValue() }" type="button" class="btn btn-default">
                             <i class="fa fa-undo"></i>
                         </button>
                         <!-- /ko -->
-                        <button data-bind="click: $parent.configItemToggle, css: disabled() ? 'btn-warning' : 'btn-default', text: disabled() ? 'off' : 'on'" type="button" class="btn"></button>
+                        <button data-bind="click: toggle, css: disabled() ? 'btn-warning' : 'btn-default', text: disabled() ? 'off' : 'on'" type="button" class="btn"></button>
                     </span>
                 </span>
             </td>
@@ -66,4 +97,15 @@
     </tbody>
 </table>
 <!-- /ko -->
+<!-- ko if: editMode() == 'raw' -->
+<pre data-bind="text: source, event: { input: sourceChange }" contenteditable="true"></pre>
+<!-- /ko -->
+<!-- ko if: modified().length -->
+<button data-bind="click: openSaveModal" type="button" class="btn btn-primary btn-block">
+    <i class="fa fa-upload"></i> Save (<span data-bind="text: modified().length"></span>)
+</button>
+<!-- /ko -->
+<!-- /ko -->
+<!-- /ko -->
+{$board-config-save.tpl}
 <!-- /ko -->

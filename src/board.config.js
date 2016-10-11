@@ -318,13 +318,20 @@
     *
     * @class
     *
-    * @param {String} [source] Raw configuration as string.
+    * @param {String} [filename='config'] Configuration filename.
+    * @param {String} [source]            Raw configuration as string.
     */
-    sh.BoardConfig = function(source) {
+    sh.BoardConfig = function(filename, source) {
         // instance factory
         if (! (this instanceof sh.BoardConfig)) {
-            return new sh.BoardConfig(source);
+            return new sh.BoardConfig(filename, source);
         }
+
+        /**
+        * @property {String}
+        * @readonly
+        */
+        this._filename = filename || 'config';
 
         /**
         * @property {String}
@@ -333,16 +340,10 @@
         this._source = source || null;
 
         /**
-        * @property {Object}
-        * @readonly
-        */
-        this._items = null;
-
-        /**
         * @property {Array}
         * @readonly
         */
-        this._list = null;
+        this._items = null;
 
         /**
         * @property {Boolean}
@@ -357,10 +358,20 @@
     };
 
     /**
-    * Get all items as object (without sections comments).
+    * Get the filename.
     *
     * @method
-    * @return {Object|null}
+    * @return {String}
+    */
+    sh.BoardConfig.prototype.filename = function() {
+        return this._filename;
+    };
+
+    /**
+    * Get all items as array (with sections comments).
+    *
+    * @method
+    * @return {Array|null}
     * @throws {Error}
     */
     sh.BoardConfig.prototype.getItems = function() {
@@ -372,32 +383,39 @@
     };
 
     /**
-    * Get all items as array (with sections comments).
-    *
-    * @method
-    * @return {Array|null}
-    * @throws {Error}
-    */
-    sh.BoardConfig.prototype.getList = function() {
-        if (! this._loaded) {
-            throw new Error('No configuration loaded.');
-        }
-
-        return this._list;
-    };
-
-    /**
     * Return an config item if exists.
     *
     * @method
     *
-    * @param {String} key            Configuration key.
-    * @param {Mixed}  [defaultValue] Default value to return if not defined.
+    * @param {String|sh.BoardConfigItem} key            Configuration key.
+    * @param {Mixed}                     [defaultValue] Default value to return if not defined.
     *
-    * @return {null|sh.BoardConfigItem}
+    * @return {null|sh.BoardConfigItem[]}
     */
     sh.BoardConfig.prototype.hasItem = function(key, defaultValue) {
-        return this.getItems()[key] || defaultValue;
+        var items = this.getItems();
+
+        if (typeof key !== 'string') {
+            key = items.indexOf(key);
+
+            return key >= 0 ? [items[key]] : defaultValue;
+        }
+
+        var item, found = [];
+
+        for (var i = 0, il = items.length; i < il; i++) {
+            item = items[i];
+
+            if (item instanceof sh.BoardConfigComments) {
+                continue;
+            }
+
+            if (item.name() === key) {
+                found.push(item);
+            }
+        }
+
+        return found.length ? found : defaultValue;
     };
 
     /**
@@ -405,17 +423,13 @@
     *
     * @method
     *
-    * @param {String}  [key]          Configuration key, if null return all items.
-    * @param {String}  [defaultValue] Default value to return if not defined.
+    * @param {String|sh.BoardConfigItem} key            Configuration key.
+    * @param {Mixed}                     [defaultValue] Default value to return if not defined.
     *
-    * @return {sh.BoardConfigValue}
+    * @return {null|sh.BoardConfigItem|sh.BoardConfigItem[]}
     * @throws {Error} If not defined and no default value provided.
     */
     sh.BoardConfig.prototype.getItem = function(key, defaultValue) {
-        if (key === undefined) {
-            return this.getItems();
-        }
-
         var item = this.hasItem(key);
 
         if (item) {
@@ -485,9 +499,9 @@
                 throw new Error('Item key [' + itemKey + '] already defined.');
             }
 
-            for (var i = 0, il = this._list.length; i < il; i++) {
-                if (this._list[i]._name == itemKey) {
-                    this._list[i] = newItem;
+            for (var i = 0, il = this._items.length; i < il; i++) {
+                if (this._items[i]._name == itemKey) {
+                    this._items[i] = newItem;
                 }
             }
         }
@@ -512,8 +526,8 @@
                     var key = opt[1];
                         pos = null;
 
-                    for (var i = 0, il = this._list.length; i < il; i++) {
-                        if (this._list[i]._name == key) {
+                    for (var i = 0, il = this._items.length; i < il; i++) {
+                        if (this._items[i]._name == key) {
                             pos = where === 'after' ? (i + 1) : i;
                             break;
                         }
@@ -524,15 +538,15 @@
                     }
                 }
 
-                this._list.splice(parseInt(pos), 0, newItem);
+                this._items.splice(parseInt(pos), 0, newItem);
             }
             else {
-                // at end of list
-                this._list.push(newItem);
+                // at end of items
+                this._items.push(newItem);
             }
         }
 
-        return this._items[itemKey] = newItem;
+        return newItem;
     };
 
     /**
@@ -569,15 +583,14 @@
         // reset config
         this._loaded = false;
         this._source = source;
-        this._items  = {};
-        this._list   = [];
+        this._items   = [];
 
         // skip first line (# NOTE Lines must not exceed 132 characters)
         if (lines[0].trim().indexOf('# NOTE Lines must') == 0) {
             lines.shift();
         }
 
-        var line, matches, disabled, name, value, comments, lastItem, lastComments;
+        var line, matches, disabled, name, value, comments, lastMatch, lastItem, lastComments;
 
         for (var i = 0, il = lines.length; i < il; i++) {
             // current line
@@ -587,6 +600,7 @@
             if (! line.trim().length) {
                 // reset last comment
                 lastComments = null;
+                lastMatch    = null;
 
                 // next item
                 continue;
@@ -597,17 +611,17 @@
 
             if (matches) {
                 // add new items
-                lastItem = sh.BoardConfigItem({
+                lastMatch = lastItem = sh.BoardConfigItem({
                     disabled: matches[1],
                     name    : matches[2],
                     value   : matches[3],
                     comments: matches[4].substr(1)
                 });
 
-                this._items[lastItem.name()] = lastItem;
+                name = lastItem.name();
 
-                // add to list
-                this._list.push(lastItem);
+                // add to items
+                this._items.push(lastItem);
 
                 // next item
                 continue;
@@ -617,7 +631,7 @@
             matches = line.match(/^\s{10,}#(.*)/);
 
             if (matches) {
-                // add comments to last item comments list
+                // add comments to last item comments items
                 lastItem.comments(matches[1], true);
 
                 // next item
@@ -627,16 +641,16 @@
             // extract: section comments
             comments = line.substr(1).trim();
 
-            if (lastComments) {
+            if (lastComments && lastMatch instanceof sh.BoardConfigComments) {
                 lastComments.comments(comments, true);
             } else {
-                lastComments = sh.BoardConfigComments(comments);
-                this._list.push(lastComments);
+                lastMatch = lastComments = sh.BoardConfigComments(comments);
+                this._items.push(lastComments);
             }
         }
 
         // loaded ?
-        this._loaded = !!this._list.length;
+        this._loaded = !!this._items.length;
 
         // chainable
         return this;
@@ -694,34 +708,73 @@
     * @return {String}
     */
     sh.BoardConfig.prototype.toString = function() {
-        // Get the list
-        var list = this.getList();
+        // Get the items
+        var items = this.getItems();
 
-        // lengths
-        var lengths = { name: 0, value: 0 };
+        // first pass: find name/value max lengths
+        var lengths  = { name: 0, value: 0 };
+        var nameLength, valueLength;
 
-        for (var item, i = 0; i < list.length; i++) {
+        for (var item, i = 0; i < items.length; i++) {
             // current item
-            item = list[i];
+            item = items[i];
 
             // value item
             if (item instanceof sh.BoardConfigItem) {
-                lengths.name  = Math.max(lengths.name, item.name().length);
-                lengths.value = Math.max(lengths.value, item.value().toString().length);
+                nameLength  = item.name().length;
+                valueLength = item.value().toString().length;
+
+                if (item.disabled()) {
+                    nameLength++;
+                }
+
+                lengths.name  = Math.max(lengths.name, nameLength);
+                lengths.value = Math.max(lengths.value, valueLength);
             }
+        }
+
+        // second pass: find min paddins
+        var paddings = { name: 5, value: 5, offset: 120, items: [] };
+        var padding;
+
+        for (var item, i = 0; i < items.length; i++) {
+            // current item
+            item = items[i];
+
+            // value item
+            if (item instanceof sh.BoardConfigItem) {
+                nameLength  = item.name().length;
+                valueLength = item.value().toString().length;
+
+                if (item.disabled()) {
+                    nameLength++;
+                }
+
+                padding = (lengths.name - nameLength + paddings.name);
+                padding+= (lengths.value - valueLength);
+
+                paddings.offset = Math.min(paddings.offset, padding);
+
+                paddings.items.push(padding);
+            }
+            else {
+                paddings.items.push(null);
+            }
+        }
+
+        if (paddings.offset > paddings.name) {
+            paddings.offset -= paddings.name;
         }
 
         // lines
         var lines = [];
 
-        // add extra padding
-        var paddings = { name: 5, value: 5 };
+        // ...
+        var item, line, pads, comments;
 
-        var item, line, pads, comment;
-
-        for (var i = 0; i < list.length; i++) {
+        for (var i = 0; i < items.length; i++) {
             // current item
-            item = list[i];
+            item = items[i];
 
             // comments item
             if (item instanceof sh.BoardConfigComments) {
@@ -738,7 +791,7 @@
 
             // disabled item
             if (item.disabled()) {
-                // append comment char to buffer
+                // append comments char to buffer
                 line += '#';
             }
 
@@ -746,11 +799,10 @@
             line += item.name();
 
             // [name <--> value] padding
-            pads = (lengths.name - line.length + paddings.name);
-            pads+= (lengths.value - item.value().toString().length);
+            pads = paddings.items[i] - paddings.offset;
 
             // append padding spaces
-            line += Array(pads).join(' ');
+            line += Array(pads + 1).join(' ');
 
             // append value
             line += item.value();
@@ -758,14 +810,13 @@
             // append padding spaces
             line += Array(paddings.value + 1).join(' ');
 
-            // comment
-            comment = item.comments().join(' ');
-            pads    = lengths.name + paddings.name;
-            pads   += lengths.value + paddings.value;
-            comment = sh.wordwrap(comment, 120 - pads, '\n' + Array(pads).join(' ') + '# ', true);
+            // comments
+            comments = item.comments().join(' ');
+            pads     = lengths.name + paddings.name + lengths.value + paddings.value - paddings.offset;
+            comments = sh.wordwrap(comments, 120 - pads, '\n' + Array(pads + 1).join(' ') + '# ', true);
 
-            // append item comment to buffer
-            line += '# ' + comment;
+            // append item comments to buffer
+            line += '# ' + comments;
 
             // append line
             lines.push(line);
@@ -792,31 +843,38 @@
         var self = this;
 
         // debug ---------------------------------------------------------------
-        var config = new sh.BoardConfig(sampleConfig);
-        return Promise.resolve(sh.BoardEvent('config', self, null, config));
+        // var config = new sh.BoardConfig('config.test.txt', sampleConfig);
+        // return Promise.resolve(sh.BoardEvent('config', self, null, config));
         // ---------------------------------------------------------------------
 
         // default timeout
         timeout = timeout === undefined ? 0 : timeout;
 
         // default filename
-        var paths = txtFirst
-            ? ['/sd/config.txt', '/sd/config']
-            : ['/sd/config', '/sd/config.txt'];
+        var filenames = txtFirst
+            ? ['config.txt', 'config']
+            : ['config', 'config.txt'];
+
+        // set current filename
+        var filename = filenames[0];
 
         // no limit
         var limit = undefined;
 
         // get config file
-        return self.cat(paths[0], limit, timeout).catch(function(event) {
-            return self.cat(paths[1], limit, timeout).then(function(event) {
+        return self.cat('/sd/' + filename, limit, timeout).catch(function(event) {
+            // set current filename
+            filename = filenames[1];
+
+            // try second name
+            return self.cat('/sd/' + filename, limit, timeout).then(function(event) {
                 // resolve the promise
                 return Promise.resolve(event);
             });
         })
         .then(function(event) {
             // parse config file contents
-            var config = new sh.BoardConfig(event.data);
+            var config = new sh.BoardConfig(filename, event.data);
 
             // resolve the promise
             return Promise.resolve(sh.BoardEvent('config', self, event, config));

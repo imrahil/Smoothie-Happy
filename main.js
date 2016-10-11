@@ -2,12 +2,32 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    b9da6888f93ed46b71f6cb85e0065437
-* @date     Mon, 10 Oct 2016 16:16:40 +0000
+* @build    a95b17a040ba736b7b2fac0e906273fa
+* @date     Tue, 11 Oct 2016 16:42:34 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
 (function () { 'use strict';
+// https://davidwalsh.name/javascript-debounce-function
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+function debounce(func, wait, immediate) {
+    var timeout;
+    return function() {
+        var context = this, args = arguments;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};
+
 // -----------------------------------------------------------------------------
 // store (localStorage wrapper)
 // -----------------------------------------------------------------------------
@@ -456,6 +476,191 @@ UploadModel.prototype.abort = function() {
 };
 
 // -----------------------------------------------------------------------------
+// board: config model
+// -----------------------------------------------------------------------------
+
+var ConfigItemModel = function(item, parent) {
+    // self alias
+    var self = this;
+
+    // set initial state
+    self.data     = item;
+    self.parent   = parent;
+    self.isValue  = (item instanceof sh.BoardConfigItem);
+    self.comments = ko.observable(item.comments().join('\n'));
+
+    // value model
+    if (self.isValue) {
+        self.name      = ko.observable(item.name());
+        self.value     = ko.observable(item.value());
+        self._disabled = item.disabled();
+        self.disabled  = ko.observable(self._disabled);
+
+        self.modified = ko.pureComputed(function() {
+            var isModified     = self.value().get() !== self.value().getFirstValue();
+            var inModifiedItems = self.parent.modified.indexOf(self) !== -1;
+
+            isModified = isModified || (self._disabled !== self.disabled());
+
+            if (isModified && ! inModifiedItems) {
+                self.parent.modified.push(self);
+            }
+            else if (! isModified && inModifiedItems) {
+                self.parent.modified.remove(self);
+            }
+
+            return isModified;
+        });
+    }
+};
+
+ConfigItemModel.prototype.disable = function(toggle) {
+    this.data.disabled(toggle);
+    this.disabled(toggle);
+};
+
+ConfigItemModel.prototype.reset = function(item, event) {
+    item.data.value().set(item.data.value().getFirstValue());
+    item.value(item.data.value());
+    item.disable(item._disabled);
+};
+
+ConfigItemModel.prototype.change = function(item, event) {
+    item.data.value().set(event.target.value);
+    item.value(item.data.value());
+};
+
+ConfigItemModel.prototype.toggle = function(item, event) {
+    item.disable(! item.disabled());
+};
+
+var ConfigModel = function(parent) {
+    // set initial state
+    this.parent    = parent;
+    this.config    = null;
+    this.filename  = ko.observable();
+    this.loading   = ko.observable(false);
+    this.items     = ko.observableArray();
+    this.modified  = ko.observableArray();
+    this.uploading = ko.observable(false);
+    this.percent   = ko.observable();
+    this.editMode  = ko.observable('form');
+
+    this.source         = ko.observable();
+    this.sourceBuffer   = ko.observable();
+    this.sourceModified = ko.pureComputed(function() {
+        return this.source() !== this.sourceBuffer();
+    }, this);
+};
+
+ConfigModel.prototype.refreshSource = function(source) {
+    source = source || this.config.toString();
+    this.sourceBuffer(source);
+    this.source(source);
+};
+
+ConfigModel.prototype.applySourceChange = function(config, event) {
+    this.config.parse(this.sourceBuffer());
+    this.load(this.config);
+};
+
+ConfigModel.prototype.discardSourceChange = function(config, event) {
+    var source = this.source();
+    this.source('');
+    this.refreshSource(source);
+};
+
+ConfigModel.prototype.sourceChange = function(config, event) {
+    this.sourceBuffer(event.target.innerHTML);
+};
+
+ConfigModel.prototype.load = function(config) {
+    // set config object
+    this.config = config;
+
+    // set filename
+    this.filename(config.filename());
+
+    // update source
+    this.refreshSource();
+
+    // remove all items
+    this.items.removeAll();
+
+    // make observable items
+    var items = config.getItems();
+
+    for (var i = 0, il = items.length; i < il; i++) {
+        this.items.push(new ConfigItemModel(items[i], this));
+    }
+
+    // reset modified
+    this.modified.removeAll();
+};
+
+ConfigModel.prototype.refresh = function(config, event) {
+    // self alias
+    var self = this;
+
+    // set loading flag
+    self.loading(true);
+
+    // get board config
+    self.parent.board.config().then(function(event) {
+        self.load(event.data);
+    })
+    .catch(function(event) {
+        console.error('refresh:', event.name, event);
+    })
+    .then(function(event) {
+        self.loading(false);
+        self.parent.updateState();
+    });
+};
+
+ConfigModel.prototype.toggleEditMode = function(config, event) {
+    var form = this.editMode() == 'form';
+    form && this.refreshSource();
+    this.editMode(form ? 'raw' : 'form');
+};
+
+ConfigModel.prototype.upload = function(config, event) {
+    // self alias
+    var self = this;
+
+    // set uploading flag
+    self.uploading(true);
+    self.percent('0%');
+
+    // refresh source
+    self.refreshSource();
+
+    // reload configuration
+    self.load(self.config);
+
+    // get config as string
+    var source   = self.source();
+    var filename = self.filename();
+
+    // upload the file to sd card
+    self.parent.board.upload(source, filename, 0).onUploadProgress(function(event) {
+        self.percent(event.percent + '%');
+    })
+    .catch(function(event) {
+        console.error(event);
+        return event;
+    })
+    .then(function(event) {
+        // in any case...
+        self.uploading(false);
+    });
+};
+
+ConfigModel.prototype.openSaveModal = function(config, event) {
+    $('#board-config-save-modal').modal('show');
+};
+
+// -----------------------------------------------------------------------------
 // board model
 // -----------------------------------------------------------------------------
 
@@ -489,9 +694,7 @@ var BoardModel = function(board) {
     self.selectedFiles  = ko.observableArray();
 
     self.upload = new UploadModel(self);
-
-    self.config     = null;
-    self.configList = ko.observableArray();
+    self.config = new ConfigModel(self);
 
     // get board tooltip text
     self.uploadEnabled = ko.pureComputed(function() {
@@ -541,6 +744,16 @@ var BoardModel = function(board) {
 
     // reset tree
     self.resetTree();
+};
+
+// -----------------------------------------------------------------------------
+
+BoardModel.prototype.openUploadModal = function(board, event) {
+    $('#board-files-upload-modal').modal('show');
+};
+
+BoardModel.prototype.openRemoveFilesModal = function(board, event) {
+    $('#board-files-remove-modal').modal('show');
 };
 
 // -----------------------------------------------------------------------------
@@ -702,101 +915,6 @@ BoardModel.prototype.refreshTree = function(board, event) {
         self.resetTree(tree);
         self.updateState();
     });
-};
-
-// -----------------------------------------------------------------------------
-
-BoardModel.prototype.setConfigList = function(configList) {
-    // empty list
-    var list = [];
-
-    var item, isValue, itemModel;
-
-    // first pass, normalize nodes
-    for (var i = 0, il = configList.length; i < il; i++) {
-        // current item
-        item = configList[i];
-
-        // is an value
-        isValue = (item instanceof sh.BoardConfigItem);
-
-        // model
-        itemModel = {
-            data    : item,
-            isValue : isValue,
-            comments: ko.observable(item.comments().join('\n'))
-        };
-
-        if (isValue) {
-            itemModel.name     = ko.observable(item.name());
-            itemModel.value    = ko.observable(item.value());
-            itemModel.disabled = ko.observable(item.disabled());
-            itemModel.modified = ko.pureComputed(function() {
-                return this.value().get() !== this.value().getFirstValue();
-            }, itemModel);
-        }
-
-        // push to list
-        list.push(itemModel);
-    }
-
-    // set new config list
-    this.configList(list);
-};
-
-BoardModel.prototype.resetConfig = function(config) {
-    this.config = config;
-    this.setConfigList(config.getList());
-    this.waitConfig(false);
-};
-
-BoardModel.prototype.refreshConfig = function(board, event) {
-    // self alias
-    var self = this;
-
-    // set wait config flag
-    self.waitConfig(true);
-
-    // config object
-    var config = null;
-
-    // get board config
-    self.board.config().then(function(event) {
-        config = event.data;
-    })
-    .catch(function(event) {
-        console.error('refreshConfig:', event.name, event);
-    })
-    .then(function(event) {
-        self.resetConfig(config);
-        self.updateState();
-    });
-};
-
-BoardModel.prototype.configItemChange = function(item, event) {
-    item.data.value().set(event.target.value);
-    item.value(item.data.value());
-};
-
-BoardModel.prototype.configItemReset = function(item, event) {
-    item.data.value().set(item.data.value().getFirstValue());
-    item.value(item.data.value());
-};
-
-BoardModel.prototype.configItemToggle = function(item, event) {
-    var toggle = !item.disabled();
-    item.data.disabled(toggle);
-    item.disabled(toggle);
-};
-
-// -----------------------------------------------------------------------------
-
-BoardModel.prototype.openUploadModal = function(board, event) {
-    $('#board-files-upload-modal').modal('show');
-};
-
-BoardModel.prototype.openRemoveFilesModal = function(board, event) {
-    $('#board-files-remove-modal').modal('show');
 };
 
 // -----------------------------------------------------------------------------
