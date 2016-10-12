@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    4f3e497941afef7fb4eafc46008ae150
-* @date     Wed, 12 Oct 2016 15:33:33 +0000
+* @build    4d4ef780cf17cc3541e30912e9f65116
+* @date     Wed, 12 Oct 2016 15:39:59 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
