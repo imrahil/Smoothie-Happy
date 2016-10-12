@@ -25,6 +25,17 @@
     display: inline-block;
 }
 
+.progress {
+    margin: 5px 0;
+}
+
+textarea {
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
+    font-family: monospace;
+}
+
 /* navbar */
 
 #navbar, .navbar {
@@ -246,9 +257,4 @@
     vertical-align: top;
     display: inline-block;
     max-width: calc(100% - 130px);
-}
-
-#board-files-upload-modal .progress {
-    margin-top: 10px;
-    margin-bottom: 0;
 }

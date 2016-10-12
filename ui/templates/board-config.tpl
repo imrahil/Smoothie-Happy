@@ -5,13 +5,39 @@
     <button data-bind="click: refresh" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
-    <!-- ko if: modified -->
-    <button data-bind="click: reset" type="button" class="btn btn-default">
-        <i class="fa fa-undo"></i> Reset (<span data-bind="text: modified().length"></span>)
+
+    <!-- ko if: loaded -->
+
+    <!-- ko if: editMode() == 'form' -->
+    <button data-bind="click: toggleEditMode" type="button" class="btn btn-default">
+        <i class="fa fa-file-text-o"></i> Raw
     </button>
+    <!-- ko if: modified -->
     <button data-bind="click: openSaveModal" type="button" class="btn btn-default">
         <i class="fa fa-upload"></i> Save
     </button>
+    <button data-bind="click: reset" type="button" class="btn btn-default">
+        <i class="fa fa-undo"></i> Reset (<span data-bind="text: modified().length"></span>)
+    </button>
+    <!-- /ko -->
+    <!-- /ko -->
+
+    <!-- ko if: editMode() == 'raw' -->
+    <!-- ko ifnot: editableSourceModified -->
+    <button data-bind="click: toggleEditMode" type="button" class="btn btn-default">
+        <i class="fa fa-list"></i> Form
+    </button>
+    <!-- /ko -->
+    <!-- ko if: editableSourceModified -->
+    <button data-bind="click: applySourceChange" type="button" class="btn btn-default">
+        <i class="fa fa-list"></i> <i class="fa fa-mail-reply"></i> Apply to form
+    </button>
+    <button data-bind="click: resetEditableSource" type="button" class="btn btn-default">
+        <i class="fa fa-undo"></i> Reset
+    </button>
+    <!-- /ko -->
+    <!-- /ko -->
+
     <!-- /ko -->
 </div>
 
@@ -21,20 +47,25 @@
 <!-- ko if: loading -->
 <div class="alert alert-info" role="alert">
     <i class="fa fa-spinner fa-pulse fa-fw"></i>
-    <strong>Please wait...</strong> Loading the configuration. Thanks to be patient, this can take some time.
+    <strong>Please wait...</strong> Loading the configuration. Thanks to be patient, this can take some time (30-60 sec.).
 </div>
 <!-- /ko -->
 
-<!-- ko ifnot: loading && loaded -->
+<!-- ko ifnot: loaded -->
+<!-- ko ifnot: loading -->
 <div class="alert alert-warning" role="alert">
-    <strong>No configuration loaded!</strong> Please click on the <button data-bind="click: refresh" type="button" class="btn btn-default">
+    Please click on the
+    <button data-bind="click: refresh" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
-    </button> button to load configuration.
+    </button>
+    button to load the configuration from your board.
 </div>
 <!-- /ko -->
-
+<!-- /ko -->
 
 <!-- ko if: loaded -->
+<!-- ko ifnot: loading -->
+<!-- ko if: editMode() == 'form' -->
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -76,6 +107,12 @@
         <!-- /ko -->
     </tbody>
 </table>
+<!-- /ko -->
+
+<!-- ko if: editMode() == 'raw' -->
+<textarea data-bind="value: editableSource, event: { input: onEditableSourceChange }" class="well" rows="25"></textarea>
+<!-- /ko -->
+<!-- /ko -->
 <!-- /ko -->
 
 {$board-config-save.tpl}

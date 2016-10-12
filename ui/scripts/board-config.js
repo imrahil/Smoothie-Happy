@@ -69,23 +69,59 @@ var ConfigModel = function(parent) {
     var self = this;
 
     // set initial state
-    self.parent = parent;
-    self.config = ko.observable();
-    self.items  = ko.observableArray();
+    self.parent   = parent;
+    self.config   = ko.observable();
+    self.filename = ko.observable();
+    self.items    = ko.observableArray();
+    self.editMode = ko.observable('form');
 
     self.loading = ko.observable(false);
     self.loaded  = ko.pureComputed(function() {
         return self.items().length;
-    })
+    });
 
     self.modified = ko.pureComputed(function() {
         return self.getModified();
-    })
+    });
+
+    self.uploading     = ko.observable(false);
+    self.uploadPercent = ko.observable();
+
+    self.source         = ko.observable();
+    self.editedSource   = ko.observable();
+    self.editableSource = ko.observable();
+
+    self.editableSourceModified = ko.pureComputed(function() {
+        return self.source() !== self.editedSource();
+    });
+};
+
+ConfigModel.prototype.setSource = function(source) {
+    this.editableSource(source);
+    this.editedSource(source);
+    this.source(source);
+};
+
+ConfigModel.prototype.resetEditableSource = function() {
+    var source = this.config().format();
+    this.editableSource('');
+    this.editedSource(source);
+    this.editableSource(source);
+};
+
+ConfigModel.prototype.resetSource = function() {
+    this.setSource(this.config().format());
 };
 
 ConfigModel.prototype.load = function(config) {
     // set config object
     this.config(config);
+
+    // set source
+    this.setSource(config.format());
+
+    // set filename
+    this.filename(config.filename());
 
     // make observable items
     var configItems = config.getItems();
@@ -106,6 +142,8 @@ ConfigModel.prototype.reset = function() {
         item = items[i];
         item.isValue && item.reset();
     }
+
+    this.resetSource();
 };
 
 ConfigModel.prototype.getModified = function() {
@@ -135,6 +173,10 @@ ConfigModel.prototype.refresh = function(config, event) {
     })
     .catch(function(event) {
         console.error('refresh:', event.name, event);
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'Unable to upload to the board at ' + self.parent.board.address + '. Please retry later.'
+        }, { type: 'danger' });
     })
     .then(function(event) {
         self.loading(false);
@@ -147,121 +189,25 @@ ConfigModel.prototype.openSaveModal = function(config, event) {
 };
 
 ConfigModel.prototype.upload = function(config, event) {
-
-};
-
-/*
-var ConfigModel = function(parent) {
-    // set initial state
-    this.parent    = parent;
-    this.config    = null;
-    this.filename  = ko.observable();
-    this.loading   = ko.observable(false);
-    this.items     = ko.observableArray();
-    this.modified  = ko.observableArray();
-    this.uploading = ko.observable(false);
-    this.percent   = ko.observable();
-    this.editMode  = ko.observable('form');
-
-    this.source         = ko.observable();
-    this.sourceBuffer   = ko.observable();
-    this.sourceModified = ko.pureComputed(function() {
-        return this.source() !== this.sourceBuffer();
-    }, this);
-};
-
-ConfigModel.prototype.refreshSource = function(source) {
-    source = source || this.config.toString();
-    this.sourceBuffer(source);
-    this.source(source);
-};
-
-ConfigModel.prototype.applySourceChange = function(config, event) {
-    this.config.parse(this.sourceBuffer());
-    this.load(this.config);
-};
-
-ConfigModel.prototype.discardSourceChange = function(config, event) {
-    var source = this.source();
-    this.source('');
-    this.refreshSource(source);
-};
-
-ConfigModel.prototype.sourceChange = function(config, event) {
-    this.sourceBuffer(event.target.innerHTML);
-};
-
-ConfigModel.prototype.load = function(config) {
-    // set config object
-    this.config = config;
-
-    // set filename
-    this.filename(config.filename());
-
-    // update source
-    this.refreshSource();
-
-    // remove all items
-    this.items.removeAll();
-
-    // make observable items
-    var items = config.getItems();
-
-    for (var i = 0, il = items.length; i < il; i++) {
-        this.items.push(new ConfigItemModel(items[i], this));
-    }
-
-    // reset modified
-    this.modified.removeAll();
-};
-
-ConfigModel.prototype.refresh = function(config, event) {
     // self alias
     var self = this;
 
-    // set loading flag
-    self.loading(true);
-
-    // get board config
-    self.parent.board.config().then(function(event) {
-        self.load(event.data);
-    })
-    .catch(function(event) {
-        console.error('refresh:', event.name, event);
-    })
-    .then(function(event) {
-        self.loading(false);
-        self.parent.updateState();
-    });
-};
-
-ConfigModel.prototype.toggleEditMode = function(config, event) {
-    var form = this.editMode() == 'form';
-    form && this.refreshSource();
-    this.editMode(form ? 'raw' : 'form');
-};
-
-ConfigModel.prototype.upload = function(config, event) {
-    // self alias
-    var self = this;
-
-    // set uploading flag
+    // set upload flags
     self.uploading(true);
-    self.percent('0%');
+    self.uploadPercent('0%');
 
-    // refresh source
-    self.refreshSource();
-
-    // reload configuration
-    self.load(self.config);
-
-    // get config as string
-    var source   = self.source();
-    var filename = self.filename();
+    // new config instance from formated source
+    var filename  = self.filename();
+    var source    = self.config().format();
+    var newConfig = sh.BoardConfig(filename, source);
 
     // upload the file to sd card
     self.parent.board.upload(source, filename, 0).onUploadProgress(function(event) {
-        self.percent(event.percent + '%');
+        self.uploadPercent(event.percent + '%');
+    })
+    .then(function(event) {
+        self.load(newConfig);
+        return event;
     })
     .catch(function(event) {
         console.error(event);
@@ -270,10 +216,62 @@ ConfigModel.prototype.upload = function(config, event) {
     .then(function(event) {
         // in any case...
         self.uploading(false);
+        self.parent.updateState();
     });
 };
 
-ConfigModel.prototype.openSaveModal = function(config, event) {
-    $('#board-config-save-modal').modal('show');
+ConfigModel.prototype.toggleEditMode = function(config, event) {
+    var editMode = this.editMode();
+
+    if (editMode === 'form') {
+        this.resetSource();
+    }
+
+    this.editMode(editMode === 'raw' ? 'form' : 'raw');
 };
-*/
+
+ConfigModel.prototype.onEditableSourceChange = function(config, event) {
+    this.editedSource(event.target.value);
+};
+
+ConfigModel.prototype.applySourceChange = function(config, event) {
+    // create new config from source
+    var filename  = this.filename();
+    var source    = this.editedSource();
+    var newConfig = sh.BoardConfig(filename, source);
+
+    // find changes
+    var _items, items = newConfig.getItems();
+
+    var item, name, oldItems, newItems, oldItem, newItem;
+
+    for (var i = 0; i < items.length; i++) {
+        // current item
+        item = items[i];
+
+        // skip comments
+        if (item instanceof sh.BoardConfigComments) {
+            continue;
+        }
+
+        // item name
+        name = item.name();
+
+        // has old items
+        newItems = newConfig.hasItems(name);
+        oldItems = this.config().hasItems(name);
+
+        for (var j = 0, jl = oldItems.length; j < jl; j++) {
+            newItem = newItems[j] || null;
+
+            if (newItem) {
+                oldItem                     = oldItems[j];
+                newItem._initiallyDisabled  = oldItem._initiallyDisabled;
+                newItem.value()._firstValue = oldItem.value()._firstValue;
+            }
+        }
+    }
+
+    this.load(newConfig);
+    this.editMode('form');
+};

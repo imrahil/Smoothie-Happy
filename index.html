@@ -9,7 +9,7 @@
         <meta name="description" content="A SmoothieBoard network communication API">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=a95b17a040ba736b7b2fac0e906273fa" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=4f3e497941afef7fb4eafc46008ae150" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -345,16 +345,18 @@
 <!-- ko if: waitTree -->
 <div class="alert alert-info" role="alert">
     <i class="fa fa-spinner fa-pulse fa-fw"></i>
-    <strong>Please wait...</strong> Loading the file tree. Thanks to be patient, this can take some time.
+    <strong>Please wait...</strong> Loading the file tree. Thanks to be patient, this can take some time (2-30 sec.).
 </div>
 <!-- /ko -->
 
 <!-- ko ifnot: waitTree -->
 <!-- ko ifnot: files().length -->
 <div class="alert alert-warning" role="alert">
-    <strong>No files or directories found!</strong> Please click on the <button data-bind="click: refreshTree" type="button" class="btn btn-default">
+    Please click on the
+    <button data-bind="click: refreshTree" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
-    </button> button to list all files on your board.
+    </button>
+    button to list all files on your board.
 </div>
 <!-- /ko -->
 <!-- ko if: files().length -->
@@ -561,39 +563,45 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="board-config-pane">
                     <!-- ko with: config -->
+
 <!-- ko ifnot: loading -->
 <div class="btn-group" role="group">
     <button data-bind="click: refresh" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
-    <!-- ko if: items().length -->
-    <!-- ko ifnot: sourceModified -->
-    <button data-bind="click: toggleEditMode" type="button" class="btn btn-default">
-        <!-- ko if: editMode() == 'form' -->
-        <i class="fa fa-file-text-o"></i> Raw edit
-        <!-- /ko -->
-        <!-- ko if: editMode() == 'raw' -->
-        <i class="fa fa-list"></i> Form edit
-        <!-- /ko -->
-    </button>
-    <!-- /ko -->
-    <!-- /ko -->
+
+    <!-- ko if: loaded -->
+
     <!-- ko if: editMode() == 'form' -->
-    <!-- ko if: modified().length -->
+    <button data-bind="click: toggleEditMode" type="button" class="btn btn-default">
+        <i class="fa fa-file-text-o"></i> Raw
+    </button>
+    <!-- ko if: modified -->
     <button data-bind="click: openSaveModal" type="button" class="btn btn-default">
-        <i class="fa fa-upload"></i> Save (<span data-bind="text: modified().length"></span>)
+        <i class="fa fa-upload"></i> Save
+    </button>
+    <button data-bind="click: reset" type="button" class="btn btn-default">
+        <i class="fa fa-undo"></i> Reset (<span data-bind="text: modified().length"></span>)
     </button>
     <!-- /ko -->
     <!-- /ko -->
+
     <!-- ko if: editMode() == 'raw' -->
-    <!-- ko if: sourceModified -->
-    <button data-bind="click: applySourceChange" type="button" class="btn btn-default">
-        <i class="fa fa-upload"></i> Apply
-    </button>
-    <button data-bind="click: discardSourceChange" type="button" class="btn btn-default">
-        <i class="fa fa-undo"></i> Discard
+    <!-- ko ifnot: editableSourceModified -->
+    <button data-bind="click: toggleEditMode" type="button" class="btn btn-default">
+        <i class="fa fa-list"></i> Form
     </button>
     <!-- /ko -->
+    <!-- ko if: editableSourceModified -->
+    <button data-bind="click: applySourceChange" type="button" class="btn btn-default">
+        <i class="fa fa-list"></i> <i class="fa fa-mail-reply"></i> Apply to form
+    </button>
+    <button data-bind="click: resetEditableSource" type="button" class="btn btn-default">
+        <i class="fa fa-undo"></i> Reset
+    </button>
+    <!-- /ko -->
+    <!-- /ko -->
+
     <!-- /ko -->
 </div>
 
@@ -603,19 +611,24 @@
 <!-- ko if: loading -->
 <div class="alert alert-info" role="alert">
     <i class="fa fa-spinner fa-pulse fa-fw"></i>
-    <strong>Please wait...</strong> Loading the configuration. Thanks to be patient, this can take some time.
+    <strong>Please wait...</strong> Loading the configuration. Thanks to be patient, this can take some time (30-60 sec.).
 </div>
 <!-- /ko -->
 
+<!-- ko ifnot: loaded -->
 <!-- ko ifnot: loading -->
-<!-- ko ifnot: items().length -->
 <div class="alert alert-warning" role="alert">
-    <strong>No configuration loaded!</strong> Please click on the <button data-bind="click: refresh" type="button" class="btn btn-default">
+    Please click on the
+    <button data-bind="click: refresh" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
-    </button> button to load configuration.
+    </button>
+    button to load the configuration from your board.
 </div>
 <!-- /ko -->
-<!-- ko if: items().length -->
+<!-- /ko -->
+
+<!-- ko if: loaded -->
+<!-- ko ifnot: loading -->
 <!-- ko if: editMode() == 'form' -->
 <table class="table table-bordered">
     <thead>
@@ -629,46 +642,43 @@
         <!-- ko if: isValue -->
         <tr data-bind="css: modified() ? 'info' : (disabled() ? 'warning' : 'default')">
             <td>
-                <span data-bind="text: name()"></span>
+                <span data-bind="text: name"></span>
             </td>
             <td style="min-width:200px">
                 <span class="input-group input-group-sm">
-                    <input data-bind="value: value(), event: { input: change }, disable: disabled()" type="text" class="form-control" />
+                    <input data-bind="value: value, event: { input: onChange }, disable: disabled" type="text" class="form-control" />
                     <span class="input-group-btn">
                         <!-- ko if: modified -->
-                        <button data-bind="click: reset, attr: { title: 'Reset value to : ' + value().getFirstValue() }" type="button" class="btn btn-default">
+                        <button data-bind="click: onReset, attr: { title: 'Reset value to : ' + firstValue }" type="button" class="btn btn-default">
                             <i class="fa fa-undo"></i>
                         </button>
                         <!-- /ko -->
-                        <button data-bind="click: toggle, css: disabled() ? 'btn-warning' : 'btn-default', text: disabled() ? 'off' : 'on'" type="button" class="btn"></button>
+                        <button data-bind="click: onToggle, css: disabled() ? 'btn-warning' : 'btn-default', text: disabled() ? 'off' : 'on'" type="button" class="btn"></button>
                     </span>
                 </span>
             </td>
             <td>
-                <span data-bind="text: comments()"></span>
+                <span data-bind="text: comments"></span>
             </td>
         </tr>
         <!-- /ko -->
         <!-- ko ifnot: isValue -->
         <tr>
             <th colspan="3" class="active">
-                <span data-bind="text: comments()"></span>
+                <span data-bind="text: comments"></span>
             </th>
         </tr>
         <!-- /ko -->
     </tbody>
 </table>
 <!-- /ko -->
+
 <!-- ko if: editMode() == 'raw' -->
-<pre data-bind="text: source, event: { input: sourceChange }" contenteditable="true"></pre>
-<!-- /ko -->
-<!-- ko if: modified().length -->
-<button data-bind="click: openSaveModal" type="button" class="btn btn-primary btn-block">
-    <i class="fa fa-upload"></i> Save (<span data-bind="text: modified().length"></span>)
-</button>
+<textarea data-bind="value: editableSource, event: { input: onEditableSourceChange }" class="well" rows="25"></textarea>
 <!-- /ko -->
 <!-- /ko -->
 <!-- /ko -->
+
 <div id="board-config-save-modal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -681,15 +691,24 @@
                 </h4>
             </div>
             <div class="modal-body">
-                <!-- ko ifnot: uploading -->
-                <!-- ko ifnot: modified().length -->
+                <!-- ko ifnot: modified -->
                 <div class="alert alert-info" role="alert">
                     <strong>Configuration up-to-date!</strong>
                 </div>
                 <!-- /ko -->
-                <!-- ko if: modified().length -->
-                The following settings have been modified and will be written on your board :
+                <!-- ko if: uploading -->
+                <div class="alert alert-info" role="alert">
+                    <p><strong><i class="fa fa-spinner fa-pulse fa-fw"></i> Uploading <code data-bind="text: filename"></code> file to the board...</strong></p>
+                    <div class="progress">
+                        <div data-bind="style: { width: uploadPercent }" class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="min-width: 2em;">
+                            <span data-bind="text: uploadPercent"></span>
+                        </div>
+                    </div>
+                </div>
                 <!-- /ko -->
+                <!-- ko if: modified -->
+                <!-- ko ifnot: uploading -->
+                The following settings have been modified and will be written on your board :
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -699,47 +718,32 @@
                         </tr>
                     </thead>
                     <tbody data-bind="foreach: modified">
-                        <!-- ko if: isValue -->
                         <tr data-bind="css: modified() ? 'info' : (disabled() ? 'warning' : 'default')">
                             <td>
-                                <span data-bind="text: name()"></span>
+                                <span data-bind="text: name"></span>
                             </td>
                             <td style="min-width:200px">
                                 <span class="input-group input-group-sm">
-                                    <input data-bind="value: value(), event: { input: change }, disable: disabled()" type="text" class="form-control" />
+                                    <input data-bind="value: value, event: { input: onChange }, disable: disabled" type="text" class="form-control" />
                                     <span class="input-group-btn">
-                                        <!-- ko if: modified -->
-                                        <button data-bind="click: reset, attr: { title: 'Reset value to : ' + value().getFirstValue() }" type="button" class="btn btn-default">
+                                        <button data-bind="click: onReset, attr: { title: 'Reset value to : ' + firstValue }" type="button" class="btn btn-default">
                                             <i class="fa fa-undo"></i>
                                         </button>
-                                        <!-- /ko -->
-                                        <button data-bind="click: toggle, css: disabled() ? 'btn-warning' : 'btn-default', text: disabled() ? 'off' : 'on'" type="button" class="btn"></button>
+                                        <button data-bind="click: onToggle, css: disabled() ? 'btn-warning' : 'btn-default', text: disabled() ? 'off' : 'on'" type="button" class="btn"></button>
                                     </span>
                                 </span>
                             </td>
                             <td>
-                                <span data-bind="text: comments()"></span>
+                                <span data-bind="text: comments"></span>
                             </td>
                         </tr>
-                        <!-- /ko -->
                     </tbody>
                 </table>
                 <!-- /ko -->
-                <!-- ko if: uploading -->
-                <div class="alert alert-info" role="alert">
-                    <p><strong><i class="fa fa-spinner fa-pulse fa-fw"></i> Uploading config file...</strong></p>
-                    <!-- ko if: percent -->
-                    <div class="progress">
-                        <div data-bind="style: { width: percent }" class="progress-bar progress-bar-success progress-bar-striped" role="progressbar">
-                            <span data-bind="text: percent">0%</span>
-                        </div>
-                    </div>
-                    <!-- /ko -->
-                </div>
                 <!-- /ko -->
             </div>
+            <!-- ko if: modified -->
             <!-- ko ifnot: uploading -->
-            <!-- ko if: modified().length -->
             <div class="modal-footer">
                 <button data-bind="click: upload" type="button" class="btn btn-success">
                     <i class="fa fa-upload"></i> Upload
@@ -750,6 +754,7 @@
         </div>
     </div>
 </div><!-- #board-config-save-modal -->
+
 
 <!-- /ko -->
 
@@ -802,7 +807,7 @@
         <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="vendor/filesize.min.js?v=3.3.0"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=a95b17a040ba736b7b2fac0e906273fa"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=a95b17a040ba736b7b2fac0e906273fa"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=4f3e497941afef7fb4eafc46008ae150"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=4f3e497941afef7fb4eafc46008ae150"></script>
     </body>
 </html>

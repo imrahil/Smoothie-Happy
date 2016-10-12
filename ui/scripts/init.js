@@ -48,7 +48,7 @@ for (var i = 0; i < boardsAddresses.length; i++) {
         if (event.board.address == boardsSelected) {
             var board = model.boards.getBoard(boardsSelected);
             model.boards.selectedBoard(board);
-            board.refreshTree();
+            //board.refreshTree();
         }
     });
 }

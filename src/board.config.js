@@ -819,8 +819,8 @@
         var self = this;
 
         // debug ---------------------------------------------------------------
-        var config = new sh.BoardConfig('config.test.txt', sampleConfig);
-        return Promise.resolve(sh.BoardEvent('config', self, null, config));
+        // var config = new sh.BoardConfig('config.test.txt', sampleConfig);
+        // return Promise.resolve(sh.BoardEvent('config', self, null, config));
         // ---------------------------------------------------------------------
 
         // default timeout
@@ -856,7 +856,7 @@
             return Promise.resolve(sh.BoardEvent('config', self, event, config));
         });
     };
-
+/*
 var sampleConfig = `
 # NOTE Lines must not exceed 132 characters
 ## Robot module configurations : general handling of movement G-codes and slicing into moves
@@ -1184,5 +1184,5 @@ network.ip_address                           auto             # use dhcp to get 
 #network.ip_gateway                           192.168.3.1      # the gateway address
 #network.mac_override                         xx.xx.xx.xx.xx.xx  # override the mac address, only do this if you have a conflict
 `;
-
+*/
 })();

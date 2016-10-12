@@ -24,16 +24,18 @@
 <!-- ko if: waitTree -->
 <div class="alert alert-info" role="alert">
     <i class="fa fa-spinner fa-pulse fa-fw"></i>
-    <strong>Please wait...</strong> Loading the file tree. Thanks to be patient, this can take some time.
+    <strong>Please wait...</strong> Loading the file tree. Thanks to be patient, this can take some time (2-30 sec.).
 </div>
 <!-- /ko -->
 
 <!-- ko ifnot: waitTree -->
 <!-- ko ifnot: files().length -->
 <div class="alert alert-warning" role="alert">
-    <strong>No files or directories found!</strong> Please click on the <button data-bind="click: refreshTree" type="button" class="btn btn-default">
+    Please click on the
+    <button data-bind="click: refreshTree" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
-    </button> button to list all files on your board.
+    </button>
+    button to list all files on your board.
 </div>
 <!-- /ko -->
 <!-- ko if: files().length -->
