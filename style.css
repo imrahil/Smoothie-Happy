@@ -20,6 +20,22 @@
     text-overflow: ellipsis;
 }
 
+.indent {
+    width: 10px;
+    display: inline-block;
+}
+
+.progress {
+    margin: 5px 0;
+}
+
+textarea {
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
+    font-family: monospace;
+}
+
 /* navbar */
 
 #navbar, .navbar {
@@ -132,6 +148,29 @@
     margin-bottom: 0;
 }
 
+/* button file */
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    outline: none;
+    background: white;
+    cursor: inherit;
+    display: block;
+}
+
 /* boards */
 
 #boards li {
@@ -175,43 +214,47 @@
     margin-top: 10px;
 }
 
+#board .list-group .label {
+    padding: 5px;
+}
+
 /* board: files */
 
 #board-files-pane h3 {
     margin-top: 0;
 }
 
-.node-board-files-tree .icon {
-    margin-right: 10px!important;
+#board .files-tree.list-group {
+    overflow-y: auto;
+    max-height: 250px;
+    border: 1px solid #ddd;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
 }
 
-.node-board-files-tree .icon:first-child {
-    display: none;
+#board .files-tree.list-group .list-group-item {
+    border-left: 0;
+    border-right: 0;
 }
 
-.treeview .badge {
-    font-size: 0.8em;
+#board .files-tree.list-group .list-group-item.active {
+    border-color: #eee;
 }
 
-/* button file */
-
-.btn-file {
-    position: relative;
-    overflow: hidden;
+#board .files-tree.list-group .list-group-item:first-child {
+    border-top: 0;
 }
 
-.btn-file input[type=file] {
-    position: absolute;
-    top: 0;
-    right: 0;
-    min-width: 100%;
-    min-height: 100%;
-    font-size: 100px;
-    text-align: right;
-    filter: alpha(opacity=0);
-    opacity: 0;
-    outline: none;
-    background: white;
-    cursor: inherit;
-    display: block;
+#board .files-tree.list-group .list-group-item:last-child {
+    border-bottom: 0;
+}
+
+/* upload */
+
+#board-files-upload-modal .filename.truncate {
+    vertical-align: top;
+    display: inline-block;
+    max-width: calc(100% - 130px);
 }

@@ -14,27 +14,28 @@ var BoardModel = function(board) {
     var name  = names[board.address] || board.address;
 
     // set initial board state
-    self.name                  = ko.observable(name);
-    self.info                  = ko.observable(board.info);
-    self.online                = ko.observable(board.online);
-    self.connected             = ko.observable(board.connected);
-    self.waitConnect           = ko.observable(false);
-    self.waitLookup            = ko.observable(false);
-    self.waitFilesTree         = ko.observable(false);
-    self.filesTree             = ko.observableArray();
-    self.dirsTree              = ko.observableArray();
-    self.selectedDirectoryText = ko.observable();
-    self.selectedDirectory     = ko.observable();
-    self.uploadFileData        = ko.observable();
-    self.uploadFileName        = ko.observable();
-    self.uploadFileSize        = ko.observable();
+    self.name      = ko.observable(name);
+    self.info      = ko.observable(board.info);
+    self.online    = ko.observable(board.online);
+    self.connected = ko.observable(board.connected);
 
-    // set default directory
-    self.setSelectedDirectory('/');
+    self.waitConnect = ko.observable(false);
+    self.waitLookup  = ko.observable(false);
+    self.waitTree    = ko.observable(false);
+    self.waitRemove  = ko.observable(false);
+
+    self.files   = ko.observableArray();
+    self.folders = ko.observableArray();
+
+    self.selectedFolder = ko.observable();
+    self.selectedFiles  = ko.observableArray();
+
+    self.upload = new UploadModel(self);
+    self.config = new ConfigModel(self);
 
     // get board tooltip text
     self.uploadEnabled = ko.pureComputed(function() {
-        return self.dirsTree().length && self.selectedDirectory() != '/';
+        return self.folders().length && self.selectedFolder() != '/';
     });
 
     // get board tooltip text
@@ -77,7 +78,22 @@ var BoardModel = function(board) {
         //console.error('on.error:', event);
         self.updateState();
     });
+
+    // reset tree
+    self.resetTree();
 };
+
+// -----------------------------------------------------------------------------
+
+BoardModel.prototype.openUploadModal = function(board, event) {
+    $('#board-files-upload-modal').modal('show');
+};
+
+BoardModel.prototype.openRemoveFilesModal = function(board, event) {
+    $('#board-files-remove-modal').modal('show');
+};
+
+// -----------------------------------------------------------------------------
 
 BoardModel.prototype.changeName = function(board, event) {
     // make the names object
@@ -164,238 +180,142 @@ BoardModel.prototype.lookup = function() {
     });
 };
 
-BoardModel.prototype._makeFileNode = function(node) {
-    node = {
-        text: node.name || '/',
-        node: node
-    };
+// -----------------------------------------------------------------------------
 
-    node.tags = [
-        filesize(node.node.size)
-    ];
-
-    if (node.node.type == 'file') {
-        var icon = 'file-o';
-        var ext  = node.text.split('.').pop();
-
-        if (ext == 'gcode' || ext == 'nc') {
-            icon = 'file-code-o';
-            //node.tags.push('P'); // printable file
-        }
-        else if (['svg', 'dxf'].indexOf(ext) != -1) {
-            icon = 'object-group';
-        }
-        else if (['png', 'jpeg', 'jpg', 'gif'].indexOf(ext) != -1) {
-            icon = 'file-image-o';
-        }
-        else if (node.text == 'config' || node.text == 'config.txt') {
-            icon = 'cogs';
-            node.tags.push('S'); // system file
-        }
-        else if (node.text == 'firmware.cur') {
-            icon = 'leaf';
-            node.tags.push('S'); // system file
-        }
-
-        node.icon = 'fa fa-fw fa-' + icon;
-    }
-
-    node.state = { selected: !node.node.root };
-
-    return node;
+BoardModel.prototype.sortTree = function(tree) {
+    return tree.sort(function(a, b) {
+        var la = a.path.split('/').length;
+        var lb = b.path.split('/').length;
+        return (la < lb) ? -1 : ((la > lb) ? 1 :
+            (a.path < b.path) ? -1 : ((a.path > b.path) ? 1 : 0));
+    });
 };
 
-BoardModel.prototype._makeFilesTree = function(nodes) {
-    // some variables
-    var node  = null;
-    var tree  = [];
-    var dirs  = [];
-    var files = [];
+BoardModel.prototype._makeTree = function(nodes) {
+    // self alias
+    var self = this;
 
-    // find a parent node...
-    var findParentNode = function(s, n) {
-        for (var o, i = 0, il = s.length; i < il; i++) {
-            o = s[i];
+    // empty tree
+    var tree = { files  : [], folders: [] };
 
-            if (o.node.path == n.node.root) {
-                if (! o.nodes) {
-                    o.nodes = [];
-                }
-                return o;
-            }
-        }
-        return null;
-    }
+    // sort nodes
+    nodes = self.sortTree(nodes);
 
     // first pass, normalize nodes
-    for (var i = 0, il = nodes.length; i < il; i++) {
-        node = nodes[i];
+    for (var node, i = 0, il = nodes.length; i < il; i++) {
+        // current node
+        node = new FileModel(nodes[i], self);
 
-        tree.push(this._makeFileNode(node));
+        // node state
+        node.active(self.selectedFolder() == node.path);
 
+        // add node in file/folder collection
         if (node.type == 'file') {
-            files.push(this._makeFileNode(node));
+            tree.files.push(node);
         }
         else {
-            dirs.push(this._makeFileNode(node));
+            tree.folders.push(node);
         }
     }
 
-    // second pass, push childs into parents nodes
-    function makeTree(s) {
-        for (var i = s.length - 1; i >= 0; i--) {
-            // current node
-            node = s[i];
-
-            // find parent node
-            var parentNode = findParentNode(s, node);
-
-            if (parentNode) {
-                // extract node from tree
-                node = s.splice(i, 1)[0];
-
-                // move node to parent nodes list
-                parentNode.nodes.push(node);
-            }
-        }
-
-        return s;
-    }
-
-    tree = makeTree(tree);
-    dirs = makeTree(dirs);
-
-    // console.log(nodes);
-    // console.log(tree);
-    return {
-        tree : tree,
-        dirs : dirs,
-        files: files
-    };
+    // return the tree
+    return tree;
 };
 
-BoardModel.prototype.setSelectedDirectory = function(path) {
-    this.selectedDirectory(path);
-
-    if (path == '/') {
-        path += ' (All files on the board)';
-    }
-
-    this.selectedDirectoryText(path);
+BoardModel.prototype.resetTree = function(tree) {
+    this.selectedFiles([]);
+    this.selectedFolder('/');
+    tree = this._makeTree(tree || []);
+    this.folders(tree.folders || []);
+    this.files(tree.files || []);
+    this.waitTree(false);
 };
 
-BoardModel.prototype.populateFilesTree = function() {
+BoardModel.prototype.refreshTree = function(board, event) {
     // self alias
     var self = this;
 
-    // get trees
-    var dirsTree  = this.dirsTree();
-    var filesTree = this.filesTree();
+    // set wait tree flag
+    self.waitTree(true);
 
-    // init dirs tree
-    $('#board-dirs-tree').treeview({
-        data          : dirsTree,
-        levels        : 10,
-        showTags      : true,
-        expandIcon    : 'fa fa-chevron-right',
-        collapseIcon  : 'fa fa-chevron-down',
-        onNodeSelected: function(event, node) {
-            // update selected directory path
-            self.setSelectedDirectory(node.node.path);
+    // empty tree
+    var tree = [];
 
-            // filter the files tree
-            var newFilesTree = filesTree;
-
-            if (node.node.path != '/') {
-                newFilesTree = filesTree.filter(function(fileNode) {
-                    return fileNode.node.root == node.node.path;
-                });
-            }
-
-            // init files tree
-            $('#board-files-tree').treeview({
-                data    : newFilesTree,
-                showTags: true
-            });
-        }
-    });
-
-    // init files tree
-    $('#board-files-tree').treeview({
-        data    : filesTree,
-        showTags: true
-    });
-};
-
-BoardModel.prototype.refreshFilesTree = function(board, event) {
-    // self alias
-    var self = this;
-
-    // set we wait for files list
-    self.waitFilesTree(true);
-
-    var filesTree = null;
-    var dirsTree  = null;
-
-    // get all files or directories
+    // get all files or folders
     self.board.lsAll('/').then(function(event) {
-        //console.info('lsAll:', event.name, event.data);
-        var ft = self._makeFilesTree(event.data);
-        filesTree = ft.files;
-        dirsTree  = ft.dirs;
+        tree = event.data;
     })
     .catch(function(event) {
-        //console.error('lsAll:', event.name, event);
+        console.error('refreshTree:', event.name, event);
     })
     .then(function(event) {
+        self.resetTree(tree);
         self.updateState();
-        self.dirsTree(dirsTree);
-        self.filesTree(filesTree);
-        self.waitFilesTree(false);
-        self.populateFilesTree();
     });
 };
 
-BoardModel.prototype.uploadFile = function(board, event) {
-    var file = event.target.files[0];
+// -----------------------------------------------------------------------------
 
-    this.uploadFileData(file);
-    this.uploadFileName(file.name);
-    this.uploadFileSize(filesize(file.size));
-    $('#board-upload-modal').modal('show');
-
-    event.target.value = null; // allow re-uploading same filename
+BoardModel.prototype.unselectedFile = function(node, event) {
+    node.select(false);
 };
 
-BoardModel.prototype.sendFile = function(board, event) {
+BoardModel.prototype.removeFiles = function(board, event) {
     // self alias
     var self = this;
 
-    // file path and data
-    var file = self.uploadFileData();
-    var name = self.uploadFileName();
-    var path = self.selectedDirectory();
+    // skip if already in remove
+    if (self.waitRemove()) {
+        return;
+    }
 
-    // upload timeout
-    var timeout = 0;
+    // set wait remove flag
+    self.waitRemove(true);
 
-    // move file after upload
-    var moveFileAfterUpload = path != '/sd';
+    // get selected files
+    var files = [].concat(self.selectedFiles());
 
-    // temp name
-    var tempName = moveFileAfterUpload ? '___sh_upload___.' + name : name;
+    // get files paths
+    var paths = [];
 
-    // upload the file to sd card
-    self.board.upload(file, tempName, timeout).onUploadProgress(function(event) {
-        console.info(self.board.address, '>> progress >>',  event.percent, '%');
+    for (var file, i = 0, il = files.length; i < il; i++) {
+        // current file
+        file = files[i];
+
+        // disable node
+        file.enabled(false);
+
+        // add path to delete collection
+        paths.push(file.path);
+    }
+
+    // remove selected files
+    self.board.rm(paths).then(function(event) {
+        // get all files
+        var files = self.files();
+
+        // remove file nodes
+        for (var i = 0, il = paths.length; i < il; i++) {
+            for (var file, j = 0; j < files.length; j++) {
+                file = files[j];
+
+                if (paths[i] == file.path) {
+                    self.files.remove(file);
+                    self.selectedFiles.remove(file);
+                }
+            }
+        }
+    })
+    .catch(function(event) {
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'An error occurred when deleting the following files : ' + paths.join(', ')
+        }, { type: 'danger' });
+
+        return event;
     })
     .then(function(event) {
-        // move the file to target path
-        if (moveFileAfterUpload) {
-            return self.board.mv('/sd/' + tempName, path + '/' + name, timeout);
-        }
-
-        // resolve the promise
-        return Promise.resolve(event);
+        // set wait remove flag
+        self.waitRemove(false);
     });
 };

@@ -61,9 +61,22 @@
     * @param {Integer} [timeout] Response timeout.
     *
     * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.ping}
     */
     sh.Board.prototype.ping = function(timeout) {
-        return this.command('ok', timeout);
+        // self alias
+        var self = this;
+
+        return this.command('ok', timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw.trim();
+
+            var data = raw === 'ok' ? 'pong' : raw;
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('ping', self, event, data));
+        });
     };
 
     /**
@@ -130,8 +143,8 @@
     *
     * @method
     *
-    * @param {String}  [path='/'] The path to list file.
-    * @param {Integer} [timeout]  Connection timeout.
+    * @param {String}  [path='/']  The path to list file.
+    * @param {Integer} [timeout=0] Connection timeout.
     *
     * @return {sh.network.Request}
     *
@@ -149,10 +162,13 @@
         // remove trailing slash
         path = self.normalizePath(path);
 
+        // default timeout
+        timeout = timeout === undefined ? 0 : timeout;
+
         // get board version (raw)
         return this.command('ls -s ' + path, timeout).then(function(event) {
             // raw response string
-            var raw = event.originalEvent.response.raw;
+            var raw = event.originalEvent.response.raw.trim();
 
             // file not found
             if (raw.indexOf('Could not open directory') === 0) {
@@ -323,21 +339,85 @@
     *
     * @method
     *
-    * @param {String}  source   Absolute source file path.
-    * @param {String}  target   Absolute target file path.
-    * @param {Integer}          [timeout] Connection timeout.
+    * @param {String}  source    Absolute source file path.
+    * @param {String}  target    Absolute target file path.
+    * @param {Integer} [timeout] Connection timeout.
     *
     * @return {sh.network.Request}
     *
-    * {$examples sh.Board.upload}
+    * {$examples sh.Board.mv}
     */
     sh.Board.prototype.mv = function(source, target, timeout) {
-        // remove trailing slash
-        source = this.normalizePath(source);
-        target = this.normalizePath(target);
+        // self alias
+        var self = this;
 
-        // get board version (raw)
-        return this.command('mv ' + source + ' ' + target, timeout);
+        // remove trailing slash
+        source = this.normalizePath(source || '');
+        target = this.normalizePath(target || '');
+
+        // send the command (promise)
+        return this.command('mv ' + source + ' ' + target, timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw.trim();
+
+            // Error ?
+            if (raw.indexOf('Could not rename') === 0) {
+                return Promise.reject(sh.BoardEvent('mv', self, event, raw));
+            }
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('mv', self, event, raw));
+        });
+    };
+
+    /**
+    * Remove a file.
+    *
+    * If multiple files is provided, the promise is rejected on first error!
+    *
+    * @method
+    *
+    * @param {String|Array} paths     Absolute file path or array of paths.
+    * @param {Integer}      [timeout] Connection timeout.
+    *
+    * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.rm}
+    */
+    sh.Board.prototype.rm = function(paths, timeout) {
+        // self alias
+        var self = this;
+
+        // multiple files
+        if (typeof paths != 'string') {
+            var promises = [];
+
+            for (var i = 0, il = paths.length; i < il; i++) {
+                promises.push(this.rm(paths[i], timeout));
+            }
+
+            return Promise.all(promises);
+        }
+
+        // remove trailing slash
+        paths = this.normalizePath(paths);
+
+        // send the command (promise)
+        return this.command('rm ' + paths, timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw.trim();
+
+            // Error ?
+            if (raw.indexOf('Could not delete') === 0) {
+                return Promise.reject(sh.BoardEvent('rm', self, event, raw));
+            }
+
+            // response data
+            var data = 'deleted ' + paths;
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('rm', self, event, data));
+        });
     };
 
     /**
@@ -359,6 +439,14 @@
 
         // file is a string
         if (typeof file === 'string') {
+            // normalize line endding
+            file = file.replace('\r\n', '\n');
+
+            // force EOF
+            if (file[file.length - 1] !== '\n') {
+                file += '\n';
+            }
+
             // convert to Blob object
             file = new Blob([file], { 'type': 'text/plain' });
         }
@@ -372,6 +460,48 @@
             headers: { 'X-Filename': filename },
             timeout: timeout,
             data   : file
+        });
+    };
+
+    /**
+    * Get file content.
+    *
+    * @method
+    *
+    * @param {String}  path      File path.
+    * @param {Integer} [limit]   Number of lines.
+    * @param {Integer} [timeout] Connection timeout.
+    *
+    * @return {Promise}
+    *
+    * {$examples sh.Board.cat}
+    */
+    sh.Board.prototype.cat = function(path, limit, timeout) {
+        // self alias
+        var self = this;
+
+        // command
+        var command = 'cat ' + path;
+
+        if (limit !== undefined) {
+            command += ' ' + limit;
+        }
+
+        // send the command (promise)
+        return self.command(command, timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw;
+
+            // file not found
+            if (raw.indexOf('File not found:') == 0) {
+                return Promise.reject(sh.BoardEvent('cat', self, event, raw));
+            }
+
+            // normalize line endding
+            var text = raw.replace('\r\n', '\n');
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('cat', self, event, text));
         });
     };
 

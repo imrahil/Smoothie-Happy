@@ -323,17 +323,18 @@
     * @method
     *
     * @param {Function} progressHandler An function receiving an {@link sh.network.ProgressEvent} as first parameter.
+    * @param {Object}   [context]       The callback context
     *
     * @return {this}
     */
-    sh.network.Request.prototype.onProgress = function(progressHandler) {
+    sh.network.Request.prototype.onProgress = function(progressHandler, context) {
         // self alias
         var self = this;
 
         // register progress event
         this._xhr.onprogress = function(event) {
             if (event.lengthComputable) {
-                progressHandler.call(this, sh.network.ProgressEvent('progress', self, event));
+                progressHandler.call(context || this, sh.network.ProgressEvent('progress', self, event));
             }
         };
 
@@ -347,17 +348,18 @@
     * @method
     *
     * @param {Function} progressHandler An function receiving an {@link sh.network.ProgressEvent} as first parameter.
+    * @param {Object}   [context]       The callback context
     *
     * @return {this}
     */
-    sh.network.Request.prototype.onUploadProgress = function(progressHandler) {
+    sh.network.Request.prototype.onUploadProgress = function(progressHandler, context) {
         // self alias
         var self = this;
 
         // register upload progress event
         this._xhr.upload.onprogress = function(event) {
             if (event.lengthComputable) {
-                progressHandler.call(this, sh.network.ProgressEvent('upload.progress', self, event));
+                progressHandler.call(context || this, sh.network.ProgressEvent('upload.progress', self, event));
             }
         };
 
