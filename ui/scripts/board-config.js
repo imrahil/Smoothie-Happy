@@ -258,8 +258,13 @@ ConfigModel.prototype.applySourceChange = function(config, event) {
         name = item.name();
 
         // has old items
-        newItems = newConfig.hasItems(name);
         oldItems = this.config().hasItems(name);
+
+        if (! oldItems) {
+            continue;
+        }
+        
+        newItems = newConfig.hasItems(name);
 
         for (var j = 0, jl = oldItems.length; j < jl; j++) {
             newItem = newItems[j] || null;
