@@ -23,7 +23,6 @@ var BoardModel = function(board) {
     self.waitLookup  = ko.observable(false);
     self.waitTree    = ko.observable(false);
     self.waitRemove  = ko.observable(false);
-    self.waitConfig  = ko.observable(false);
 
     self.files   = ko.observableArray();
     self.folders = ko.observableArray();

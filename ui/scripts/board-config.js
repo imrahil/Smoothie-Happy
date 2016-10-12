@@ -7,56 +7,150 @@ var ConfigItemModel = function(item, parent) {
     var self = this;
 
     // set initial state
-    self.data     = item;
+    self.item     = item;
     self.parent   = parent;
     self.isValue  = (item instanceof sh.BoardConfigItem);
     self.comments = ko.observable(item.comments().join('\n'));
 
     // value model
     if (self.isValue) {
-        self.name      = ko.observable(item.name());
-        self.value     = ko.observable(item.value());
-        self._disabled = item.disabled();
-        self.disabled  = ko.observable(self._disabled);
-
-        self.modified = ko.pureComputed(function() {
-            var isModified     = self.value().get() !== self.value().getFirstValue();
-            var inModifiedItems = self.parent.modified.indexOf(self) !== -1;
-
-            isModified = isModified || (self._disabled !== self.disabled());
-
-            if (isModified && ! inModifiedItems) {
-                self.parent.modified.push(self);
-            }
-            else if (! isModified && inModifiedItems) {
-                self.parent.modified.remove(self);
-            }
-
-            return isModified;
-        });
+        self.name       = ko.observable(item.name());
+        self.value      = ko.observable(item.value());
+        self.firstValue = item.value().getFirstValue();
+        self.disabled   = ko.observable(item.disabled());
+        self.modified   = ko.observable(item.isModified());
     }
 };
 
+ConfigItemModel.prototype.updateState = function() {
+    this.modified(this.item.isModified());
+};
+
 ConfigItemModel.prototype.disable = function(toggle) {
-    this.data.disabled(toggle);
+    this.item.disabled(toggle);
     this.disabled(toggle);
+    this.updateState();
 };
 
-ConfigItemModel.prototype.reset = function(item, event) {
-    item.data.value().set(item.data.value().getFirstValue());
-    item.value(item.data.value());
-    item.disable(item._disabled);
+ConfigItemModel.prototype.resetDisabled = function() {
+    this.disabled(this.item.resetDisabled());
+    this.updateState();
 };
 
-ConfigItemModel.prototype.change = function(item, event) {
-    item.data.value().set(event.target.value);
-    item.value(item.data.value());
+ConfigItemModel.prototype.setValue = function(value) {
+    this.item.value().set(value);
+    this.value(this.item.value());
+    this.updateState();
 };
 
-ConfigItemModel.prototype.toggle = function(item, event) {
-    item.disable(! item.disabled());
+ConfigItemModel.prototype.resetValue = function() {
+    this.setValue(this.item.value().getFirstValue());
 };
 
+ConfigItemModel.prototype.reset = function() {
+    this.resetDisabled();
+    this.resetValue();
+};
+
+ConfigItemModel.prototype.onToggle = function(item, event) {
+    this.disable(! this.disabled());
+};
+
+ConfigItemModel.prototype.onChange = function(item, event) {
+    this.setValue(event.target.value);
+};
+
+ConfigItemModel.prototype.onReset = function(item, event) {
+    this.reset();
+};
+
+var ConfigModel = function(parent) {
+    // self alias
+    var self = this;
+
+    // set initial state
+    self.parent = parent;
+    self.config = ko.observable();
+    self.items  = ko.observableArray();
+
+    self.loading = ko.observable(false);
+    self.loaded  = ko.pureComputed(function() {
+        return self.items().length;
+    })
+
+    self.modified = ko.pureComputed(function() {
+        return self.getModified();
+    })
+};
+
+ConfigModel.prototype.load = function(config) {
+    // set config object
+    this.config(config);
+
+    // make observable items
+    var configItems = config.getItems();
+    var observables = [];
+
+    for (var i = 0, il = configItems.length; i < il; i++) {
+        observables.push(new ConfigItemModel(configItems[i], this));
+    }
+
+    // set new items collection
+    this.items(observables);
+};
+
+ConfigModel.prototype.reset = function() {
+    var items = this.items();
+
+    for (var item, i = 0, il = items.length; i < il; i++) {
+        item = items[i];
+        item.isValue && item.reset();
+    }
+};
+
+ConfigModel.prototype.getModified = function() {
+    var item, modified = [], items = this.items();
+
+    for (var i = 0, il = items.length; i < il; i++) {
+        item = items[i];
+
+        if (item.isValue && item.modified()) {
+            modified.push(item);
+        }
+    }
+
+    return modified.length ? modified : null;
+};
+
+ConfigModel.prototype.refresh = function(config, event) {
+    // self alias
+    var self = this;
+
+    // set loading flag
+    self.loading(true);
+
+    // get board config
+    self.parent.board.config().then(function(event) {
+        self.load(event.data);
+    })
+    .catch(function(event) {
+        console.error('refresh:', event.name, event);
+    })
+    .then(function(event) {
+        self.loading(false);
+        self.parent.updateState();
+    });
+};
+
+ConfigModel.prototype.openSaveModal = function(config, event) {
+    $('#board-config-save-modal').modal('show');
+};
+
+ConfigModel.prototype.upload = function(config, event) {
+
+};
+
+/*
 var ConfigModel = function(parent) {
     // set initial state
     this.parent    = parent;
@@ -182,3 +276,4 @@ ConfigModel.prototype.upload = function(config, event) {
 ConfigModel.prototype.openSaveModal = function(config, event) {
     $('#board-config-save-modal').modal('show');
 };
+*/

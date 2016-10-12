@@ -58,6 +58,16 @@
     };
 
     /**
+    * Test if the value is modified.
+    *
+    * @method
+    * @return {Boolean}
+    */
+    sh.BoardConfigValue.prototype.isModified = function() {
+        return this._currentValue !== this._firstValue;
+    };
+
+    /**
     * Set value from first value.
     *
     * @method
@@ -239,6 +249,32 @@
         this._disabled = false;
 
         this.disabled(settings.disabled);
+
+        /**
+        * @property {Boolean}
+        * @protected
+        */
+        this._initiallyDisabled = this._disabled;
+    };
+
+    /**
+    * Test if the item is modified.
+    *
+    * @method
+    * @return {Boolean}
+    */
+    sh.BoardConfigItem.prototype.isModified = function() {
+        return this.value().isModified() || (this.disabled() !== this._initiallyDisabled);
+    };
+
+    /**
+    * Reset state (enabled/disabled)
+    *
+    * @method
+    * @return {Boolean}
+    */
+    sh.BoardConfigItem.prototype.resetDisabled = function() {
+        return this.disabled(this._initiallyDisabled);
     };
 
     /**
@@ -331,13 +367,13 @@
         * @property {String}
         * @readonly
         */
-        this._filename = filename || 'config';
+        this._filename = 'config';
 
         /**
         * @property {String}
         * @readonly
         */
-        this._source = source || null;
+        this._source = null;
 
         /**
         * @property {Array}
@@ -351,35 +387,60 @@
         */
         this._loaded = false;
 
-        // parse the source
-        if (source) {
-            this.parse(source);
-        }
+        // init values
+        filename && this.filename(filename);
+        source && this.parse(source);
     };
 
     /**
-    * Get the filename.
+    * Get/Set the filename.
     *
     * @method
+    *
+    * @param {String} [filename] Configuration filename.
+    *
     * @return {String}
     */
-    sh.BoardConfig.prototype.filename = function() {
-        return this._filename;
+    sh.BoardConfig.prototype.filename = function(filename) {
+        if (filename === undefined) {
+            return this._filename;
+        }
+
+        if (typeof filename != 'string') {
+            throw new Error('The filename must be a string.');
+        }
+
+        return this._filename = filename;
     };
 
     /**
-    * Get all items as array (with sections comments).
+    * Get the source (as provided).
+    * Set and parse the source (reload).
     *
     * @method
-    * @return {Array|null}
-    * @throws {Error}
+    *
+    * @param {String} [source] Raw configuration as string.
+    *
+    * @return {String}
     */
-    sh.BoardConfig.prototype.getItems = function() {
-        if (! this._loaded) {
-            throw new Error('No configuration loaded.');
+    sh.BoardConfig.prototype.source = function(source) {
+        if (source === undefined) {
+            return this._source;
         }
 
-        return this._items;
+        this.parse(source);
+
+        return this._source;
+    };
+
+    /**
+    * Is loaded.
+    *
+    * @method
+    * @return {Boolean}
+    */
+    sh.BoardConfig.prototype.isLoaded = function() {
+        return this._loaded;
     };
 
     /**
@@ -392,8 +453,12 @@
     *
     * @return {null|sh.BoardConfigItem[]}
     */
-    sh.BoardConfig.prototype.hasItem = function(key, defaultValue) {
-        var items = this.getItems();
+    sh.BoardConfig.prototype.hasItems = function(key, defaultValue) {
+        if (! this.isLoaded()) {
+            throw new Error('No configuration loaded.');
+        }
+
+        var items = this._items;
 
         if (typeof key !== 'string') {
             key = items.indexOf(key);
@@ -419,134 +484,36 @@
     };
 
     /**
-    * Get an config item.
+    * Get config item(s).
     *
     * @method
     *
-    * @param {String|sh.BoardConfigItem} key            Configuration key.
-    * @param {Mixed}                     [defaultValue] Default value to return if not defined.
+    * @param {String} [key]          Configuration key.
+    * @param {Mixed}  [defaultValue] Default value to return if not defined.
     *
-    * @return {null|sh.BoardConfigItem|sh.BoardConfigItem[]}
+    * @return {null|sh.BoardConfigItem[]}
     * @throws {Error} If not defined and no default value provided.
     */
-    sh.BoardConfig.prototype.getItem = function(key, defaultValue) {
-        var item = this.hasItem(key);
+    sh.BoardConfig.prototype.getItems = function(key, defaultValue) {
+        if (! this.isLoaded()) {
+            throw new Error('No configuration loaded.');
+        }
 
-        if (item) {
-            return item;
+        if (key === undefined) {
+            return this._items;
+        }
+
+        var items = this.hasItems(key);
+
+        if (items) {
+            return items;
         }
 
         if (defaultValue === undefined) {
             throw new Error('Undefined item [' + key + ']');
         }
 
-        return new sh.BoardConfigValue(defaultValue);
-    };
-
-    /**
-    * Get an config item value.
-    *
-    * @method
-    *
-    * @param {String} key                 Configuration key.
-    * @param {String} [defaultValue=null] Default value to return.
-    *
-    * @return {sh.BoardConfigValue|null}
-    */
-    sh.BoardConfig.prototype.getValue = function(key, defaultValue) {
-        return this.getItem(key, defaultValue).value();
-    };
-
-    /**
-    * Set an config item value.
-    *
-    * @method
-    *
-    * @param {String} key   Configuration key.
-    * @param {String} value The new value.
-    *
-    * @return {String} The old value.
-    */
-    sh.BoardConfig.prototype.setValue = function(key, value) {
-        return this.getItem(key).value(value);
-    };
-
-    /**
-    * Create an config item.
-    *
-    * @method
-    *
-    * @param {Object}         settings                  Item settings.
-    * @param {String}         settings.name             Item name.
-    * @param {String}         settings.value            Item value.
-    * @param {String}         [settings.comments]       Item comments.
-    * @param {Boolean}        [settings.disabled=false] Item state.
-    * @param {Object}         options                   Item settings.
-    * @param {Boolean}        [options.replace]         Replace item if already defined.
-    * @param {Integer|String} [options.position]        Insert position.
-    *
-    * @return {sh.BoardConfigItem}
-    * @throws {Error} If already defined.
-    */
-    sh.BoardConfig.prototype.createItem = function(settings, options) {
-        var newItem = sh.BoardConfigItem(settings);
-        var itemKey = newItem.name();
-
-        options = options || {};
-
-        if (this.hasItem(itemKey)) {
-            if (! options.replace) {
-                throw new Error('Item key [' + itemKey + '] already defined.');
-            }
-
-            for (var i = 0, il = this._items.length; i < il; i++) {
-                if (this._items[i]._name == itemKey) {
-                    this._items[i] = newItem;
-                }
-            }
-        }
-        else {
-            if (options.position !== undefined) {
-                var pos = options.position;
-
-                if (typeof pos === 'string') {
-                    var opt = pos.split(':');
-
-                    if (opt.length !== 2) {
-                        throw new Error('Invalid position option.');
-                    }
-
-                    var where = opt[0];
-
-                    if (['before', 'after'].indexOf(where) === -1) {
-                        throw new Error('Invalid position option.');
-                    }
-
-                    // find item position
-                    var key = opt[1];
-                        pos = null;
-
-                    for (var i = 0, il = this._items.length; i < il; i++) {
-                        if (this._items[i]._name == key) {
-                            pos = where === 'after' ? (i + 1) : i;
-                            break;
-                        }
-                    }
-
-                    if (pos === null) {
-                        throw new Error('Undefined target item [' + key + '].');
-                    }
-                }
-
-                this._items.splice(parseInt(pos), 0, newItem);
-            }
-            else {
-                // at end of items
-                this._items.push(newItem);
-            }
-        }
-
-        return newItem;
+        return defaultValue;
     };
 
     /**
@@ -554,14 +521,11 @@
     *
     * @method
     *
-    * @param {String} [source] Raw configuration as string.
+    * @param {String} source Raw configuration as string.
     *
     * @return {this}
     */
     sh.BoardConfig.prototype.parse = function(source) {
-        // default source
-        source = source || this._source;
-
         // no source provided
         if (! source) {
             throw new Error('No source provided to parse.');
@@ -581,16 +545,17 @@
         }
 
         // reset config
+        this._items  = [];
         this._loaded = false;
         this._source = source;
-        this._items   = [];
 
         // skip first line (# NOTE Lines must not exceed 132 characters)
         if (lines[0].trim().indexOf('# NOTE Lines must') == 0) {
             lines.shift();
         }
 
-        var line, matches, disabled, name, value, comments, lastMatch, lastItem, lastComments;
+        var line, matches, disabled, name, value, comments,
+            lastMatch, lastItem, lastComments;
 
         for (var i = 0, il = lines.length; i < il; i++) {
             // current line
@@ -707,7 +672,7 @@
     *
     * @return {String}
     */
-    sh.BoardConfig.prototype.toString = function() {
+    sh.BoardConfig.prototype.format = function() {
         // Get the items
         var items = this.getItems();
 
@@ -827,6 +792,17 @@
     };
 
     /**
+    * Return the configuration as string.
+    *
+    * @method
+    *
+    * @return {String}
+    */
+    sh.BoardConfig.prototype.toString = function() {
+        return this.format();
+    };
+
+    /**
     * Get the board configuration.
     *
     * @method
@@ -843,8 +819,8 @@
         var self = this;
 
         // debug ---------------------------------------------------------------
-        // var config = new sh.BoardConfig('config.test.txt', sampleConfig);
-        // return Promise.resolve(sh.BoardEvent('config', self, null, config));
+        var config = new sh.BoardConfig('config.test.txt', sampleConfig);
+        return Promise.resolve(sh.BoardEvent('config', self, null, config));
         // ---------------------------------------------------------------------
 
         // default timeout
