@@ -13,7 +13,7 @@
 {$model.js}
 {$scanner.js}
 {$board-files.js}
-{$board-upload.js}
+{$board-files-upload.js}
 {$board-config.js}
 {$board.js}
 {$boards.js}

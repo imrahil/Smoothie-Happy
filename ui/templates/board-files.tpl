@@ -1,3 +1,5 @@
+<!-- ko with: files -->
+
 <!-- ko ifnot: waitTree -->
 <div class="btn-group" role="group">
     <button data-bind="click: refreshTree" type="button" class="btn btn-default">
@@ -84,3 +86,5 @@
 
 {$board-files-upload.tpl}
 {$board-files-remove.tpl}
+
+<!-- /ko -->

@@ -2,12 +2,13 @@
 // board: upload model
 // -----------------------------------------------------------------------------
 
-var UploadModel = function(parent) {
+var FilesUploadModel = function(parent) {
     // self alias
     var self = this;
 
     // set initial state
     self.parent    = parent;
+    self.board     = parent.parent.board;
     self.queue     = ko.observableArray();
     self.uploading = ko.observable(false);
 
@@ -22,7 +23,7 @@ var UploadModel = function(parent) {
     };
 };
 
-UploadModel.prototype.addFile = function(file) {
+FilesUploadModel.prototype.addFile = function(file) {
     var root = this.parent.selectedFolder();
     var path = root + '/' + file.name;
 
@@ -50,13 +51,13 @@ UploadModel.prototype.addFile = function(file) {
     });
 };
 
-UploadModel.prototype.addFiles = function(files) {
+FilesUploadModel.prototype.addFiles = function(files) {
     for (var i = 0; i < files.length; i++) {
         this.addFile(files[i]);
     };
 };
 
-UploadModel.prototype._processQueue = function() {
+FilesUploadModel.prototype._processQueue = function() {
     // self alias
     var self = this;
 
@@ -76,8 +77,8 @@ UploadModel.prototype._processQueue = function() {
     var name = move ? '___sh_tmp___.' + file.name : file.name;
 
     // upload the file to sd card
-    self.parent.board.upload(file.data, name, 0).onUploadProgress(function(event) {
-        //console.info(self.parent.board.address, '>> progress >>',  event.percent, '%');
+    self.board.upload(file.data, name, 0).onUploadProgress(function(event) {
+        //console.info(self.board.address, '>> progress >>',  event.percent, '%');
         file.percent(event.percent + '%');
     })
     .then(function(event) {
@@ -119,14 +120,14 @@ UploadModel.prototype._processQueue = function() {
             // overwrite ?
             if (node.exists) {
                 // remove target file
-                return self.parent.board.rm(file.path).then(function(event) {
+                return self.board.rm(file.path).then(function(event) {
                     // then move the file to target
-                    return self.parent.board.mv('/sd/' + name, file.path);
+                    return self.board.mv('/sd/' + name, file.path);
                 });
             }
 
             // move the file to target root
-            return self.parent.board.mv('/sd/' + name, file.path);
+            return self.board.mv('/sd/' + name, file.path);
         }
 
         // resolve the promise
@@ -143,7 +144,7 @@ UploadModel.prototype._processQueue = function() {
     });
 };
 
-UploadModel.prototype.start = function() {
+FilesUploadModel.prototype.start = function() {
     // set uploading flag
     this.uploading(true);
 
@@ -151,7 +152,7 @@ UploadModel.prototype.start = function() {
     this._processQueue();
 };
 
-UploadModel.prototype.abort = function() {
+FilesUploadModel.prototype.abort = function() {
     // unset uploading flag
     this.uploading(false);
 };

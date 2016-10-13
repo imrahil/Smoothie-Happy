@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    837fc132de1557df172e625c595c9dc1
-* @date     Wed, 12 Oct 2016 16:13:32 +0000
+* @build    572561bbad89b482ec5747f54aa39bdb
+* @date     Thu, 13 Oct 2016 05:06:51 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -317,16 +317,186 @@ FileModel.prototype.onSelect = function(selectedNode, event) {
     this.select(! this.active());
 };
 
+
+var FilesModel = function(parent) {
+    // self alias
+    var self = this;
+
+    // set initial state
+    self.parent         = parent;
+    self.files          = ko.observableArray();
+    self.folders        = ko.observableArray();
+    self.selectedFolder = ko.observable();
+    self.selectedFiles  = ko.observableArray();
+    self.waitTree       = ko.observable(false);
+    self.waitRemove     = ko.observable(false);
+
+    self.upload = new FilesUploadModel(self);
+
+    self.uploadEnabled = ko.pureComputed(function() {
+        return self.folders().length && self.selectedFolder() != '/';
+    });
+
+    // reset tree
+    self.resetTree();
+};
+
+FilesModel.prototype.resetTree = function(tree) {
+    this.selectedFiles([]);
+    this.selectedFolder('/');
+    tree = this._makeTree(tree || []);
+    this.folders(tree.folders || []);
+    this.files(tree.files || []);
+    this.waitTree(false);
+};
+
+FilesModel.prototype.openUploadModal = function(board, event) {
+    $('#board-files-upload-modal').modal('show');
+};
+
+FilesModel.prototype.openRemoveFilesModal = function(board, event) {
+    $('#board-files-remove-modal').modal('show');
+};
+
+FilesModel.prototype.sortTree = function(tree) {
+    return tree.sort(function(a, b) {
+        var la = a.path.split('/').length;
+        var lb = b.path.split('/').length;
+        return (la < lb) ? -1 : ((la > lb) ? 1 :
+            (a.path < b.path) ? -1 : ((a.path > b.path) ? 1 : 0));
+    });
+};
+
+FilesModel.prototype._makeTree = function(nodes) {
+    // self alias
+    var self = this;
+
+    // empty tree
+    var tree = { files  : [], folders: [] };
+
+    // sort nodes
+    nodes = self.sortTree(nodes);
+
+    // first pass, normalize nodes
+    for (var node, i = 0, il = nodes.length; i < il; i++) {
+        // current node
+        node = new FileModel(nodes[i], self);
+
+        // node state
+        node.active(self.selectedFolder() == node.path);
+
+        // add node in file/folder collection
+        if (node.type == 'file') {
+            tree.files.push(node);
+        }
+        else {
+            tree.folders.push(node);
+        }
+    }
+
+    // return the tree
+    return tree;
+};
+
+FilesModel.prototype.refreshTree = function(board, event) {
+    // self alias
+    var self = this;
+
+    // set wait tree flag
+    self.waitTree(true);
+
+    // empty tree
+    var tree = [];
+
+    // get all files or folders
+    self.parent.board.lsAll('/').then(function(event) {
+        tree = event.data;
+    })
+    .catch(function(event) {
+        console.error('refreshTree:', event.name, event);
+    })
+    .then(function(event) {
+        self.resetTree(tree);
+        self.parent.updateState();
+    });
+};
+
+FilesModel.prototype.unselectedFile = function(node, event) {
+    node.select(false);
+};
+
+FilesModel.prototype.removeFiles = function(board, event) {
+    // self alias
+    var self = this;
+
+    // skip if already in remove
+    if (self.waitRemove()) {
+        return;
+    }
+
+    // set wait remove flag
+    self.waitRemove(true);
+
+    // get selected files
+    var files = [].concat(self.selectedFiles());
+
+    // get files paths
+    var paths = [];
+
+    for (var file, i = 0, il = files.length; i < il; i++) {
+        // current file
+        file = files[i];
+
+        // disable node
+        file.enabled(false);
+
+        // add path to delete collection
+        paths.push(file.path);
+    }
+
+    // remove selected files
+    self.parent.board.rm(paths).then(function(event) {
+        // get all files
+        var files = self.files();
+
+        // remove file nodes
+        for (var i = 0, il = paths.length; i < il; i++) {
+            for (var file, j = 0; j < files.length; j++) {
+                file = files[j];
+
+                if (paths[i] == file.path) {
+                    self.files.remove(file);
+                    self.selectedFiles.remove(file);
+                }
+            }
+        }
+    })
+    .catch(function(event) {
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'An error occurred when deleting the following files : ' + paths.join(', ')
+        }, { type: 'danger' });
+
+        return event;
+    })
+    .then(function(event) {
+        // set wait remove flag
+        self.waitRemove(false);
+        self.parent.updateState();
+    });
+};
+
 // -----------------------------------------------------------------------------
 // board: upload model
 // -----------------------------------------------------------------------------
 
-var UploadModel = function(parent) {
+var FilesUploadModel = function(parent) {
     // self alias
     var self = this;
 
     // set initial state
     self.parent    = parent;
+    self.board     = parent.parent.board;
     self.queue     = ko.observableArray();
     self.uploading = ko.observable(false);
 
@@ -341,7 +511,7 @@ var UploadModel = function(parent) {
     };
 };
 
-UploadModel.prototype.addFile = function(file) {
+FilesUploadModel.prototype.addFile = function(file) {
     var root = this.parent.selectedFolder();
     var path = root + '/' + file.name;
 
@@ -369,13 +539,13 @@ UploadModel.prototype.addFile = function(file) {
     });
 };
 
-UploadModel.prototype.addFiles = function(files) {
+FilesUploadModel.prototype.addFiles = function(files) {
     for (var i = 0; i < files.length; i++) {
         this.addFile(files[i]);
     };
 };
 
-UploadModel.prototype._processQueue = function() {
+FilesUploadModel.prototype._processQueue = function() {
     // self alias
     var self = this;
 
@@ -395,8 +565,8 @@ UploadModel.prototype._processQueue = function() {
     var name = move ? '___sh_tmp___.' + file.name : file.name;
 
     // upload the file to sd card
-    self.parent.board.upload(file.data, name, 0).onUploadProgress(function(event) {
-        //console.info(self.parent.board.address, '>> progress >>',  event.percent, '%');
+    self.board.upload(file.data, name, 0).onUploadProgress(function(event) {
+        //console.info(self.board.address, '>> progress >>',  event.percent, '%');
         file.percent(event.percent + '%');
     })
     .then(function(event) {
@@ -438,14 +608,14 @@ UploadModel.prototype._processQueue = function() {
             // overwrite ?
             if (node.exists) {
                 // remove target file
-                return self.parent.board.rm(file.path).then(function(event) {
+                return self.board.rm(file.path).then(function(event) {
                     // then move the file to target
-                    return self.parent.board.mv('/sd/' + name, file.path);
+                    return self.board.mv('/sd/' + name, file.path);
                 });
             }
 
             // move the file to target root
-            return self.parent.board.mv('/sd/' + name, file.path);
+            return self.board.mv('/sd/' + name, file.path);
         }
 
         // resolve the promise
@@ -462,7 +632,7 @@ UploadModel.prototype._processQueue = function() {
     });
 };
 
-UploadModel.prototype.start = function() {
+FilesUploadModel.prototype.start = function() {
     // set uploading flag
     this.uploading(true);
 
@@ -470,7 +640,7 @@ UploadModel.prototype.start = function() {
     this._processQueue();
 };
 
-UploadModel.prototype.abort = function() {
+FilesUploadModel.prototype.abort = function() {
     // unset uploading flag
     this.uploading(false);
 };
@@ -781,22 +951,9 @@ var BoardModel = function(board) {
 
     self.waitConnect = ko.observable(false);
     self.waitLookup  = ko.observable(false);
-    self.waitTree    = ko.observable(false);
-    self.waitRemove  = ko.observable(false);
 
-    self.files   = ko.observableArray();
-    self.folders = ko.observableArray();
-
-    self.selectedFolder = ko.observable();
-    self.selectedFiles  = ko.observableArray();
-
-    self.upload = new UploadModel(self);
+    self.files  = new FilesModel(self);
     self.config = new ConfigModel(self);
-
-    // get board tooltip text
-    self.uploadEnabled = ko.pureComputed(function() {
-        return self.folders().length && self.selectedFolder() != '/';
-    });
 
     // get board tooltip text
     self.tooltip = ko.pureComputed(function() {
@@ -838,22 +995,7 @@ var BoardModel = function(board) {
         //console.error('on.error:', event);
         self.updateState();
     });
-
-    // reset tree
-    self.resetTree();
 };
-
-// -----------------------------------------------------------------------------
-
-BoardModel.prototype.openUploadModal = function(board, event) {
-    $('#board-files-upload-modal').modal('show');
-};
-
-BoardModel.prototype.openRemoveFilesModal = function(board, event) {
-    $('#board-files-remove-modal').modal('show');
-};
-
-// -----------------------------------------------------------------------------
 
 BoardModel.prototype.changeName = function(board, event) {
     // make the names object
@@ -885,6 +1027,31 @@ BoardModel.prototype.updateInfo = function() {
     this.info(this.board.info);
 };
 
+BoardModel.prototype.lookup = function() {
+    // self alias
+    var self = this;
+
+    // set we wait for lookup
+    self.waitLookup(true);
+
+    // try to get board version
+    self.board.version().then(function(event) {
+        self.updateInfo();
+        return event;
+    })
+    .catch(function(event) {
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'Unable to reach the board at ' + self.board.address
+        }, { type: 'warning' });
+        return event;
+    })
+    .then(function(event) {
+        self.updateState();
+        self.waitLookup(false);
+    });
+};
+
 BoardModel.prototype.connect = function() {
     // self alias
     var self = this;
@@ -913,171 +1080,6 @@ BoardModel.prototype.connect = function() {
 BoardModel.prototype.disconnect = function() {
     this.connected(false);
     this.board.disconnect();
-};
-
-BoardModel.prototype.lookup = function() {
-    // self alias
-    var self = this;
-
-    // set we wait for lookup
-    self.waitLookup(true);
-
-    // try to get board version
-    self.board.version().then(function(event) {
-        self.updateInfo();
-        return event;
-    })
-    .catch(function(event) {
-        $.notify({
-            icon: 'fa fa-warning',
-            message: 'Unable to reach the board at ' + self.board.address
-        }, { type: 'warning' });
-        return event;
-    })
-    .then(function(event) {
-        self.updateState();
-        self.waitLookup(false);
-    });
-};
-
-// -----------------------------------------------------------------------------
-
-BoardModel.prototype.sortTree = function(tree) {
-    return tree.sort(function(a, b) {
-        var la = a.path.split('/').length;
-        var lb = b.path.split('/').length;
-        return (la < lb) ? -1 : ((la > lb) ? 1 :
-            (a.path < b.path) ? -1 : ((a.path > b.path) ? 1 : 0));
-    });
-};
-
-BoardModel.prototype._makeTree = function(nodes) {
-    // self alias
-    var self = this;
-
-    // empty tree
-    var tree = { files  : [], folders: [] };
-
-    // sort nodes
-    nodes = self.sortTree(nodes);
-
-    // first pass, normalize nodes
-    for (var node, i = 0, il = nodes.length; i < il; i++) {
-        // current node
-        node = new FileModel(nodes[i], self);
-
-        // node state
-        node.active(self.selectedFolder() == node.path);
-
-        // add node in file/folder collection
-        if (node.type == 'file') {
-            tree.files.push(node);
-        }
-        else {
-            tree.folders.push(node);
-        }
-    }
-
-    // return the tree
-    return tree;
-};
-
-BoardModel.prototype.resetTree = function(tree) {
-    this.selectedFiles([]);
-    this.selectedFolder('/');
-    tree = this._makeTree(tree || []);
-    this.folders(tree.folders || []);
-    this.files(tree.files || []);
-    this.waitTree(false);
-};
-
-BoardModel.prototype.refreshTree = function(board, event) {
-    // self alias
-    var self = this;
-
-    // set wait tree flag
-    self.waitTree(true);
-
-    // empty tree
-    var tree = [];
-
-    // get all files or folders
-    self.board.lsAll('/').then(function(event) {
-        tree = event.data;
-    })
-    .catch(function(event) {
-        console.error('refreshTree:', event.name, event);
-    })
-    .then(function(event) {
-        self.resetTree(tree);
-        self.updateState();
-    });
-};
-
-// -----------------------------------------------------------------------------
-
-BoardModel.prototype.unselectedFile = function(node, event) {
-    node.select(false);
-};
-
-BoardModel.prototype.removeFiles = function(board, event) {
-    // self alias
-    var self = this;
-
-    // skip if already in remove
-    if (self.waitRemove()) {
-        return;
-    }
-
-    // set wait remove flag
-    self.waitRemove(true);
-
-    // get selected files
-    var files = [].concat(self.selectedFiles());
-
-    // get files paths
-    var paths = [];
-
-    for (var file, i = 0, il = files.length; i < il; i++) {
-        // current file
-        file = files[i];
-
-        // disable node
-        file.enabled(false);
-
-        // add path to delete collection
-        paths.push(file.path);
-    }
-
-    // remove selected files
-    self.board.rm(paths).then(function(event) {
-        // get all files
-        var files = self.files();
-
-        // remove file nodes
-        for (var i = 0, il = paths.length; i < il; i++) {
-            for (var file, j = 0; j < files.length; j++) {
-                file = files[j];
-
-                if (paths[i] == file.path) {
-                    self.files.remove(file);
-                    self.selectedFiles.remove(file);
-                }
-            }
-        }
-    })
-    .catch(function(event) {
-        $.notify({
-            icon: 'fa fa-warning',
-            message: 'An error occurred when deleting the following files : ' + paths.join(', ')
-        }, { type: 'danger' });
-
-        return event;
-    })
-    .then(function(event) {
-        // set wait remove flag
-        self.waitRemove(false);
-    });
 };
 
 // -----------------------------------------------------------------------------
