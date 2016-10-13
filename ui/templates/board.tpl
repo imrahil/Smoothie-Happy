@@ -44,13 +44,13 @@
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
-                    <a href="#board-files-pane" aria-controls="board-files-pane" role="tab" data-toggle="tab">
-                        <i class="text-primary fa fa-folder-open"></i> Files
+                    <a href="#board-jog-pane" aria-controls="board-jog-pane" role="tab" data-toggle="tab">
+                        <i class="text-primary fa fa-cog"></i> Jog
                     </a>
                 </li>
                 <li role="presentation">
-                    <a href="#board-jog-pane" aria-controls="board-jog-pane" role="tab" data-toggle="tab">
-                        <i class="text-primary fa fa-cog"></i> Jog
+                    <a href="#board-files-pane" aria-controls="board-files-pane" role="tab" data-toggle="tab">
+                        <i class="text-primary fa fa-folder-open"></i> Files
                     </a>
                 </li>
                 <li role="presentation">
@@ -66,11 +66,11 @@
             </ul>
             <!-- Tab panes -->
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="board-files-pane">
-                    {$board-files.tpl}
-                </div>
-                <div role="tabpanel" class="tab-pane" id="board-jog-pane">
+                <div role="tabpanel" class="tab-pane active" id="board-jog-pane">
                     {$board-jog.tpl}
+                </div>
+                <div role="tabpanel" class="tab-pane" id="board-files-pane">
+                    {$board-files.tpl}
                 </div>
                 <div role="tabpanel" class="tab-pane" id="board-config-pane">
                     {$board-config.tpl}
