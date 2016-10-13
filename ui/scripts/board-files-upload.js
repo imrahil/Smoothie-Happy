@@ -141,6 +141,7 @@ FilesUploadModel.prototype._processQueue = function() {
         // in any case...
         self.queue.shift();
         self._processQueue();
+        self.parent.parent.updateState();
     });
 };
 

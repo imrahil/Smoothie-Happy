@@ -3,7 +3,7 @@
         <h3 class="panel-title">
             <span class="dropdown">
                 <a href="#" class="dropdown-toggle" id="drop1" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-chevron-down"></i> Select board
+                    <i class="fa fa-chevron-down"></i> Boards
                 </a>
                 <!-- ko if: selectedBoard -->
                 <!-- ko with: selectedBoard -->

@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    572561bbad89b482ec5747f54aa39bdb
-* @date     Thu, 13 Oct 2016 05:06:51 +0000
+* @build    f090d76bab5f5817f3bc6376bf2b4ae5
+* @date     Thu, 13 Oct 2016 16:00:38 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -179,6 +179,80 @@ model.scanner = {
     stop: function() {
         scanner.stop();
     }
+};
+
+// -----------------------------------------------------------------------------
+// board jog model
+// -----------------------------------------------------------------------------
+
+var JogPositionValuesModel = function(parent, values) {
+    // self alias
+    var self = this;
+
+    // clone values
+    for (var prop in values) {
+        self[prop] = values[prop];
+    }
+
+    // set initial state
+    self.parent = parent;
+    self.axis   = [
+        { name: 'X', value: values.X },
+        { name: 'Y', value: values.Y },
+        { name: 'Z', value: values.Z }
+    ];
+};
+
+JogPositionValuesModel.prototype.select = function(values, event) {
+    this.parent.selected(values);
+};
+
+var JogPositionModel = function(parent) {
+    // self alias
+    var self = this;
+
+    // set initial state
+    self.parent   = parent;
+    self.board    = parent.parent.board;
+    self.selected = ko.observable();
+    self.values   = ko.observableArray();
+    self.steps    = ko.observableArray([0.01, 0.1, 1, 10, 100]);
+    self.step     = ko.observable(1);
+};
+
+JogPositionModel.prototype.refreshPosition = function(jog, event) {
+    // self alias
+    var self = this;
+
+    // get positions
+    self.board.pos().then(function(event) {
+        var values = event.data.values;
+
+        for (var i = 0; i < values.length; i++) {
+            values[i] = new JogPositionValuesModel(self, values[i]);
+        }
+
+        self.values(values);
+        self.selected(values[0]);
+        self.parent.locked(false);
+    })
+    .catch(function(event) {
+        console.error('refreshPosition:', event.name, event);
+    })
+    .then(function(event) {
+        self.parent.parent.updateState();
+    });
+};
+
+var JogModel = function(parent) {
+    // set initial state
+    this.parent   = parent;
+    this.locked   = ko.observable(true);
+    this.position = new JogPositionModel(this);
+};
+
+JogModel.prototype.unlock = function(jog, event) {
+    this.position.refreshPosition();
 };
 
 // -----------------------------------------------------------------------------
@@ -629,6 +703,7 @@ FilesUploadModel.prototype._processQueue = function() {
         // in any case...
         self.queue.shift();
         self._processQueue();
+        self.parent.parent.updateState();
     });
 };
 
@@ -952,6 +1027,7 @@ var BoardModel = function(board) {
     self.waitConnect = ko.observable(false);
     self.waitLookup  = ko.observable(false);
 
+    self.jog    = new JogModel(self);
     self.files  = new FilesModel(self);
     self.config = new ConfigModel(self);
 

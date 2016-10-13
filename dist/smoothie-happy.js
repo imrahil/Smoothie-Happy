@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    572561bbad89b482ec5747f54aa39bdb
-* @date     Thu, 13 Oct 2016 05:06:51 +0000
+* @build    f090d76bab5f5817f3bc6376bf2b4ae5
+* @date     Thu, 13 Oct 2016 16:00:38 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -25,7 +25,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = '572561bbad89b482ec5747f54aa39bdb';
+    sh.build = 'f090d76bab5f5817f3bc6376bf2b4ae5';
 
     /**
     * @property {String} id API id.
@@ -2329,6 +2329,149 @@ var sh = sh || {};
     };
 
     /**
+    * Get position.
+    *
+    * @method
+    *
+    * @param {Integer} [timeout] Connection timeout.
+    *
+    * @return {Promise}
+    *
+    * @example
+    * ### Get position
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * board.pos().then(function(event) {
+    *     var pos = event.data;
+    * 
+    *     console.info('pos:', event.name, pos);
+    *     console.info('pos:', pos.get('REALTIME_WPOS'));
+    *     console.info('pos:', pos.get('REALTIME_WPOS', 'Y'));
+    * })
+    * .catch(function(event) {
+    *     console.error('pos:', event.name, event);
+    * });
+    * ```
+    */
+    sh.Board.prototype.pos = function(timeout) {
+        // self alias
+        var self = this;
+
+        // send the command (promise)
+        return self.command('get pos', timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw;
+
+            // split on new line
+            var lines = raw.trim().split('\n');
+
+            // normalize type
+            var normalizeType = function(type) {
+                return type.trim().split(' ').pop().toUpperCase();
+            };
+
+            // make position array
+            var pos = {
+                types : {},
+                values: [],
+
+                get: function(type, axis, value) {
+                    type = normalizeType(type);
+
+                    var index = this.types[type];
+
+                    if (index !== undefined) {
+                        value = this.values[index];
+                    }
+
+                    if (value && axis) {
+                        axis  = axis.toUpperCase();
+                        value = value[axis] || value;
+                    }
+
+                    return value;
+                }
+            };
+
+            var parts, type, command, description, values, value;
+
+            for (var i = 0; i < lines.length; i++) {
+                // get position type
+                parts = lines[i].split(': ');
+                type  = parts.shift();
+
+                // normalize type
+                type = normalizeType(type);
+
+                // set command/description
+                // C   : M114   - WCS.
+                // WPOS: M114.1 - Realtime WCS.
+                // MPOS: M114.2 - Realtime machine coordinate system.
+                // APOS: M114.3 - Realtime actuator position.
+                // LMS : M114.4 - Last milestone.
+                // LMP : M114.5 - Last machine position.
+                switch (type) {
+                    case 'C':
+                        command     = 'M114';
+                        description = 'Position of all axes';
+                        break;
+                    case 'WPOS':
+                        command     = 'M114.1';
+                        description = 'Real time position of all axes';
+                        break;
+                    case 'MPOS':
+                        command     = 'M114.2';
+                        description = 'Real time machine position of all axes';
+                        break;
+                    case 'APOS':
+                        command     = 'M114.3';
+                        description = 'Real time actuator position of all actuators';
+                        break;
+                    case 'LMS':
+                        command     = 'M114.4';
+                        description = 'Last milestone';
+                        break;
+                    case 'LMP':
+                        command     = 'M114.5';
+                        description = 'Last machine position';
+                        break;
+                    default:
+                        command     = 'M114.?';
+                        description = 'Unknown type';
+                }
+
+                // set base values
+                values = {
+                    type       : type,
+                    command    : command,
+                    description: description
+                };
+
+                // get position values
+                parts  = parts[0].split(' ');
+
+                for (var j = 0; j < parts.length; j++) {
+                    value = parts[j].split(':');
+                    values[value[0]] = value[1];
+                }
+
+                pos.types[type] = i;
+                pos.values.push(values);
+            }
+
+            // nothing found
+            if (! pos.values.length) {
+                return Promise.reject(sh.BoardEvent('pos', self, event, raw));
+            }
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('pos', self, event, pos));
+        });
+    };
+
+    /**
     * Handle an configuration value.
     *
     * @class
@@ -3151,59 +3294,21 @@ var sh = sh || {};
     * 
     *     console.info('config:', event.name, event);
     * 
-    *     // from item value
-    *     console.log('extruder.hotend2.en_pin: ' + config.getItem('extruder.hotend2.en_pin').value());
-    *     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toString());
-    *     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toInteger());
-    *     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toFloat());
-    *     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toFloat(1));
+    *     // get all items with this key
+    *     var items = config.getItems('extruder.hotend2.en_pin')[0];
+    * 
+    *     // get first item
+    *     var item = items[0];
+    * 
+    *     console.log('extruder.hotend2.en_pin: ' + item.value());
+    *     console.log('extruder.hotend2.en_pin:', item.value().toString());
+    *     console.log('extruder.hotend2.en_pin:', item.value().toInteger());
+    *     console.log('extruder.hotend2.en_pin:', item.value().toFloat());
+    *     console.log('extruder.hotend2.en_pin:', item.value().toFloat(1));
     * 
     *     // set new value
-    *     console.log('extruder.hotend2.en_pin: ' + config.getItem('extruder.hotend2.en_pin').value('4.28'));
-    *     console.log('extruder.hotend2.en_pin: ' + config.setValue('extruder.hotend2.en_pin', '4.28'));
+    *     console.log('extruder.hotend2.en_pin: ' + item.value('4.28'));
     * 
-    *     // from item method
-    *     console.log('extruder.hotend2.en_pin: ' + config.getValue('extruder.hotend2.en_pin'));
-    *     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toString());
-    *     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toInteger());
-    *     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toFloat());
-    *     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toFloat(1));
-    * 
-    *     // create item
-    *     config.createItem({
-    *         disabled: false,
-    *         name    : 'custom.setting',
-    *         value   : '5.5',
-    *         comments: 'My setting usages...'
-    *     });
-    * 
-    *     console.log('custom.setting: ' + config.getValue('custom.setting'));
-    * 
-    *     // replace item
-    *     config.createItem({
-    *         disabled: true,
-    *         name    : 'custom.setting',
-    *         value   : '8.2',
-    *         comments: 'My new setting usages...'
-    *     },
-    *     {
-    *         replace: true
-    *     });
-    * 
-    *     console.log('custom.setting: ' + config.getValue('custom.setting'));
-    * 
-    *     // create and insert new item before another
-    *     config.createItem({
-    *         disabled: true,
-    *         name    : 'custom.setting2',
-    *         value   : '3.2',
-    *         comments: 'My new setting usages...'
-    *     },
-    *     {
-    *         position: 'before:custom.setting'
-    *     });
-    * 
-    *     console.log('custom.setting: ' + config.getValue('custom.setting'));
     * })
     * .catch(function(event) {
     *     console.error('config:', event.name, event);

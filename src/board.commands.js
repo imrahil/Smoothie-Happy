@@ -530,7 +530,7 @@
 
             // normalize type
             var normalizeType = function(type) {
-                return type.trim().replace(' ', '_').toUpperCase();
+                return type.trim().split(' ').pop().toUpperCase();
             };
 
             // make position array
@@ -556,7 +556,7 @@
                 }
             };
 
-            var parts, type, values, value;
+            var parts, type, command, description, values, value;
 
             for (var i = 0; i < lines.length; i++) {
                 // get position type
@@ -566,8 +566,51 @@
                 // normalize type
                 type = normalizeType(type);
 
+                // set command/description
+                // C   : M114   - WCS.
+                // WPOS: M114.1 - Realtime WCS.
+                // MPOS: M114.2 - Realtime machine coordinate system.
+                // APOS: M114.3 - Realtime actuator position.
+                // LMS : M114.4 - Last milestone.
+                // LMP : M114.5 - Last machine position.
+                switch (type) {
+                    case 'C':
+                        command     = 'M114';
+                        description = 'Position of all axes';
+                        break;
+                    case 'WPOS':
+                        command     = 'M114.1';
+                        description = 'Real time position of all axes';
+                        break;
+                    case 'MPOS':
+                        command     = 'M114.2';
+                        description = 'Real time machine position of all axes';
+                        break;
+                    case 'APOS':
+                        command     = 'M114.3';
+                        description = 'Real time actuator position of all actuators';
+                        break;
+                    case 'LMS':
+                        command     = 'M114.4';
+                        description = 'Last milestone';
+                        break;
+                    case 'LMP':
+                        command     = 'M114.5';
+                        description = 'Last machine position';
+                        break;
+                    default:
+                        command     = 'M114.?';
+                        description = 'Unknown type';
+                }
+
+                // set base values
+                values = {
+                    type       : type,
+                    command    : command,
+                    description: description
+                };
+
                 // get position values
-                values = { type: type };
                 parts  = parts[0].split(' ');
 
                 for (var j = 0; j < parts.length; j++) {

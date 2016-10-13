@@ -22,6 +22,7 @@ var BoardModel = function(board) {
     self.waitConnect = ko.observable(false);
     self.waitLookup  = ko.observable(false);
 
+    self.jog    = new JogModel(self);
     self.files  = new FilesModel(self);
     self.config = new ConfigModel(self);
 

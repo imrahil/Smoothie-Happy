@@ -53,7 +53,7 @@
 <!-- ko ifnot: loading -->
 <div class="alert alert-warning" role="alert">
     Click on the
-    <button data-bind="click: refresh" type="button" class="btn btn-default">
+    <button data-bind="click: refresh" type="button" class="btn btn-xs btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
     button to <strong>load the configuration</strong> from your board.

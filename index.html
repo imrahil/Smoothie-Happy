@@ -9,7 +9,7 @@
         <meta name="description" content="A SmoothieBoard network communication API">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=572561bbad89b482ec5747f54aa39bdb" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=f090d76bab5f5817f3bc6376bf2b4ae5" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -195,7 +195,7 @@
                         <!-- ko ifnot: online -->
                         <div class="alert alert-warning" role="alert">
     <strong>Oups!</strong> This board seems to be offline. Please, click ont the
-    <button data-bind="disable: waitLookup, click: lookup" type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
+    <button data-bind="disable: waitLookup, click: lookup" type="button" class="btn btn-xs btn-warning" data-dismiss="modal">
         <i class="fa fa-search"></i> Lookup
     </button> button to try to reach it.
 </div>
@@ -249,7 +249,7 @@
         <h3 class="panel-title">
             <span class="dropdown">
                 <a href="#" class="dropdown-toggle" id="drop1" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-chevron-down"></i> Select board
+                    <i class="fa fa-chevron-down"></i> Boards
                 </a>
                 <!-- ko if: selectedBoard -->
                 <!-- ko with: selectedBoard -->
@@ -285,7 +285,7 @@
         <!-- ko ifnot: online -->
         <div class="alert alert-warning" role="alert">
     <strong>Oups!</strong> This board seems to be offline. Please, click ont the
-    <button data-bind="disable: waitLookup, click: lookup" type="button" class="btn btn-sm btn-warning" data-dismiss="modal">
+    <button data-bind="disable: waitLookup, click: lookup" type="button" class="btn btn-xs btn-warning" data-dismiss="modal">
         <i class="fa fa-search"></i> Lookup
     </button> button to try to reach it.
 </div>
@@ -296,13 +296,13 @@
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
-                    <a href="#board-files-pane" aria-controls="board-files-pane" role="tab" data-toggle="tab">
-                        <i class="text-primary fa fa-folder-open"></i> Files
+                    <a href="#board-jog-pane" aria-controls="board-jog-pane" role="tab" data-toggle="tab">
+                        <i class="text-primary fa fa-arrows-alt"></i> Jog
                     </a>
                 </li>
                 <li role="presentation">
-                    <a href="#board-jog-pane" aria-controls="board-jog-pane" role="tab" data-toggle="tab">
-                        <i class="text-primary fa fa-cog"></i> Jog
+                    <a href="#board-files-pane" aria-controls="board-files-pane" role="tab" data-toggle="tab">
+                        <i class="text-primary fa fa-folder-open"></i> Files
                     </a>
                 </li>
                 <li role="presentation">
@@ -318,10 +318,99 @@
             </ul>
             <!-- Tab panes -->
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="board-files-pane">
+                <div role="tabpanel" class="tab-pane active" id="board-jog-pane">
+                    <!-- ko with: jog -->
+
+<!-- ko if: locked -->
+<div class="alert alert-warning" role="alert">
+    Click on the
+    <button data-bind="click: unlock" type="button" class="btn btn-xs btn-default">
+        <i class="fa fa-unlock-alt"></i> Unlock
+    </button>
+    button to <strong>start playing</strong> with your board.
+</div>
+<!-- /ko -->
+
+<!-- ko ifnot: locked -->
+<!-- ko with: position -->
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <span class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-chevron-down"></i> <span data-bind="text: selected().command"></span> :
+                </a>
+                <span data-bind="text: selected().description" class="name truncate"></span>
+                <ul data-bind="foreach: values" class="dropdown-menu">
+                    <li>
+                        <a data-bind="click: select, css: $parent.selected() == $data ? 'active' : null" href="#">
+                            <span data-bind="text: command"></span>
+                        </a>
+                    </li>
+                    <li role="separator" class="divider"></li>
+                </ul>
+            </span>
+            <button data-bind="click: refreshPosition" type="button" class="btn btn-xs btn-default pull-right">
+                <i class="fa fa-refresh"></i> refresh
+            </button>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <div data-bind="foreach: values">
+            <!-- ko if: $parent.selected() == $data -->
+            <div data-bind="foreach: axis">
+                <div class="form-group">
+                    <div class="input-group">
+                        <span data-bind="text: name" class="input-group-addon" style="font-family:monospace;font-weight:bold"></span>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">
+                                <i class="fa fa-home"></i>
+                            </button>
+                        </span>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </span>
+                        <input data-bind="value: value" type="text" class="form-control">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </span>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">SET</button>
+                        </span>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">ZERO</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <!-- /ko -->
+        </div>
+        <div class="form-group">
+            <div class="btn-group">
+                <span class="btn-group-addon"><i class="fa fa-arrows-h"></i></span>
+                <!-- ko foreach: steps -->
+                <button data-bind="text: $data, css: $data == $parent.step() ? 'active' : null" class="btn btn-default" type="button"></button>
+                <!-- /ko -->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- /ko -->
+
+<!-- /ko -->
+
+<!-- /ko -->
+
+                </div>
+                <div role="tabpanel" class="tab-pane" id="board-files-pane">
                     <!-- ko with: files -->
 
 <!-- ko ifnot: waitTree -->
+<!-- ko if: files().length -->
 <div class="btn-group" role="group">
     <button data-bind="click: refreshTree" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
@@ -343,6 +432,7 @@
 
 <hr />
 <!-- /ko -->
+<!-- /ko -->
 
 <!-- ko if: waitTree -->
 <div class="alert alert-info" role="alert">
@@ -354,11 +444,11 @@
 <!-- ko ifnot: waitTree -->
 <!-- ko ifnot: files().length -->
 <div class="alert alert-warning" role="alert">
-    Please click on the
-    <button data-bind="click: refreshTree" type="button" class="btn btn-default">
+    Click on the
+    <button data-bind="click: refreshTree" type="button" class="btn btn-xs btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
-    button to list all files on your board.
+    button to <strong>list all files</strong> on your board.
 </div>
 <!-- /ko -->
 <!-- ko if: files().length -->
@@ -561,20 +651,15 @@
 <!-- /ko -->
 
                 </div>
-                <div role="tabpanel" class="tab-pane" id="board-jog-pane">
-                    jog pane...
-
-                </div>
                 <div role="tabpanel" class="tab-pane" id="board-config-pane">
                     <!-- ko with: config -->
 
 <!-- ko ifnot: loading -->
+<!-- ko if: loaded -->
 <div class="btn-group" role="group">
     <button data-bind="click: refresh" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
-
-    <!-- ko if: loaded -->
 
     <!-- ko if: editMode() == 'form' -->
     <button data-bind="click: toggleEditMode" type="button" class="btn btn-default">
@@ -605,11 +690,10 @@
     </button>
     <!-- /ko -->
     <!-- /ko -->
-
-    <!-- /ko -->
 </div>
 
 <hr />
+<!-- /ko -->
 <!-- /ko -->
 
 <!-- ko if: loading -->
@@ -622,11 +706,11 @@
 <!-- ko ifnot: loaded -->
 <!-- ko ifnot: loading -->
 <div class="alert alert-warning" role="alert">
-    Please click on the
-    <button data-bind="click: refresh" type="button" class="btn btn-default">
+    Click on the
+    <button data-bind="click: refresh" type="button" class="btn btn-xs btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
-    button to load the configuration from your board.
+    button to <strong>load the configuration</strong> from your board.
 </div>
 <!-- /ko -->
 <!-- /ko -->
@@ -811,7 +895,7 @@
         <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="vendor/filesize.min.js?v=3.3.0"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=572561bbad89b482ec5747f54aa39bdb"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=572561bbad89b482ec5747f54aa39bdb"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=f090d76bab5f5817f3bc6376bf2b4ae5"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=f090d76bab5f5817f3bc6376bf2b4ae5"></script>
     </body>
 </html>

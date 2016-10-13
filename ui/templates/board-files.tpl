@@ -36,7 +36,7 @@
 <!-- ko ifnot: files().length -->
 <div class="alert alert-warning" role="alert">
     Click on the
-    <button data-bind="click: refreshTree" type="button" class="btn btn-default">
+    <button data-bind="click: refreshTree" type="button" class="btn btn-xs btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
     button to <strong>list all files</strong> on your board.
