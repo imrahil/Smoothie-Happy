@@ -278,6 +278,23 @@
 
 // -----------------------------------------------------------------------------
 
+// @example sh.Board.pos - Get position
+// create the board instance
+var board = sh.Board('192.168.1.102');
+
+board.pos().then(function(event) {
+    var pos = event.data;
+
+    console.info('pos:', event.name, pos);
+    console.info('pos:', pos.get('REALTIME_WPOS'));
+    console.info('pos:', pos.get('REALTIME_WPOS', 'Y'));
+})
+.catch(function(event) {
+    console.error('pos:', event.name, event);
+});
+
+// -----------------------------------------------------------------------------
+
 // // @example sh.Board.upload - Upload a file
 // // create the board instance
 // var board = sh.Board('192.168.1.102');

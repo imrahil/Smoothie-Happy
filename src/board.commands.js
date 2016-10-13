@@ -505,4 +505,88 @@
         });
     };
 
+    /**
+    * Get position.
+    *
+    * @method
+    *
+    * @param {Integer} [timeout] Connection timeout.
+    *
+    * @return {Promise}
+    *
+    * {$examples sh.Board.pos}
+    */
+    sh.Board.prototype.pos = function(timeout) {
+        // self alias
+        var self = this;
+
+        // send the command (promise)
+        return self.command('get pos', timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw;
+
+            // split on new line
+            var lines = raw.trim().split('\n');
+
+            // normalize type
+            var normalizeType = function(type) {
+                return type.trim().replace(' ', '_').toUpperCase();
+            };
+
+            // make position array
+            var pos = {
+                types : {},
+                values: [],
+
+                get: function(type, axis, value) {
+                    type = normalizeType(type);
+
+                    var index = this.types[type];
+
+                    if (index !== undefined) {
+                        value = this.values[index];
+                    }
+
+                    if (value && axis) {
+                        axis  = axis.toUpperCase();
+                        value = value[axis] || value;
+                    }
+
+                    return value;
+                }
+            };
+
+            var parts, type, values, value;
+
+            for (var i = 0; i < lines.length; i++) {
+                // get position type
+                parts = lines[i].split(': ');
+                type  = parts.shift();
+
+                // normalize type
+                type = normalizeType(type);
+
+                // get position values
+                values = { type: type };
+                parts  = parts[0].split(' ');
+
+                for (var j = 0; j < parts.length; j++) {
+                    value = parts[j].split(':');
+                    values[value[0]] = value[1];
+                }
+
+                pos.types[type] = i;
+                pos.values.push(values);
+            }
+
+            // nothing found
+            if (! pos.values.length) {
+                return Promise.reject(sh.BoardEvent('pos', self, event, raw));
+            }
+
+            // resolve the promise
+            return Promise.resolve(sh.BoardEvent('pos', self, event, pos));
+        });
+    };
+
 })();
