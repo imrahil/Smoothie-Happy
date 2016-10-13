@@ -45,7 +45,7 @@
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
                     <a href="#board-jog-pane" aria-controls="board-jog-pane" role="tab" data-toggle="tab">
-                        <i class="text-primary fa fa-cog"></i> Jog
+                        <i class="text-primary fa fa-arrows-alt"></i> Jog
                     </a>
                 </li>
                 <li role="presentation">
