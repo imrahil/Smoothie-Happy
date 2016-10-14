@@ -35,21 +35,15 @@
             // set last online time
             self.lastOnlineTime = Date.now();
 
-            // trigger event
-            var board_event = self._trigger('response', event);
-
             // resolve the promise
-            return Promise.resolve(board_event);
+            return Promise.resolve(self._trigger('response', event));
         })
         .catch(function(event) {
             // unset online flag
             self.online = false;
 
-            // trigger event
-            var board_event = self._trigger('error', event);
-
             // reject the promise
-            return Promise.reject(board_event);
+            return Promise.reject(self._trigger('error', event));
         });
     };
 
@@ -72,10 +66,8 @@
             // raw response string
             var raw = event.originalEvent.response.raw.trim();
 
-            var data = raw === 'ok' ? 'pong' : raw;
-
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('ping', self, event, data));
+            return Promise.resolve(self._trigger('pong', event));
         });
     };
 
@@ -121,7 +113,7 @@
             }
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('version', self, event, self.info));
+            return Promise.resolve(self._trigger('version', event, self.info));
         });
     };
 
@@ -172,7 +164,8 @@
 
             // file not found
             if (raw.indexOf('Could not open directory') === 0) {
-                return Promise.reject(sh.BoardEvent('ls', self, event, raw));
+                // reject the promise
+                return Promise.reject(self._trigger('error', event));
             }
 
             // split lines
@@ -213,7 +206,7 @@
             }
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('ls', self, event, files));
+            return Promise.resolve(self._trigger('ls', event, files));
         });
     };
 
@@ -281,7 +274,7 @@
 
             if (! directory.length) {
                 // resolve the promise
-                return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
+                return Promise.resolve(self._trigger('lsAll', event, tree));
             }
 
             return Promise.all(directory).then(function(events) {
@@ -292,7 +285,7 @@
                 }
 
                 // resolve the promise
-                return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
+                return Promise.resolve(self._trigger('lsAll', event, tree));
             });
         })
         .then(function(event) {
@@ -330,7 +323,7 @@
             }
 
             // resolve the promise with updated tree
-            return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
+            return Promise.resolve(self._trigger('lsAll', event, tree));
         });
     };
 
@@ -362,11 +355,12 @@
 
             // Error ?
             if (raw.indexOf('Could not rename') === 0) {
-                return Promise.reject(sh.BoardEvent('mv', self, event, raw));
+                // reject the promise
+                return Promise.reject(self._trigger('error', event));
             }
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('mv', self, event, raw));
+            return Promise.resolve(self._trigger('mv', event, raw));
         });
     };
 
@@ -409,14 +403,15 @@
 
             // Error ?
             if (raw.indexOf('Could not delete') === 0) {
-                return Promise.reject(sh.BoardEvent('rm', self, event, raw));
+                // reject the promise
+                return Promise.reject(self._trigger('error', event));
             }
 
             // response data
             var data = 'deleted ' + paths;
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('rm', self, event, data));
+            return Promise.resolve(self._trigger('rm', event, data));
         });
     };
 
@@ -503,7 +498,7 @@
             }
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('cat', self, event, text));
+            return Promise.resolve(self._trigger('cat', event, text));
         });
     };
 
@@ -626,11 +621,12 @@
 
             // nothing found
             if (! pos.values.length) {
-                return Promise.reject(sh.BoardEvent('pos', self, event, raw));
+                // reject the promise
+                return Promise.reject(self._trigger('error', event));
             }
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('pos', self, event, pos));
+            return Promise.resolve(self._trigger('pos', event, pos));
         });
     };
 

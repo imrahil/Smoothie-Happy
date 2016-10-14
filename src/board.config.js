@@ -848,7 +848,7 @@
             var config = new sh.BoardConfig(filename, event.data);
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('config', self, event, config));
+            return Promise.resolve(self._trigger('config', event, config));
         });
     };
 
