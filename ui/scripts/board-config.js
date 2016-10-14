@@ -68,11 +68,6 @@ var ConfigModel = function(parent) {
     // self alias
     var self = this;
 
-    // ...
-    self.txtFirst = store.get('board.' + self.address, {
-        config: { txtFirst: false }
-    }).config.txtFirst;
-
     // set initial state
     self.parent   = parent;
     self.config   = ko.observable();
@@ -99,6 +94,11 @@ var ConfigModel = function(parent) {
     self.editableSourceModified = ko.pureComputed(function() {
         return self.source() !== self.editedSource();
     });
+
+    // ...
+    self.txtFirst = store.get('board.' + self.parent.board.address, {
+        config: { txtFirst: false }
+    }).config.txtFirst;
 };
 
 ConfigModel.prototype.setSource = function(source) {
