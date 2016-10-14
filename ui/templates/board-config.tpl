@@ -45,7 +45,7 @@
 <!-- ko if: loading -->
 <div class="alert alert-info" role="alert">
     <i class="fa fa-spinner fa-pulse fa-fw"></i>
-    <strong>Please wait...</strong> Loading the configuration. Thanks to be patient, this can take some time (30-60 sec.).
+    <strong>Please wait...</strong> Loading the configuration. Thanks to be patient, this can take some time (1-5 sec.).
 </div>
 <!-- /ko -->
 
