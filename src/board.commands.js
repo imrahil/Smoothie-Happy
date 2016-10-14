@@ -480,25 +480,27 @@
         // self alias
         var self = this;
 
-        // command
-        var command = 'cat ' + path;
+        // clean path
+        path = path.replace(/^\//, '');
 
-        if (limit !== undefined) {
-            command += ' ' + limit;
-        }
+        // command
+        var settings = {
+            url    : 'http://' + self.address + '/' + path,
+            timeout: timeout
+        };
 
         // send the command (promise)
-        return self.command(command, timeout).then(function(event) {
+        return sh.network.get(settings).then(function(event) {
             // raw response string
-            var raw = event.originalEvent.response.raw;
-
-            // file not found
-            if (raw.indexOf('File not found:') == 0) {
-                return Promise.reject(sh.BoardEvent('cat', self, event, raw));
-            }
+            var raw = event.response.raw;
 
             // normalize line endding
             var text = raw.replace('\r\n', '\n');
+
+            // limit output...
+            if (limit) {
+                text = text.split('\n').slice(0, limit).join('\n');
+            }
 
             // resolve the promise
             return Promise.resolve(sh.BoardEvent('cat', self, event, text));
