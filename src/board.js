@@ -256,8 +256,15 @@
     * | watch        | {@link sh.Board~onWatch|onWatch}               | Called on watch board.        |
     */
     sh.Board.prototype.on = function(event, callback) {
+        // init callback section
+        if (! this._on[event]) {
+            this._on[event] = [];
+        }
+
         // register callback
-        this._on[event] = callback;
+        if (this._on[event].indexOf(callback) === -1) {
+            this._on[event].push(callback);
+        }
 
         // -> this (chainable)
         return this;
@@ -279,8 +286,12 @@
         // to board event
         event = sh.BoardEvent(name, this, event, data);
 
-        // if defined, call user callback with the scope of this instance
-        this._on[name] && this._on[name].call(this, event);
+        // call user callback with the scope of this instance
+        var callbacks = this._on[name] || [];
+
+        for (var i = 0; i < callbacks.length; i++) {
+            callbacks[i].call(this, event);
+        }
 
         // return the board event
         return event;
