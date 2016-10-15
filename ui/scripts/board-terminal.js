@@ -43,12 +43,13 @@ var TerminalModel = function(parent) {
 
     // set parent model
     self.parent       = parent;
+    self.board        = parent.board;
     self.autoscroll   = ko.observable(true);
     self.messages     = ko.observableArray();
     self.commands     = ko.observableArray();
     self.waitResponse = ko.observable(false);
 
-    self.parent.board.on('command', function(event) {
+    self.board.on('command', function(event) {
         self.pushMessage('output', event.data);
     })
     .on('response', function(event) {
@@ -92,8 +93,16 @@ TerminalModel.prototype._processCommands = function() {
     // get oldest command
     var command = self.commands()[0];
 
+    if (typeof command !== 'string') {
+        var name = command.shift();
+        command = self.board[name].apply(self.board, command);
+    }
+    else {
+        command = self.board.command(command, 0);
+    }
+
     // send the command
-    self.parent.board.command(command, 0).catch(function(event) {
+    command.catch(function(event) {
         console.error(event);
         return event;
     })

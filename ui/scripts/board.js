@@ -22,9 +22,9 @@ var BoardModel = function(board) {
     self.waitConnect = ko.observable(false);
     self.waitLookup  = ko.observable(false);
 
+    self.terminal = new TerminalModel(self);
     self.jog      = new JogModel(self);
     self.files    = new FilesModel(self);
-    self.terminal = new TerminalModel(self);
     self.config   = new ConfigModel(self);
 
     // get board tooltip text

@@ -31,18 +31,13 @@ var JogPositionModel = function(parent) {
     // set initial state
     self.parent   = parent;
     self.board    = parent.parent.board;
+    self.terminal = parent.parent.terminal;
     self.selected = ko.observable();
     self.values   = ko.observableArray();
     self.steps    = ko.observableArray([0.01, 0.1, 1, 10, 100]);
     self.step     = ko.observable(1);
-};
 
-JogPositionModel.prototype.refreshPosition = function(jog, event) {
-    // self alias
-    var self = this;
-
-    // get positions
-    self.board.pos().then(function(event) {
+    self.board.on('pos', function(event) {
         var values = event.data.values;
 
         for (var i = 0; i < values.length; i++) {
@@ -52,13 +47,29 @@ JogPositionModel.prototype.refreshPosition = function(jog, event) {
         self.values(values);
         self.selected(values[0]);
         self.parent.locked(false);
-    })
-    .catch(function(event) {
-        console.error('refreshPosition:', event.name, event);
-    })
-    .then(function(event) {
-        self.parent.parent.updateState();
     });
+};
+
+JogPositionModel.prototype.refreshPosition = function(jog, event) {
+    // get positions
+    this.terminal.pushCommand(['pos', 0]);
+    // self.board.pos().then(function(event) {
+    //     var values = event.data.values;
+    //
+    //     for (var i = 0; i < values.length; i++) {
+    //         values[i] = new JogPositionValuesModel(self, values[i]);
+    //     }
+    //
+    //     self.values(values);
+    //     self.selected(values[0]);
+    //     self.parent.locked(false);
+    // })
+    // .catch(function(event) {
+    //     console.error('refreshPosition:', event.name, event);
+    // })
+    // .then(function(event) {
+    //     self.parent.parent.updateState();
+    // });
 };
 
 var JogModel = function(parent) {

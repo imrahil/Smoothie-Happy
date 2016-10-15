@@ -22,10 +22,16 @@
         // self alias
         var self = this;
 
+        // clean command
+        command = command.trim() + '\n';
+
+        // trigger event
+        self._trigger('command', null, command);
+
         // return POST request (promise)
         return sh.network.post({
             url    : 'http://' + this.address + '/command',
-            data   : command.trim() + '\n',
+            data   : command,
             timeout: timeout
         })
         .then(function(event) {
@@ -34,6 +40,12 @@
 
             // set last online time
             self.lastOnlineTime = Date.now();
+
+            if (event.response.raw.indexOf('error:Unsupported command') === 0) {
+                // reject the promise
+                var message = event.response.raw.substr(6);
+                return Promise.resolve(self._trigger('error', event, message));
+            }
 
             // resolve the promise
             return Promise.resolve(self._trigger('response', event));
