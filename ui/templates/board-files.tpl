@@ -77,7 +77,20 @@
             <a data-bind="click: onSelect, css: (active() ? 'active' : null) + ' ' + (enabled() ? '' : 'disabled') " href="#" class="list-group-item">
                 <i data-bind="css: icon"></i>
                 <span data-bind="text: text"></span>
-                <span data-bind="text: size" class="pull-right label label-info"></span>
+                <span class="pull-right">
+                    <span data-bind="text: size" class="label label-info"></span>
+                    <button data-bind="click: onEdit" type="button" class="btn btn-xs btn-default">
+                        <i class="fa fa-edit fa-fw"></i>
+                    </button>
+                    <button data-bind="click: onDownload" type="button" class="btn btn-xs btn-default">
+                        <!-- ko if: downloading -->
+                        <i class="fa fa-spinner fa-pulse fa-fw"></i>
+                        <!-- /ko -->
+                        <!-- ko ifnot: downloading -->
+                        <i class="fa fa-download fa-fw"></i>
+                        <!-- /ko -->
+                    </button>
+                </span>
             </a>
             <!-- /ko -->
         </div>
@@ -88,5 +101,6 @@
 
 {$board-files-upload.tpl}
 {$board-files-remove.tpl}
+{$board-files-edit.tpl}
 
 <!-- /ko -->

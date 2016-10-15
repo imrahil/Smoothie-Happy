@@ -23,9 +23,19 @@ var FilesUploadModel = function(parent) {
     };
 };
 
-FilesUploadModel.prototype.addFile = function(file) {
-    var root = this.parent.selectedFolder();
-    var path = root + '/' + file.name;
+FilesUploadModel.prototype.addFile = function(file, path) {
+    var root = '/sd';
+
+    if (path) {
+        root      = path.split('/');
+        file.name = root.pop();
+        root      = root.join('/');
+    }
+    else {
+        root = this.parent.selectedFolder();
+    }
+
+    path = root + '/' + file.name;
 
     // test if file exists
     var exists = false;
@@ -113,7 +123,8 @@ FilesUploadModel.prototype._processQueue = function() {
         }
 
         // set node visibility
-        node.visible(self.parent.selectedFolder() == file.root);
+        var cwd = self.parent.selectedFolder();
+        node.visible(cwd == '/' || cwd == file.root);
 
         // move the file ?
         if (move) {
