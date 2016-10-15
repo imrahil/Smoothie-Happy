@@ -225,36 +225,25 @@
             this._xhr = new XMLHttpRequest();
         }
 
-        // overwrite properties/methods
-        for (var option in xhrOptions) {
-            if (option === 'upload') {
-                for (var event in xhrOptions[option]) {
-                    if (this._xhr.upload[event] !== undefined) {
-                        this._xhr.upload[event] = xhrOptions[option][event];
-                    }
-                }
-            }
-            else if (this._xhr[option] !== undefined) {
-                this._xhr[option] = xhrOptions[option];
-            }
-        }
-
         /**
         * @property {Promise} - Promise instance.
         * @protected
         */
-        this._promise = this._execute();
+        this._promise = this._execute(xhrOptions);
     };
 
     /**
     * Execute the request and return a Promise.
     *
     * @method
+    *
+    * @param {Object} xhrOptions An object of `XMLHttpRequest` settings.
+    *
     * @protected
     *
     * @return {Promise}
     */
-    sh.network.Request.prototype._execute = function() {
+    sh.network.Request.prototype._execute = function(xhrOptions) {
         // self alias
         var self = this;
 
@@ -262,6 +251,20 @@
         return new Promise(function(resolve, reject) {
             // open the request (async)
             self._xhr.open(self._method, self._url, true);
+
+            // overwrite properties/methods
+            for (var option in xhrOptions) {
+                if (option === 'upload') {
+                    for (var event in xhrOptions[option]) {
+                        if (self._xhr.upload[event] !== undefined) {
+                            self._xhr.upload[event] = xhrOptions[option][event];
+                        }
+                    }
+                }
+                else if (self._xhr[option] !== undefined) {
+                    self._xhr[option] = xhrOptions[option];
+                }
+            }
 
             // force timeout
             self._xhr.timeout = self._timeout;
