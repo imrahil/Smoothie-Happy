@@ -21,6 +21,15 @@
             return new sh.network.Response(xhr);
         }
 
+        // text/xml response available ?
+        var responseText = null;
+        var responseXML  = null;
+
+        if (xhr.responseType == '' || xhr.responseType == 'document') {
+            responseText = xhr.responseText;
+            responseXML  = xhr.responseXML;
+        }
+
         /** @property {Integer} - Response status code. */
         this.code = xhr.status;
 
@@ -34,10 +43,10 @@
         this.url = xhr.responseURL;
 
         /** @property {String} - Response XML. */
-        this.xml = xhr.responseXML;
+        this.xml = responseXML;
 
         /** @property {String} - Response text. */
-        this.text = xhr.responseText;
+        this.text = responseText;
 
         /** @property {Mixed} - Raw response. */
         this.raw = xhr.response;
