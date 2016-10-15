@@ -15,6 +15,7 @@
 {$board-jog.js}
 {$board-files.js}
 {$board-files-upload.js}
+{$board-terminal.js}
 {$board-config.js}
 {$board.js}
 {$boards.js}

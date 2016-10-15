@@ -54,6 +54,11 @@
                     </a>
                 </li>
                 <li role="presentation">
+                    <a href="#board-terminal-pane" aria-controls="board-terminal-pane" role="tab" data-toggle="tab">
+                        <i class="text-primary fa fa-terminal"></i> Terminal
+                    </a>
+                </li>
+                <li role="presentation">
                     <a href="#board-config-pane" aria-controls="board-config-pane" role="tab" data-toggle="tab">
                         <i class="text-primary fa fa-cog"></i> Config
                     </a>
@@ -71,6 +76,9 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="board-files-pane">
                     {$board-files.tpl}
+                </div>
+                <div role="tabpanel" class="tab-pane" id="board-terminal-pane">
+                    {$board-terminal.tpl}
                 </div>
                 <div role="tabpanel" class="tab-pane" id="board-config-pane">
                     {$board-config.tpl}
