@@ -51,25 +51,7 @@ var JogPositionModel = function(parent) {
 };
 
 JogPositionModel.prototype.refreshPosition = function(jog, event) {
-    // get positions
     this.terminal.pushCommand(['pos', 0]);
-    // self.board.pos().then(function(event) {
-    //     var values = event.data.values;
-    //
-    //     for (var i = 0; i < values.length; i++) {
-    //         values[i] = new JogPositionValuesModel(self, values[i]);
-    //     }
-    //
-    //     self.values(values);
-    //     self.selected(values[0]);
-    //     self.parent.locked(false);
-    // })
-    // .catch(function(event) {
-    //     console.error('refreshPosition:', event.name, event);
-    // })
-    // .then(function(event) {
-    //     self.parent.parent.updateState();
-    // });
 };
 
 var JogModel = function(parent) {

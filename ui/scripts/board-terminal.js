@@ -91,7 +91,8 @@ TerminalModel.prototype._processCommands = function() {
     self.waitResponse(true);
 
     // get oldest command
-    var command = self.commands()[0];
+    var options = self.commands()[0];
+    var command = options.command;
 
     if (typeof command !== 'string') {
         var name = command.shift();
@@ -102,12 +103,26 @@ TerminalModel.prototype._processCommands = function() {
     }
 
     // send the command
-    command.catch(function(event) {
-        console.error(event);
+    command.then(function(event) {
+        if (options.done) {
+            options.done(event);
+        }
+        return event;
+    })
+    .catch(function(event) {
+        if (options.error) {
+            options.error(event);
+        }
+        else {
+            console.error(event);
+        }
         return event;
     })
     .then(function(event) {
         // in any case...
+        if (options.allways) {
+            options.allways(event);
+        }
         self.commands.shift();
         self.waitResponse(false);
         self._processCommands();
@@ -115,8 +130,10 @@ TerminalModel.prototype._processCommands = function() {
     });
 };
 
-TerminalModel.prototype.pushCommand = function(command) {
-    this.commands.push(command);
+TerminalModel.prototype.pushCommand = function(command, options) {
+    options = options || {};
+    options.command = command;
+    this.commands.push(options);
     this._processCommands();
 };
 

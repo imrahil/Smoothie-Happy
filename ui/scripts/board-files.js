@@ -238,6 +238,8 @@ var FilesModel = function(parent) {
 
     // set initial state
     self.parent         = parent;
+    self.board          = parent.board;
+    self.terminal       = parent.terminal;
     self.files          = ko.observableArray();
     self.folders        = ko.observableArray();
     self.selectedFolder = ko.observable();
@@ -323,16 +325,17 @@ FilesModel.prototype.refreshTree = function(board, event) {
     // empty tree
     var tree = [];
 
-    // get all files or folders
-    self.parent.board.lsAll('/').then(function(event) {
-        tree = event.data;
-    })
-    .catch(function(event) {
-        console.error('refreshTree:', event.name, event);
-    })
-    .then(function(event) {
-        self.resetTree(tree);
-        self.parent.updateState();
+    this.terminal.pushCommand(['lsAll', '/', 0], {
+        done: function(event) {
+            tree = event.data;
+        },
+        error: function(event) {
+            console.error('refreshTree:', event.name, event);
+        },
+        allways: function(event) {
+            self.resetTree(tree);
+            self.parent.updateState();
+        }
     });
 };
 
