@@ -96,9 +96,15 @@ var ConfigModel = function(parent) {
     });
 
     // ...
-    self.txtFirst = store.get('board.' + self.parent.board.address, {
-        config: { txtFirst: false }
-    }).config.txtFirst;
+    self.txtFirst = false;
+
+    var storeValue = store.get('board.' + self.parent.board.address, {
+        config: { txtFirst: self.txtFirst }
+    });
+
+    if (storeValue && storeValue.config) {
+        self.txtFirst = storeValue.config.txtFirst;
+    }
 };
 
 ConfigModel.prototype.setSource = function(source) {
