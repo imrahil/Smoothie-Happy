@@ -18,11 +18,18 @@
                     <a class="navbar-brand" href="#">{$name} <sup>(v{$version})</sup></a>
                 </div>
                 <ul class="nav navbar-nav navbar-right">
+                    <li><a href="https://www.paypal.me/skarab" target="_blank">Beer fund :)</a></li>
                     <li><a href="docs/smoothie-happy/{$version}/" target="_blank">Docs</a></li>
                     <li><a href="https://github.com/lautr3k/Smoothie-Happy" target="_blank">GitHub</a></li>
                 </ul>
             </div>
         </nav>
+        <!-- ko if: boards.fullScreen() -->
+        <div id="body" class="full-screen">
+            {$board.tpl}
+        </div>
+        <!-- /ko -->
+        <!-- ko ifnot: boards.fullScreen() -->
         <div id="body" class="container-fluid">
             <div class="row">
                 <div class="col-xs-12 col-sm-6 col-md-4">
@@ -34,6 +41,7 @@
                 </div>
             </div>
         </div>
+        <!-- /ko -->
         <script src="vendor/jquery.min.js?v=2.2.3"></script>
         <script src="vendor/knockout.min.js?v=3.4.0"></script>
         <script src="vendor/bootstrap/js/bootstrap.min.js?v=3.3.5"></script>
