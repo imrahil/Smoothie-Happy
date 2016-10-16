@@ -1,12 +1,11 @@
 <!-- ko with: config -->
 
 <!-- ko ifnot: loading -->
+<!-- ko if: loaded -->
 <div class="btn-group" role="group">
     <button data-bind="click: refresh" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
-
-    <!-- ko if: loaded -->
 
     <!-- ko if: editMode() == 'form' -->
     <button data-bind="click: toggleEditMode" type="button" class="btn btn-default">
@@ -37,28 +36,27 @@
     </button>
     <!-- /ko -->
     <!-- /ko -->
-
-    <!-- /ko -->
 </div>
 
 <hr />
+<!-- /ko -->
 <!-- /ko -->
 
 <!-- ko if: loading -->
 <div class="alert alert-info" role="alert">
     <i class="fa fa-spinner fa-pulse fa-fw"></i>
-    <strong>Please wait...</strong> Loading the configuration. Thanks to be patient, this can take some time (30-60 sec.).
+    <strong>Please wait...</strong> Loading the configuration. Thanks to be patient, this can take some time (1-5 sec.).
 </div>
 <!-- /ko -->
 
 <!-- ko ifnot: loaded -->
 <!-- ko ifnot: loading -->
 <div class="alert alert-warning" role="alert">
-    Please click on the
-    <button data-bind="click: refresh" type="button" class="btn btn-default">
+    Click on the
+    <button data-bind="click: refresh" type="button" class="btn btn-xs btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
-    button to load the configuration from your board.
+    button to <strong>load the configuration</strong> from your board.
 </div>
 <!-- /ko -->
 <!-- /ko -->

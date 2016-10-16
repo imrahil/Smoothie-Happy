@@ -94,6 +94,17 @@ var ConfigModel = function(parent) {
     self.editableSourceModified = ko.pureComputed(function() {
         return self.source() !== self.editedSource();
     });
+
+    // ...
+    self.txtFirst = false;
+
+    var storeValue = store.get('board.' + self.parent.board.address, {
+        config: { txtFirst: self.txtFirst }
+    });
+
+    if (storeValue && storeValue.config) {
+        self.txtFirst = storeValue.config.txtFirst;
+    }
 };
 
 ConfigModel.prototype.setSource = function(source) {
@@ -168,7 +179,11 @@ ConfigModel.prototype.refresh = function(config, event) {
     self.loading(true);
 
     // get board config
-    self.parent.board.config().then(function(event) {
+    self.parent.board.config(self.txtFirst).then(function(event) {
+        self.txtFirst = event.data.filename() === 'config.txt';
+        store.merge('board.' + event.board.address, {
+            config: { txtFirst: self.txtFirst }
+        });
         self.load(event.data);
     })
     .catch(function(event) {
@@ -263,7 +278,7 @@ ConfigModel.prototype.applySourceChange = function(config, event) {
         if (! oldItems) {
             continue;
         }
-        
+
         newItems = newConfig.hasItems(name);
 
         for (var j = 0, jl = oldItems.length; j < jl; j++) {

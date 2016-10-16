@@ -22,10 +22,16 @@
         // self alias
         var self = this;
 
+        // clean command
+        command = command.trim() + '\n';
+
+        // trigger event
+        self._trigger('command', null, command);
+
         // return POST request (promise)
         return sh.network.post({
             url    : 'http://' + this.address + '/command',
-            data   : command.trim() + '\n',
+            data   : command,
             timeout: timeout
         })
         .then(function(event) {
@@ -35,21 +41,21 @@
             // set last online time
             self.lastOnlineTime = Date.now();
 
-            // trigger event
-            var board_event = self._trigger('response', event);
+            if (event.response.raw.indexOf('error:Unsupported command') === 0) {
+                // reject the promise
+                var message = event.response.raw.substr(6);
+                return Promise.resolve(self._trigger('error', event, message));
+            }
 
             // resolve the promise
-            return Promise.resolve(board_event);
+            return Promise.resolve(self._trigger('response', event));
         })
         .catch(function(event) {
             // unset online flag
             self.online = false;
 
-            // trigger event
-            var board_event = self._trigger('error', event);
-
             // reject the promise
-            return Promise.reject(board_event);
+            return Promise.reject(self._trigger('error', event));
         });
     };
 
@@ -72,10 +78,8 @@
             // raw response string
             var raw = event.originalEvent.response.raw.trim();
 
-            var data = raw === 'ok' ? 'pong' : raw;
-
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('ping', self, event, data));
+            return Promise.resolve(self._trigger('pong', event));
         });
     };
 
@@ -121,7 +125,7 @@
             }
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('version', self, event, self.info));
+            return Promise.resolve(self._trigger('version', event, self.info));
         });
     };
 
@@ -172,7 +176,8 @@
 
             // file not found
             if (raw.indexOf('Could not open directory') === 0) {
-                return Promise.reject(sh.BoardEvent('ls', self, event, raw));
+                // reject the promise
+                return Promise.reject(self._trigger('error', event));
             }
 
             // split lines
@@ -213,7 +218,7 @@
             }
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('ls', self, event, files));
+            return Promise.resolve(self._trigger('ls', event, files));
         });
     };
 
@@ -281,7 +286,7 @@
 
             if (! directory.length) {
                 // resolve the promise
-                return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
+                return Promise.resolve(self._trigger('lsAll', event, tree));
             }
 
             return Promise.all(directory).then(function(events) {
@@ -292,7 +297,7 @@
                 }
 
                 // resolve the promise
-                return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
+                return Promise.resolve(self._trigger('lsAll', event, tree));
             });
         })
         .then(function(event) {
@@ -330,7 +335,7 @@
             }
 
             // resolve the promise with updated tree
-            return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
+            return Promise.resolve(self._trigger('lsAll', event, tree));
         });
     };
 
@@ -362,11 +367,12 @@
 
             // Error ?
             if (raw.indexOf('Could not rename') === 0) {
-                return Promise.reject(sh.BoardEvent('mv', self, event, raw));
+                // reject the promise
+                return Promise.reject(self._trigger('error', event));
             }
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('mv', self, event, raw));
+            return Promise.resolve(self._trigger('mv', event, raw));
         });
     };
 
@@ -409,14 +415,15 @@
 
             // Error ?
             if (raw.indexOf('Could not delete') === 0) {
-                return Promise.reject(sh.BoardEvent('rm', self, event, raw));
+                // reject the promise
+                return Promise.reject(self._trigger('error', event));
             }
 
             // response data
             var data = 'deleted ' + paths;
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('rm', self, event, data));
+            return Promise.resolve(self._trigger('rm', event, data));
         });
     };
 
@@ -480,28 +487,158 @@
         // self alias
         var self = this;
 
-        // command
-        var command = 'cat ' + path;
+        // clean path
+        path = path.replace(/^\//, '');
 
-        if (limit !== undefined) {
-            command += ' ' + limit;
-        }
+        // command
+        var settings = {
+            url    : 'http://' + self.address + '/' + path,
+            timeout: timeout
+        };
 
         // send the command (promise)
-        return self.command(command, timeout).then(function(event) {
+        return sh.network.get(settings).then(function(event) {
             // raw response string
-            var raw = event.originalEvent.response.raw;
-
-            // file not found
-            if (raw.indexOf('File not found:') == 0) {
-                return Promise.reject(sh.BoardEvent('cat', self, event, raw));
-            }
+            var raw = event.response.raw;
 
             // normalize line endding
             var text = raw.replace('\r\n', '\n');
 
+            // limit output...
+            if (limit) {
+                text = text.split('\n').slice(0, limit).join('\n');
+            }
+
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('cat', self, event, text));
+            return Promise.resolve(self._trigger('cat', event, text));
+        });
+    };
+
+    /**
+    * Get position.
+    *
+    * @method
+    *
+    * @param {Integer} [timeout] Connection timeout.
+    *
+    * @return {Promise}
+    *
+    * {$examples sh.Board.pos}
+    */
+    sh.Board.prototype.pos = function(timeout) {
+        // self alias
+        var self = this;
+
+        // send the command (promise)
+        return self.command('get pos', timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw;
+
+            // split on new line
+            var lines = raw.trim().split('\n');
+
+            // normalize type
+            var normalizeType = function(type) {
+                return type.trim().split(' ').pop().toUpperCase();
+            };
+
+            // make position array
+            var pos = {
+                types : {},
+                values: [],
+
+                get: function(type, axis, value) {
+                    type = normalizeType(type);
+
+                    var index = this.types[type];
+
+                    if (index !== undefined) {
+                        value = this.values[index];
+                    }
+
+                    if (value && axis) {
+                        axis  = axis.toUpperCase();
+                        value = value[axis] || value;
+                    }
+
+                    return value;
+                }
+            };
+
+            var parts, type, command, description, values, value;
+
+            for (var i = 0; i < lines.length; i++) {
+                // get position type
+                parts = lines[i].split(': ');
+                type  = parts.shift();
+
+                // normalize type
+                type = normalizeType(type);
+
+                // set command/description
+                // C   : M114   - WCS.
+                // WPOS: M114.1 - Realtime WCS.
+                // MPOS: M114.2 - Realtime machine coordinate system.
+                // APOS: M114.3 - Realtime actuator position.
+                // LMS : M114.4 - Last milestone.
+                // LMP : M114.5 - Last machine position.
+                switch (type) {
+                    case 'C':
+                        command     = 'M114';
+                        description = 'Position of all axes';
+                        break;
+                    case 'WPOS':
+                        command     = 'M114.1';
+                        description = 'Real time position of all axes';
+                        break;
+                    case 'MPOS':
+                        command     = 'M114.2';
+                        description = 'Real time machine position of all axes';
+                        break;
+                    case 'APOS':
+                        command     = 'M114.3';
+                        description = 'Real time actuator position of all actuators';
+                        break;
+                    case 'LMS':
+                        command     = 'M114.4';
+                        description = 'Last milestone';
+                        break;
+                    case 'LMP':
+                        command     = 'M114.5';
+                        description = 'Last machine position';
+                        break;
+                    default:
+                        command     = 'M114.?';
+                        description = 'Unknown type';
+                }
+
+                // set base values
+                values = {
+                    type       : type,
+                    command    : command,
+                    description: description
+                };
+
+                // get position values
+                parts  = parts[0].split(' ');
+
+                for (var j = 0; j < parts.length; j++) {
+                    value = parts[j].split(':');
+                    values[value[0]] = value[1];
+                }
+
+                pos.types[type] = i;
+                pos.values.push(values);
+            }
+
+            // nothing found
+            if (! pos.values.length) {
+                // reject the promise
+                return Promise.reject(self._trigger('error', event));
+            }
+
+            // resolve the promise
+            return Promise.resolve(self._trigger('pos', event, pos));
         });
     };
 

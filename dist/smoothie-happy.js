@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    837fc132de1557df172e625c595c9dc1
-* @date     Wed, 12 Oct 2016 16:13:32 +0000
+* @build    e431a82f68ec3aa7f54618f7c888cbd8
+* @date     Sun, 16 Oct 2016 16:09:46 +0000
 * @version  0.2.0-dev
 * @license  MIT
 * @namespace
@@ -25,7 +25,7 @@ var sh = sh || {};
     * @default
     * @readonly
     */
-    sh.build = '837fc132de1557df172e625c595c9dc1';
+    sh.build = 'e431a82f68ec3aa7f54618f7c888cbd8';
 
     /**
     * @property {String} id API id.
@@ -75,6 +75,15 @@ var sh = sh || {};
             return new sh.network.Response(xhr);
         }
 
+        // text/xml response available ?
+        var responseText = null;
+        var responseXML  = null;
+
+        if (xhr.responseType == '' || xhr.responseType == 'document') {
+            responseText = xhr.responseText;
+            responseXML  = xhr.responseXML;
+        }
+
         /** @property {Integer} - Response status code. */
         this.code = xhr.status;
 
@@ -88,10 +97,10 @@ var sh = sh || {};
         this.url = xhr.responseURL;
 
         /** @property {String} - Response XML. */
-        this.xml = xhr.responseXML;
+        this.xml = responseXML;
 
         /** @property {String} - Response text. */
-        this.text = xhr.responseText;
+        this.text = responseText;
 
         /** @property {Mixed} - Raw response. */
         this.raw = xhr.response;
@@ -349,36 +358,25 @@ var sh = sh || {};
             this._xhr = new XMLHttpRequest();
         }
 
-        // overwrite properties/methods
-        for (var option in xhrOptions) {
-            if (option === 'upload') {
-                for (var event in xhrOptions[option]) {
-                    if (this._xhr.upload[event] !== undefined) {
-                        this._xhr.upload[event] = xhrOptions[option][event];
-                    }
-                }
-            }
-            else if (this._xhr[option] !== undefined) {
-                this._xhr[option] = xhrOptions[option];
-            }
-        }
-
         /**
         * @property {Promise} - Promise instance.
         * @protected
         */
-        this._promise = this._execute();
+        this._promise = this._execute(xhrOptions);
     };
 
     /**
     * Execute the request and return a Promise.
     *
     * @method
+    *
+    * @param {Object} xhrOptions An object of `XMLHttpRequest` settings.
+    *
     * @protected
     *
     * @return {Promise}
     */
-    sh.network.Request.prototype._execute = function() {
+    sh.network.Request.prototype._execute = function(xhrOptions) {
         // self alias
         var self = this;
 
@@ -386,6 +384,20 @@ var sh = sh || {};
         return new Promise(function(resolve, reject) {
             // open the request (async)
             self._xhr.open(self._method, self._url, true);
+
+            // overwrite properties/methods
+            for (var option in xhrOptions) {
+                if (option === 'upload') {
+                    for (var event in xhrOptions[option]) {
+                        if (self._xhr.upload[event] !== undefined) {
+                            self._xhr.upload[event] = xhrOptions[option][event];
+                        }
+                    }
+                }
+                else if (self._xhr[option] !== undefined) {
+                    self._xhr[option] = xhrOptions[option];
+                }
+            }
 
             // force timeout
             self._xhr.timeout = self._timeout;
@@ -1368,8 +1380,15 @@ var sh = sh || {};
     * | watch        | {@link sh.Board~onWatch|onWatch}               | Called on watch board.        |
     */
     sh.Board.prototype.on = function(event, callback) {
+        // init callback section
+        if (! this._on[event]) {
+            this._on[event] = [];
+        }
+
         // register callback
-        this._on[event] = callback;
+        if (this._on[event].indexOf(callback) === -1) {
+            this._on[event].push(callback);
+        }
 
         // -> this (chainable)
         return this;
@@ -1391,8 +1410,12 @@ var sh = sh || {};
         // to board event
         event = sh.BoardEvent(name, this, event, data);
 
-        // if defined, call user callback with the scope of this instance
-        this._on[name] && this._on[name].call(this, event);
+        // call user callback with the scope of this instance
+        var callbacks = this._on[name] || [];
+
+        for (var i = 0; i < callbacks.length; i++) {
+            callbacks[i].call(this, event);
+        }
 
         // return the board event
         return event;
@@ -1668,10 +1691,16 @@ var sh = sh || {};
         // self alias
         var self = this;
 
+        // clean command
+        command = command.trim() + '\n';
+
+        // trigger event
+        self._trigger('command', null, command);
+
         // return POST request (promise)
         return sh.network.post({
             url    : 'http://' + this.address + '/command',
-            data   : command.trim() + '\n',
+            data   : command,
             timeout: timeout
         })
         .then(function(event) {
@@ -1681,21 +1710,21 @@ var sh = sh || {};
             // set last online time
             self.lastOnlineTime = Date.now();
 
-            // trigger event
-            var board_event = self._trigger('response', event);
+            if (event.response.raw.indexOf('error:Unsupported command') === 0) {
+                // reject the promise
+                var message = event.response.raw.substr(6);
+                return Promise.resolve(self._trigger('error', event, message));
+            }
 
             // resolve the promise
-            return Promise.resolve(board_event);
+            return Promise.resolve(self._trigger('response', event));
         })
         .catch(function(event) {
             // unset online flag
             self.online = false;
 
-            // trigger event
-            var board_event = self._trigger('error', event);
-
             // reject the promise
-            return Promise.reject(board_event);
+            return Promise.reject(self._trigger('error', event));
         });
     };
 
@@ -1730,10 +1759,8 @@ var sh = sh || {};
             // raw response string
             var raw = event.originalEvent.response.raw.trim();
 
-            var data = raw === 'ok' ? 'pong' : raw;
-
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('ping', self, event, data));
+            return Promise.resolve(self._trigger('pong', event));
         });
     };
 
@@ -1793,7 +1820,7 @@ var sh = sh || {};
             }
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('version', self, event, self.info));
+            return Promise.resolve(self._trigger('version', event, self.info));
         });
     };
 
@@ -1857,7 +1884,8 @@ var sh = sh || {};
 
             // file not found
             if (raw.indexOf('Could not open directory') === 0) {
-                return Promise.reject(sh.BoardEvent('ls', self, event, raw));
+                // reject the promise
+                return Promise.reject(self._trigger('error', event));
             }
 
             // split lines
@@ -1898,7 +1926,7 @@ var sh = sh || {};
             }
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('ls', self, event, files));
+            return Promise.resolve(self._trigger('ls', event, files));
         });
     };
 
@@ -1979,7 +2007,7 @@ var sh = sh || {};
 
             if (! directory.length) {
                 // resolve the promise
-                return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
+                return Promise.resolve(self._trigger('lsAll', event, tree));
             }
 
             return Promise.all(directory).then(function(events) {
@@ -1990,7 +2018,7 @@ var sh = sh || {};
                 }
 
                 // resolve the promise
-                return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
+                return Promise.resolve(self._trigger('lsAll', event, tree));
             });
         })
         .then(function(event) {
@@ -2028,7 +2056,7 @@ var sh = sh || {};
             }
 
             // resolve the promise with updated tree
-            return Promise.resolve(sh.BoardEvent('lsAll', self, event, tree));
+            return Promise.resolve(self._trigger('lsAll', event, tree));
         });
     };
 
@@ -2072,11 +2100,12 @@ var sh = sh || {};
 
             // Error ?
             if (raw.indexOf('Could not rename') === 0) {
-                return Promise.reject(sh.BoardEvent('mv', self, event, raw));
+                // reject the promise
+                return Promise.reject(self._trigger('error', event));
             }
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('mv', self, event, raw));
+            return Promise.resolve(self._trigger('mv', event, raw));
         });
     };
 
@@ -2142,14 +2171,15 @@ var sh = sh || {};
 
             // Error ?
             if (raw.indexOf('Could not delete') === 0) {
-                return Promise.reject(sh.BoardEvent('rm', self, event, raw));
+                // reject the promise
+                return Promise.reject(self._trigger('error', event));
             }
 
             // response data
             var data = 'deleted ' + paths;
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('rm', self, event, data));
+            return Promise.resolve(self._trigger('rm', event, data));
         });
     };
 
@@ -2303,28 +2333,174 @@ var sh = sh || {};
         // self alias
         var self = this;
 
-        // command
-        var command = 'cat ' + path;
+        // clean path
+        path = path.replace(/^\//, '');
 
-        if (limit !== undefined) {
-            command += ' ' + limit;
-        }
+        // command
+        var settings = {
+            url    : 'http://' + self.address + '/' + path,
+            timeout: timeout
+        };
 
         // send the command (promise)
-        return self.command(command, timeout).then(function(event) {
+        return sh.network.get(settings).then(function(event) {
             // raw response string
-            var raw = event.originalEvent.response.raw;
-
-            // file not found
-            if (raw.indexOf('File not found:') == 0) {
-                return Promise.reject(sh.BoardEvent('cat', self, event, raw));
-            }
+            var raw = event.response.raw;
 
             // normalize line endding
             var text = raw.replace('\r\n', '\n');
 
+            // limit output...
+            if (limit) {
+                text = text.split('\n').slice(0, limit).join('\n');
+            }
+
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('cat', self, event, text));
+            return Promise.resolve(self._trigger('cat', event, text));
+        });
+    };
+
+    /**
+    * Get position.
+    *
+    * @method
+    *
+    * @param {Integer} [timeout] Connection timeout.
+    *
+    * @return {Promise}
+    *
+    * @example
+    * ### Get position
+    * ```
+    * // create the board instance
+    * var board = sh.Board('192.168.1.102');
+    * 
+    * board.pos().then(function(event) {
+    *     var pos = event.data;
+    * 
+    *     console.info('pos:', event.name, pos);
+    *     console.info('pos:', pos.get('REALTIME_WPOS'));
+    *     console.info('pos:', pos.get('REALTIME_WPOS', 'Y'));
+    * })
+    * .catch(function(event) {
+    *     console.error('pos:', event.name, event);
+    * });
+    * ```
+    */
+    sh.Board.prototype.pos = function(timeout) {
+        // self alias
+        var self = this;
+
+        // send the command (promise)
+        return self.command('get pos', timeout).then(function(event) {
+            // raw response string
+            var raw = event.originalEvent.response.raw;
+
+            // split on new line
+            var lines = raw.trim().split('\n');
+
+            // normalize type
+            var normalizeType = function(type) {
+                return type.trim().split(' ').pop().toUpperCase();
+            };
+
+            // make position array
+            var pos = {
+                types : {},
+                values: [],
+
+                get: function(type, axis, value) {
+                    type = normalizeType(type);
+
+                    var index = this.types[type];
+
+                    if (index !== undefined) {
+                        value = this.values[index];
+                    }
+
+                    if (value && axis) {
+                        axis  = axis.toUpperCase();
+                        value = value[axis] || value;
+                    }
+
+                    return value;
+                }
+            };
+
+            var parts, type, command, description, values, value;
+
+            for (var i = 0; i < lines.length; i++) {
+                // get position type
+                parts = lines[i].split(': ');
+                type  = parts.shift();
+
+                // normalize type
+                type = normalizeType(type);
+
+                // set command/description
+                // C   : M114   - WCS.
+                // WPOS: M114.1 - Realtime WCS.
+                // MPOS: M114.2 - Realtime machine coordinate system.
+                // APOS: M114.3 - Realtime actuator position.
+                // LMS : M114.4 - Last milestone.
+                // LMP : M114.5 - Last machine position.
+                switch (type) {
+                    case 'C':
+                        command     = 'M114';
+                        description = 'Position of all axes';
+                        break;
+                    case 'WPOS':
+                        command     = 'M114.1';
+                        description = 'Real time position of all axes';
+                        break;
+                    case 'MPOS':
+                        command     = 'M114.2';
+                        description = 'Real time machine position of all axes';
+                        break;
+                    case 'APOS':
+                        command     = 'M114.3';
+                        description = 'Real time actuator position of all actuators';
+                        break;
+                    case 'LMS':
+                        command     = 'M114.4';
+                        description = 'Last milestone';
+                        break;
+                    case 'LMP':
+                        command     = 'M114.5';
+                        description = 'Last machine position';
+                        break;
+                    default:
+                        command     = 'M114.?';
+                        description = 'Unknown type';
+                }
+
+                // set base values
+                values = {
+                    type       : type,
+                    command    : command,
+                    description: description
+                };
+
+                // get position values
+                parts  = parts[0].split(' ');
+
+                for (var j = 0; j < parts.length; j++) {
+                    value = parts[j].split(':');
+                    values[value[0]] = value[1];
+                }
+
+                pos.types[type] = i;
+                pos.values.push(values);
+            }
+
+            // nothing found
+            if (! pos.values.length) {
+                // reject the promise
+                return Promise.reject(self._trigger('error', event));
+            }
+
+            // resolve the promise
+            return Promise.resolve(self._trigger('pos', event, pos));
         });
     };
 
@@ -3151,59 +3327,21 @@ var sh = sh || {};
     * 
     *     console.info('config:', event.name, event);
     * 
-    *     // from item value
-    *     console.log('extruder.hotend2.en_pin: ' + config.getItem('extruder.hotend2.en_pin').value());
-    *     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toString());
-    *     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toInteger());
-    *     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toFloat());
-    *     console.log('extruder.hotend2.en_pin:', config.getItem('extruder.hotend2.en_pin').value().toFloat(1));
+    *     // get all items with this key
+    *     var items = config.getItems('extruder.hotend2.en_pin')[0];
+    * 
+    *     // get first item
+    *     var item = items[0];
+    * 
+    *     console.log('extruder.hotend2.en_pin: ' + item.value());
+    *     console.log('extruder.hotend2.en_pin:', item.value().toString());
+    *     console.log('extruder.hotend2.en_pin:', item.value().toInteger());
+    *     console.log('extruder.hotend2.en_pin:', item.value().toFloat());
+    *     console.log('extruder.hotend2.en_pin:', item.value().toFloat(1));
     * 
     *     // set new value
-    *     console.log('extruder.hotend2.en_pin: ' + config.getItem('extruder.hotend2.en_pin').value('4.28'));
-    *     console.log('extruder.hotend2.en_pin: ' + config.setValue('extruder.hotend2.en_pin', '4.28'));
+    *     console.log('extruder.hotend2.en_pin: ' + item.value('4.28'));
     * 
-    *     // from item method
-    *     console.log('extruder.hotend2.en_pin: ' + config.getValue('extruder.hotend2.en_pin'));
-    *     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toString());
-    *     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toInteger());
-    *     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toFloat());
-    *     console.log('extruder.hotend2.en_pin:', config.getValue('extruder.hotend2.en_pin').toFloat(1));
-    * 
-    *     // create item
-    *     config.createItem({
-    *         disabled: false,
-    *         name    : 'custom.setting',
-    *         value   : '5.5',
-    *         comments: 'My setting usages...'
-    *     });
-    * 
-    *     console.log('custom.setting: ' + config.getValue('custom.setting'));
-    * 
-    *     // replace item
-    *     config.createItem({
-    *         disabled: true,
-    *         name    : 'custom.setting',
-    *         value   : '8.2',
-    *         comments: 'My new setting usages...'
-    *     },
-    *     {
-    *         replace: true
-    *     });
-    * 
-    *     console.log('custom.setting: ' + config.getValue('custom.setting'));
-    * 
-    *     // create and insert new item before another
-    *     config.createItem({
-    *         disabled: true,
-    *         name    : 'custom.setting2',
-    *         value   : '3.2',
-    *         comments: 'My new setting usages...'
-    *     },
-    *     {
-    *         position: 'before:custom.setting'
-    *     });
-    * 
-    *     console.log('custom.setting: ' + config.getValue('custom.setting'));
     * })
     * .catch(function(event) {
     *     console.error('config:', event.name, event);
@@ -3213,11 +3351,6 @@ var sh = sh || {};
     sh.Board.prototype.config = function(txtFirst, timeout) {
         // self alias
         var self = this;
-
-        // debug ---------------------------------------------------------------
-        // var config = new sh.BoardConfig('config.test.txt', sampleConfig);
-        // return Promise.resolve(sh.BoardEvent('config', self, null, config));
-        // ---------------------------------------------------------------------
 
         // default timeout
         timeout = timeout === undefined ? 0 : timeout;
@@ -3249,337 +3382,8 @@ var sh = sh || {};
             var config = new sh.BoardConfig(filename, event.data);
 
             // resolve the promise
-            return Promise.resolve(sh.BoardEvent('config', self, event, config));
+            return Promise.resolve(self._trigger('config', event, config));
         });
     };
-/*
-var sampleConfig = `
-# NOTE Lines must not exceed 132 characters
-## Robot module configurations : general handling of movement G-codes and slicing into moves
-default_feed_rate                            4000             # Default rate ( mm/minute ) for G1/G2/G3 moves
-default_seek_rate                            4000             # Default rate ( mm/minute ) for G0 moves
-mm_per_arc_segment                           0.0              # Fixed length for line segments that divide arcs 0 to disable
-mm_max_arc_error                             0.01             # The maximum error for line segments that divide arcs 0 to disable
-                                                              # note it is invalid for both the above be 0
-                                                              # if both are used, will use largest segment length based on radius
-#mm_per_line_segment                          5                # Lines can be cut into segments ( not usefull with cartesian
-                                                              # coordinates robots ).
-
-# Arm solution configuration : Cartesian robot. Translates mm positions into stepper positions
-alpha_steps_per_mm                           80               # Steps per mm for alpha stepper
-beta_steps_per_mm                            80               # Steps per mm for beta stepper
-gamma_steps_per_mm                           1600             # Steps per mm for gamma stepper
-
-# Planner module configuration : Look-ahead and acceleration configuration
-planner_queue_size                           32               # DO NOT CHANGE THIS UNLESS YOU KNOW EXACTLY WHAT YOU ARE DOING
-acceleration                                 3000             # Acceleration in mm/second/second.
-#z_acceleration                              500              # Acceleration for Z only moves in mm/s^2, 0 uses acceleration which is the default. DO NOT SET ON A DELTA
-junction_deviation                           0.05             # Similar to the old "max_jerk", in millimeters,
-                                                              # see https://github.com/grbl/grbl/blob/master/planner.c
-                                                              # and https://github.com/grbl/grbl/wiki/Configuring-Grbl-v0.8
-                                                              # Lower values mean being more careful, higher values means being
-                                                              # faster and have more jerk
-#z_junction_deviation                        0.0              # for Z only moves, -1 uses junction_deviation, zero disables junction_deviation on z moves DO NOT SET ON A DELTA
-#minimum_planner_speed                       0.0              # sets the minimum planner speed in mm/sec
-
-# Stepper module configuration
-microseconds_per_step_pulse                  1                # Duration of step pulses to stepper drivers, in microseconds
-base_stepping_frequency                      100000           # Base frequency for stepping
-
-# Cartesian axis speed limits
-x_axis_max_speed                             30000            # mm/min
-y_axis_max_speed                             30000            # mm/min
-z_axis_max_speed                             300              # mm/min
-
-# Stepper module pins ( ports, and pin numbers, appending "!" to the number will invert a pin )
-alpha_step_pin                               2.0              # Pin for alpha stepper step signal
-alpha_dir_pin                                0.5              # Pin for alpha stepper direction
-alpha_en_pin                                 0.4              # Pin for alpha enable pin
-alpha_current                                1.5              # X stepper motor current
-alpha_max_rate                               30000.0          # mm/min
-
-beta_step_pin                                2.1              # Pin for beta stepper step signal
-beta_dir_pin                                 0.11             # Pin for beta stepper direction
-beta_en_pin                                  0.10             # Pin for beta enable
-beta_current                                 1.5              # Y stepper motor current
-beta_max_rate                                30000.0          # mm/min
-
-gamma_step_pin                               2.2              # Pin for gamma stepper step signal
-gamma_dir_pin                                0.20             # Pin for gamma stepper direction
-gamma_en_pin                                 0.19             # Pin for gamma enable
-gamma_current                                1.5              # Z stepper motor current
-gamma_max_rate                               300.0            # mm/min
-
-## System configuration
-# Serial communications configuration ( baud rate defaults to 9600 if undefined )
-uart0.baud_rate                              115200           # Baud rate for the default hardware serial port
-second_usb_serial_enable                     false            # This enables a second usb serial port (to have both pronterface
-                                                              # and a terminal connected)
-#leds_disable                                true             # disable using leds after config loaded
-#play_led_disable                            true             # disable the play led
-
-# Kill button (used to be called pause) maybe assigned to a different pin, set to the onboard pin by default
-kill_button_enable                           true             # set to true to enable a kill button
-kill_button_pin                              2.12             # kill button pin. default is same as pause button 2.12 (2.11 is another good choice)
-
-#msd_disable                                 false            # disable the MSD (USB SDCARD) when set to true (needs special binary)
-#dfu_enable                                  false            # for linux developers, set to true to enable DFU
-#watchdog_timeout                            10               # watchdog timeout in seconds, default is 10, set to 0 to disable the watchdog
-
-# Only needed on a smoothieboard
-currentcontrol_module_enable                 true             #
-
-## Extruder module configuration
-extruder.hotend.enable                          true             # Whether to activate the extruder module at all. All configuration is ignored if false
-extruder.hotend.steps_per_mm                    140              # Steps per mm for extruder stepper
-extruder.hotend.default_feed_rate               600              # Default rate ( mm/minute ) for moves where only the extruder moves
-extruder.hotend.acceleration                    500              # Acceleration for the stepper motor mm/sec²
-extruder.hotend.max_speed                       50               # mm/s
-
-extruder.hotend.step_pin                        2.3              # Pin for extruder step signal
-extruder.hotend.dir_pin                         0.22             # Pin for extruder dir signal
-extruder.hotend.en_pin                          0.21             # Pin for extruder enable signal
-
-# extruder offset
-#extruder.hotend.x_offset                        0                # x offset from origin in mm
-#extruder.hotend.y_offset                        0                # y offset from origin in mm
-#extruder.hotend.z_offset                        0                # z offset from origin in mm
-
-# firmware retract settings when using G10/G11, these are the defaults if not defined, must be defined for each extruder if not using the defaults
-#extruder.hotend.retract_length                  3               # retract length in mm
-#extruder.hotend.retract_feedrate                45              # retract feedrate in mm/sec
-#extruder.hotend.retract_recover_length          0               # additional length for recover
-#extruder.hotend.retract_recover_feedrate        8               # recover feedrate in mm/sec (should be less than retract feedrate)
-#extruder.hotend.retract_zlift_length            0               # zlift on retract in mm, 0 disables
-#extruder.hotend.retract_zlift_feedrate          6000            # zlift feedrate in mm/min (Note mm/min NOT mm/sec)
-
-delta_current                                1.5              # First extruder stepper motor current
-
-# Second extruder module configuration
-#extruder.hotend2.enable                          true             # Whether to activate the extruder module at all. All configuration is ignored if false
-#extruder.hotend2.steps_per_mm                    140              # Steps per mm for extruder stepper
-#extruder.hotend2.default_feed_rate               600              # Default rate ( mm/minute ) for moves where only the extruder moves
-#extruder.hotend2.acceleration                    500              # Acceleration for the stepper motor, as of 0.6, arbitrary ratio
-#extruder.hotend2.max_speed                       50               # mm/s
-
-#extruder.hotend2.step_pin                        2.8              # Pin for extruder step signal
-#extruder.hotend2.dir_pin                         2.13             # Pin for extruder dir signal
-#extruder.hotend2.en_pin                          4.29             # Pin for extruder enable signal
-
-#extruder.hotend2.x_offset                        0                # x offset from origin in mm
-#extruder.hotend2.y_offset                        25.0             # y offset from origin in mm
-#extruder.hotend2.z_offset                        0                # z offset from origin in mm
-#epsilon_current                              1.5              # Second extruder stepper motor current
-
-
-## Laser module configuration
-laser_module_enable                          false            # Whether to activate the laser module at all. All configuration is
-                                                              # ignored if false.
-#laser_module_pin                             2.5             # this pin will be PWMed to control the laser. Only P2.0 - P2.5, P1.18, P1.20, P1.21, P1.23, P1.24, P1.26, P3.25, P3.26
-                                                              # can be used since laser requires hardware PWM
-#laser_module_maximum_power                   1.0             # this is the maximum duty cycle that will be applied to the laser
-#laser_module_minimum_power                   0.0             # This is a value just below the minimum duty cycle that keeps the laser
-                                                              # active without actually burning.
-#laser_module_default_power                   0.8             # This is the default laser power that will be used for cuts if a power has not been specified.  The value is a scale between
-                                                              # the maximum and minimum power levels specified above
-#laser_module_pwm_period                      20              # this sets the pwm frequency as the period in microseconds
-
-## Temperature control configuration
-# First hotend configuration
-temperature_control.hotend.enable            true             # Whether to activate this ( "hotend" ) module at all.
-                                                              # All configuration is ignored if false.
-temperature_control.hotend.thermistor_pin    0.23             # Pin for the thermistor to read
-temperature_control.hotend.heater_pin        2.7              # Pin that controls the heater, set to nc if a readonly thermistor is being defined
-temperature_control.hotend.thermistor        EPCOS100K        # see http://smoothieware.org/temperaturecontrol#toc5
-#temperature_control.hotend.beta             4066             # or set the beta value
-temperature_control.hotend.set_m_code        104              #
-temperature_control.hotend.set_and_wait_m_code 109            #
-temperature_control.hotend.designator        T                #
-#temperature_control.hotend.max_temp         300              # Set maximum temperature - Will prevent heating above 300 by default
-#temperature_control.hotend.min_temp         0                # Set minimum temperature - Will prevent heating below if set
-
-#temperature_control.hotend.p_factor         13.7             # permanently set the PID values after an auto pid
-#temperature_control.hotend.i_factor         0.097            #
-#temperature_control.hotend.d_factor         24               #
-
-#temperature_control.hotend.max_pwm          64               # max pwm, 64 is a good value if driving a 12v resistor with 24v.
-
-# Second hotend configuration
-#temperature_control.hotend2.enable            true             # Whether to activate this ( "hotend" ) module at all.
-                                                              # All configuration is ignored if false.
-
-#temperature_control.hotend2.thermistor_pin    0.25             # Pin for the thermistor to read
-#temperature_control.hotend2.heater_pin        1.23             # Pin that controls the heater
-#temperature_control.hotend2.thermistor        EPCOS100K        # see http://smoothieware.org/temperaturecontrol#toc5
-##temperature_control.hotend2.beta             4066             # or set the beta value
-#temperature_control.hotend2.set_m_code        104              #
-#temperature_control.hotend2.set_and_wait_m_code 109            #
-#temperature_control.hotend2.designator        T1               #
-
-#temperature_control.hotend2.p_factor          13.7           # permanently set the PID values after an auto pid
-#temperature_control.hotend2.i_factor          0.097          #
-#temperature_control.hotend2.d_factor          24             #
-
-#temperature_control.hotend2.max_pwm          64               # max pwm, 64 is a good value if driving a 12v resistor with 24v.
-
-temperature_control.bed.enable               true             #
-temperature_control.bed.thermistor_pin       0.24             #
-temperature_control.bed.heater_pin           2.5              #
-temperature_control.bed.thermistor           Honeywell100K    # see http://smoothieware.org/temperaturecontrol#toc5
-#temperature_control.bed.beta                3974             # or set the beta value
-
-temperature_control.bed.set_m_code           140              #
-temperature_control.bed.set_and_wait_m_code  190              #
-temperature_control.bed.designator           B                #
-
-#temperature_control.bed.bang_bang            false           # set to true to use bang bang control rather than PID
-#temperature_control.bed.hysteresis           2.0             # set to the temperature in degrees C to use as hysteresis
-                                                              # when using bang bang
-
-## Switch module for fan control
-switch.fan.enable                            true             #
-switch.fan.input_on_command                  M106             #
-switch.fan.input_off_command                 M107             #
-switch.fan.output_pin                        2.6              #
-switch.fan.output_type                       pwm              # pwm output settable with S parameter in the input_on_comand
-#switch.fan.max_pwm                           255              # set max pwm for the pin default is 255
-
-#switch.misc.enable                           true             #
-#switch.misc.input_on_command                 M42              #
-#switch.misc.input_off_command                M43              #
-#switch.misc.output_pin                       2.4              #
-#switch.misc.output_type                      digital          # just an on or off pin
-
-# Switch module for spindle control
-#switch.spindle.enable                        false            #
-
-## Temperatureswitch :
-# automatically toggle a switch at a specified temperature. Different ones of these may be defined to monitor different temperatures and switch different swithxes
-# useful to turn on a fan or water pump to cool the hotend
-#temperatureswitch.hotend.enable              true             #
-#temperatureswitch.hotend.designator          T                # first character of the temperature control designator to use as the temperature sensor to monitor
-#temperatureswitch.hotend.switch              misc             # select which switch to use, matches the name of the defined switch
-#temperatureswitch.hotend.threshold_temp      60.0             # temperature to turn on (if rising) or off the switch
-#temperatureswitch.hotend.heatup_poll         15               # poll heatup at 15 sec intervals
-#temperatureswitch.hotend.cooldown_poll       60               # poll cooldown at 60 sec intervals
-
-
-## Endstops
-endstops_enable                              true             # the endstop module is enabled by default and can be disabled here
-#corexy_homing                               false            # set to true if homing on a hbot or corexy
-alpha_min_endstop                            1.24^            # add a ! to invert if endstop is NO connected to ground
-alpha_max_endstop                            1.25^            # NOTE set to nc if this is not installed
-alpha_homing_direction                       home_to_min      # or set to home_to_max and set alpha_max
-alpha_min                                    0                # this gets loaded after homing when home_to_min is set
-alpha_max                                    200              # this gets loaded after homing when home_to_max is set
-beta_min_endstop                             1.26^            #
-beta_max_endstop                             1.27^            #
-beta_homing_direction                        home_to_min      #
-beta_min                                     0                #
-beta_max                                     200              #
-gamma_min_endstop                            1.28^            #
-gamma_max_endstop                            1.29^            #
-gamma_homing_direction                       home_to_min      #
-gamma_min                                    0                #
-gamma_max                                    200              #
-
-alpha_max_travel                             500              # max travel in mm for alpha/X axis when homing
-beta_max_travel                              500              # max travel in mm for beta/Y axis when homing
-gamma_max_travel                             500              # max travel in mm for gamma/Z axis when homing
-
-# optional order in which axis will home, default is they all home at the same time,
-# if this is set it will force each axis to home one at a time in the specified order
-#homing_order                                 XYZ              # x axis followed by y then z last
-#move_to_origin_after_home                    false            # move XY to 0,0 after homing
-
-# optional enable limit switches, actions will stop if any enabled limit switch is triggered
-#alpha_limit_enable                          false            # set to true to enable X min and max limit switches
-#beta_limit_enable                           false            # set to true to enable Y min and max limit switches
-#gamma_limit_enable                          false            # set to true to enable Z min and max limit switches
-
-alpha_fast_homing_rate_mm_s                  50               # feedrates in mm/second
-beta_fast_homing_rate_mm_s                   50               # "
-gamma_fast_homing_rate_mm_s                  4                # "
-alpha_slow_homing_rate_mm_s                  25               # "
-beta_slow_homing_rate_mm_s                   25               # "
-gamma_slow_homing_rate_mm_s                  2                # "
-
-alpha_homing_retract_mm                      5                # distance in mm
-beta_homing_retract_mm                       5                # "
-gamma_homing_retract_mm                      1                # "
-
-#endstop_debounce_count                       100              # uncomment if you get noise on your endstops, default is 100
-
-## Z-probe
-zprobe.enable                                false           # set to true to enable a zprobe
-zprobe.probe_pin                             1.28!^          # pin probe is attached to if NC remove the !
-zprobe.slow_feedrate                         5               # mm/sec probe feed rate
-#zprobe.debounce_count                       100             # set if noisy
-zprobe.fast_feedrate                         100             # move feedrate mm/sec
-zprobe.probe_height                          5               # how much above bed to start probe
-#gamma_min_endstop                           nc              # normally 1.28. Change to nc to prevent conflict,
-
-# associated with zprobe the leveling strategy to use
-#leveling-strategy.three-point-leveling.enable         true        # a leveling strategy that probes three points to define a plane and keeps the Z parallel to that plane
-#leveling-strategy.three-point-leveling.point1         100.0,0.0   # the first probe point (x,y) optional may be defined with M557
-#leveling-strategy.three-point-leveling.point2         200.0,200.0 # the second probe point (x,y)
-#leveling-strategy.three-point-leveling.point3         0.0,200.0   # the third probe point (x,y)
-#leveling-strategy.three-point-leveling.home_first     true        # home the XY axis before probing
-#leveling-strategy.three-point-leveling.tolerance      0.03        # the probe tolerance in mm, anything less that this will be ignored, default is 0.03mm
-#leveling-strategy.three-point-leveling.probe_offsets  0,0,0       # the probe offsets from nozzle, must be x,y,z, default is no offset
-#leveling-strategy.three-point-leveling.save_plane     false       # set to true to allow the bed plane to be saved with M500 default is false
-
-## Panel
-panel.enable                                 false             # set to true to enable the panel code
-
-# Example for reprap discount GLCD
-# on glcd EXP1 is to left and EXP2 is to right, pin 1 is bottom left, pin 2 is top left etc.
-# +5v is EXP1 pin 10, Gnd is EXP1 pin 9
-#panel.lcd                                   reprap_discount_glcd     #
-#panel.spi_channel                           0                 # spi channel to use  ; GLCD EXP1 Pins 3,5 (MOSI, SCLK)
-#panel.spi_cs_pin                            0.16              # spi chip select     ; GLCD EXP1 Pin 4
-#panel.encoder_a_pin                         3.25!^            # encoder pin         ; GLCD EXP2 Pin 3
-#panel.encoder_b_pin                         3.26!^            # encoder pin         ; GLCD EXP2 Pin 5
-#panel.click_button_pin                      1.30!^            # click button        ; GLCD EXP1 Pin 2
-#panel.buzz_pin                              1.31              # pin for buzzer      ; GLCD EXP1 Pin 1
-#panel.back_button_pin                       2.11!^            # back button         ; GLCD EXP2 Pin 8
-
-# pins used with other panels
-#panel.up_button_pin                         0.1!              # up button if used
-#panel.down_button_pin                       0.0!              # down button if used
-#panel.click_button_pin                      0.18!             # click button if used
-
-panel.menu_offset                            0                 # some panels will need 1 here
-
-panel.alpha_jog_feedrate                     6000              # x jogging feedrate in mm/min
-panel.beta_jog_feedrate                      6000              # y jogging feedrate in mm/min
-panel.gamma_jog_feedrate                     200               # z jogging feedrate in mm/min
-
-panel.hotend_temperature                     185               # temp to set hotend when preheat is selected
-panel.bed_temperature                        60                # temp to set bed when preheat is selected
-
-## Custom menus : Example of a custom menu entry, which will show up in the Custom entry.
-# NOTE _ gets converted to space in the menu and commands, | is used to separate multiple commands
-custom_menu.power_on.enable                true              #
-custom_menu.power_on.name                  Power_on          #
-custom_menu.power_on.command               M80               #
-
-custom_menu.power_off.enable               true              #
-custom_menu.power_off.name                 Power_off         #
-custom_menu.power_off.command              M81               #
-
-
-## Network settings
-network.enable                               true            # enable the ethernet network services
-network.webserver.enable                     true             # enable the webserver
-network.telnet.enable                        true             # enable the telnet server
-network.ip_address                           auto             # use dhcp to get ip address
-# uncomment the 3 below to manually setup ip address
-#network.ip_address                           192.168.3.222    # the IP address
-#network.ip_mask                              255.255.255.0    # the ip mask
-#network.ip_gateway                           192.168.3.1      # the gateway address
-#network.mac_override                         xx.xx.xx.xx.xx.xx  # override the mac address, only do this if you have a conflict
-`;
-*/
 
 })();

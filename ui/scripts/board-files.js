@@ -13,6 +13,7 @@ var FileModel = function(node, parent) {
 
     // set parent model
     self.parent = parent;
+    self.board  = parent.parent.board;
 
     // set parents paths
     self.parents = self.root ? self.root.split('/') : [];
@@ -28,6 +29,11 @@ var FileModel = function(node, parent) {
     self.active  = ko.observable(node.active == undefined ? false : true);
     self.visible = ko.observable(node.visible == undefined ? true : false);
     self.enabled = ko.observable(node.enabled == undefined ? true : false);
+
+    self.raw         = ko.observable();
+    self.blob        = ko.observable();
+    self.uploading   = ko.observable(false);
+    self.downloading = ko.observable(false);
 
     // node text
     self.text = ko.pureComputed(function() {
@@ -129,7 +135,271 @@ FileModel.prototype.select = function(selected) {
     }
 };
 
+FileModel.prototype.download = function() {
+    // self alias
+    var self = this;
+
+    if (self.downloading()) {
+        return;
+    }
+
+    // command
+    var settings = {
+        url    : 'http://' + self.board.address + self.path,
+        xhr    : { responseType: 'blob' },
+        timeout: 0
+    };
+
+    // set downloading flag
+    self.downloading(true);
+    self.blob(null);
+
+    // send the command (promise)
+    return sh.network.get(settings).then(function(event) {
+        // file as Blob object
+        self.blob(event.response.raw);
+
+        // forward event
+        return event;
+    })
+    .catch(function(event) {
+        // notify user
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'An error occurred when downloading : ' + self.name
+        }, { type: 'danger' });
+
+        // forward event
+        return event;
+    })
+    .then(function(event) {
+        // in any case...
+        self.downloading(false);
+
+        // forward event
+        return event;
+    });
+};
+
 FileModel.prototype.onSelect = function(selectedNode, event) {
     // toggle state
     this.select(! this.active());
+};
+
+FileModel.prototype.onEdit = function(selectedNode, event) {
+    // self alias
+    var self = this;
+
+    // stop event propagation
+    event.stopPropagation();
+
+    // download file
+    selectedNode.download().then(function(event) {
+        var blob = selectedNode.blob();
+
+        if (blob) {
+            var reader = new FileReader();
+
+            reader.addEventListener("loadend", function(event) {
+                selectedNode.raw(reader.result);
+                self.parent.openedFile(selectedNode);
+                $('#board-files-edit-modal').modal('show');
+            });
+
+            reader.readAsText(blob);
+        }
+    });
+};
+
+FileModel.prototype.onDownload = function(selectedNode, event) {
+    // stop event propagation
+    event.stopPropagation();
+
+    // download file
+    selectedNode.download().then(function(event) {
+        var blob = selectedNode.blob();
+
+        if (blob) {
+            saveAs(blob, selectedNode.name);
+        }
+    });
+};
+
+FileModel.prototype.onSave = function(selectedNode, event) {
+    var blob = new Blob([$('#openedFileContent')[0].innerText]);
+    this.parent.upload.addFile(blob, selectedNode.path);
+    $('#board-files-edit-modal').modal('hide');
+    this.parent.openUploadModal();
+};
+
+var FilesModel = function(parent) {
+    // self alias
+    var self = this;
+
+    // set initial state
+    self.parent         = parent;
+    self.board          = parent.board;
+    self.terminal       = parent.terminal;
+    self.files          = ko.observableArray();
+    self.folders        = ko.observableArray();
+    self.selectedFolder = ko.observable();
+    self.selectedFiles  = ko.observableArray();
+    self.waitTree       = ko.observable(false);
+    self.waitRemove     = ko.observable(false);
+    self.openedFile     = ko.observable();
+
+    self.upload = new FilesUploadModel(self);
+
+    self.uploadEnabled = ko.pureComputed(function() {
+        return self.folders().length && self.selectedFolder() != '/';
+    });
+
+    // reset tree
+    self.resetTree();
+};
+
+FilesModel.prototype.resetTree = function(tree) {
+    this.selectedFiles([]);
+    this.selectedFolder('/');
+    tree = this._makeTree(tree || []);
+    this.folders(tree.folders || []);
+    this.files(tree.files || []);
+    this.waitTree(false);
+};
+
+FilesModel.prototype.openUploadModal = function(board, event) {
+    $('#board-files-upload-modal').modal('show');
+};
+
+FilesModel.prototype.openRemoveFilesModal = function(board, event) {
+    $('#board-files-remove-modal').modal('show');
+};
+
+FilesModel.prototype.sortTree = function(tree) {
+    return tree.sort(function(a, b) {
+        var la = a.path.split('/').length;
+        var lb = b.path.split('/').length;
+        return (la < lb) ? -1 : ((la > lb) ? 1 :
+            (a.path < b.path) ? -1 : ((a.path > b.path) ? 1 : 0));
+    });
+};
+
+FilesModel.prototype._makeTree = function(nodes) {
+    // self alias
+    var self = this;
+
+    // empty tree
+    var tree = { files  : [], folders: [] };
+
+    // sort nodes
+    nodes = self.sortTree(nodes);
+
+    // first pass, normalize nodes
+    for (var node, i = 0, il = nodes.length; i < il; i++) {
+        // current node
+        node = new FileModel(nodes[i], self);
+
+        // node state
+        node.active(self.selectedFolder() == node.path);
+
+        // add node in file/folder collection
+        if (node.type == 'file') {
+            tree.files.push(node);
+        }
+        else {
+            tree.folders.push(node);
+        }
+    }
+
+    // return the tree
+    return tree;
+};
+
+FilesModel.prototype.refreshTree = function(board, event) {
+    // self alias
+    var self = this;
+
+    // set wait tree flag
+    self.waitTree(true);
+
+    // empty tree
+    var tree = [];
+
+    this.terminal.pushCommand(['lsAll', '/', 0], {
+        done: function(event) {
+            tree = event.data;
+        },
+        error: function(event) {
+            console.error('refreshTree:', event.name, event);
+        },
+        allways: function(event) {
+            self.resetTree(tree);
+            self.parent.updateState();
+        }
+    });
+};
+
+FilesModel.prototype.unselectedFile = function(node, event) {
+    node.select(false);
+};
+
+FilesModel.prototype.removeFiles = function(board, event) {
+    // self alias
+    var self = this;
+
+    // skip if already in remove
+    if (self.waitRemove()) {
+        return;
+    }
+
+    // set wait remove flag
+    self.waitRemove(true);
+
+    // get selected files
+    var files = [].concat(self.selectedFiles());
+
+    // get files paths
+    var paths = [];
+
+    for (var file, i = 0, il = files.length; i < il; i++) {
+        // current file
+        file = files[i];
+
+        // disable node
+        file.enabled(false);
+
+        // add path to delete collection
+        paths.push(file.path);
+    }
+
+    // remove selected files
+    self.parent.board.rm(paths).then(function(event) {
+        // get all files
+        var files = self.files();
+
+        // remove file nodes
+        for (var i = 0, il = paths.length; i < il; i++) {
+            for (var file, j = 0; j < files.length; j++) {
+                file = files[j];
+
+                if (paths[i] == file.path) {
+                    self.files.remove(file);
+                    self.selectedFiles.remove(file);
+                }
+            }
+        }
+    })
+    .catch(function(event) {
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'An error occurred when deleting the following files : ' + paths.join(', ')
+        }, { type: 'danger' });
+
+        return event;
+    })
+    .then(function(event) {
+        // set wait remove flag
+        self.waitRemove(false);
+        self.parent.updateState();
+    });
 };

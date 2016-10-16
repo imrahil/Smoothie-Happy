@@ -3,7 +3,7 @@
         <h3 class="panel-title">
             <span class="dropdown">
                 <a href="#" class="dropdown-toggle" id="drop1" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-chevron-down"></i> Select board
+                    <i class="fa fa-chevron-down"></i> Boards
                 </a>
                 <!-- ko if: selectedBoard -->
                 <!-- ko with: selectedBoard -->
@@ -42,40 +42,31 @@
         <!-- ko if: online -->
         <div>
             <!-- Nav tabs -->
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active">
-                    <a href="#board-files-pane" aria-controls="board-files-pane" role="tab" data-toggle="tab">
-                        <i class="text-primary fa fa-folder-open"></i> Files
-                    </a>
-                </li>
-                <li role="presentation">
-                    <a href="#board-jog-pane" aria-controls="board-jog-pane" role="tab" data-toggle="tab">
-                        <i class="text-primary fa fa-cog"></i> Jog
-                    </a>
-                </li>
-                <li role="presentation">
-                    <a href="#board-config-pane" aria-controls="board-config-pane" role="tab" data-toggle="tab">
-                        <i class="text-primary fa fa-cog"></i> Config
-                    </a>
-                </li>
-                <li role="presentation">
-                    <a href="#board-info-pane" aria-controls="board-info-pane" role="tab" data-toggle="tab">
-                        <i class="text-primary fa fa-question-circle-o"></i> Info
+            <!-- ko with: tabs -->
+            <ul data-bind="foreach: children" class="nav nav-tabs" role="tablist">
+                <li data-bind="css: active() ? 'active' : null" role="presentation">
+                    <a data-bind="click: select, attr: { href: id }" role="tab" data-toggle="tab">
+                        <i data-bind="css: icon" class="text-primary fa"></i>
+                        <span data-bind="text: title"></span>
                     </a>
                 </li>
             </ul>
+            <!-- /ko -->
             <!-- Tab panes -->
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="board-files-pane">
-                    {$board-files.tpl}
-                </div>
-                <div role="tabpanel" class="tab-pane" id="board-jog-pane">
+                <div data-bind="css: tabs.selected().id == '#board-jog-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-jog-pane">
                     {$board-jog.tpl}
                 </div>
-                <div role="tabpanel" class="tab-pane" id="board-config-pane">
+                <div data-bind="css: tabs.selected().id == '#board-files-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-files-pane">
+                    {$board-files.tpl}
+                </div>
+                <div data-bind="css: tabs.selected().id == '#board-terminal-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-terminal-pane">
+                    {$board-terminal.tpl}
+                </div>
+                <div data-bind="css: tabs.selected().id == '#board-config-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-config-pane">
                     {$board-config.tpl}
                 </div>
-                <div role="tabpanel" class="tab-pane" id="board-info-pane">
+                <div data-bind="css: tabs.selected().id == '#board-info-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-info-pane">
                     {$board-info.tpl}
                 </div>
             </div>

@@ -1,4 +1,7 @@
+<!-- ko with: files -->
+
 <!-- ko ifnot: waitTree -->
+<!-- ko if: files().length -->
 <div class="btn-group" role="group">
     <button data-bind="click: refreshTree" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
@@ -20,6 +23,7 @@
 
 <hr />
 <!-- /ko -->
+<!-- /ko -->
 
 <!-- ko if: waitTree -->
 <div class="alert alert-info" role="alert">
@@ -31,11 +35,11 @@
 <!-- ko ifnot: waitTree -->
 <!-- ko ifnot: files().length -->
 <div class="alert alert-warning" role="alert">
-    Please click on the
-    <button data-bind="click: refreshTree" type="button" class="btn btn-default">
+    Click on the
+    <button data-bind="click: refreshTree" type="button" class="btn btn-xs btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
-    button to list all files on your board.
+    button to <strong>list all files</strong> on your board.
 </div>
 <!-- /ko -->
 <!-- ko if: files().length -->
@@ -73,7 +77,20 @@
             <a data-bind="click: onSelect, css: (active() ? 'active' : null) + ' ' + (enabled() ? '' : 'disabled') " href="#" class="list-group-item">
                 <i data-bind="css: icon"></i>
                 <span data-bind="text: text"></span>
-                <span data-bind="text: size" class="pull-right label label-info"></span>
+                <span class="pull-right">
+                    <span data-bind="text: size" class="label label-info"></span>
+                    <button data-bind="click: onEdit" type="button" class="btn btn-xs btn-default">
+                        <i class="fa fa-edit fa-fw"></i>
+                    </button>
+                    <button data-bind="click: onDownload" type="button" class="btn btn-xs btn-default">
+                        <!-- ko if: downloading -->
+                        <i class="fa fa-spinner fa-pulse fa-fw"></i>
+                        <!-- /ko -->
+                        <!-- ko ifnot: downloading -->
+                        <i class="fa fa-download fa-fw"></i>
+                        <!-- /ko -->
+                    </button>
+                </span>
             </a>
             <!-- /ko -->
         </div>
@@ -84,3 +101,6 @@
 
 {$board-files-upload.tpl}
 {$board-files-remove.tpl}
+{$board-files-edit.tpl}
+
+<!-- /ko -->
