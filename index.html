@@ -9,7 +9,7 @@
         <meta name="description" content="A SmoothieBoard network communication API">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=f090d76bab5f5817f3bc6376bf2b4ae5" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=e431a82f68ec3aa7f54618f7c888cbd8" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -294,37 +294,25 @@
         <!-- ko if: online -->
         <div>
             <!-- Nav tabs -->
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active">
-                    <a href="#board-jog-pane" aria-controls="board-jog-pane" role="tab" data-toggle="tab">
-                        <i class="text-primary fa fa-arrows-alt"></i> Jog
-                    </a>
-                </li>
-                <li role="presentation">
-                    <a href="#board-files-pane" aria-controls="board-files-pane" role="tab" data-toggle="tab">
-                        <i class="text-primary fa fa-folder-open"></i> Files
-                    </a>
-                </li>
-                <li role="presentation">
-                    <a href="#board-config-pane" aria-controls="board-config-pane" role="tab" data-toggle="tab">
-                        <i class="text-primary fa fa-cog"></i> Config
-                    </a>
-                </li>
-                <li role="presentation">
-                    <a href="#board-info-pane" aria-controls="board-info-pane" role="tab" data-toggle="tab">
-                        <i class="text-primary fa fa-question-circle-o"></i> Info
+            <!-- ko with: tabs -->
+            <ul data-bind="foreach: children" class="nav nav-tabs" role="tablist">
+                <li data-bind="css: active() ? 'active' : null" role="presentation">
+                    <a data-bind="click: select, attr: { href: id }" role="tab" data-toggle="tab">
+                        <i data-bind="css: icon" class="text-primary fa"></i>
+                        <span data-bind="text: title"></span>
                     </a>
                 </li>
             </ul>
+            <!-- /ko -->
             <!-- Tab panes -->
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="board-jog-pane">
+                <div data-bind="css: tabs.selected().id == '#board-jog-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-jog-pane">
                     <!-- ko with: jog -->
 
 <!-- ko if: locked -->
 <div class="alert alert-warning" role="alert">
     Click on the
-    <button data-bind="click: unlock" type="button" class="btn btn-xs btn-default">
+    <button data-bind="click: refreshPosition" type="button" class="btn btn-xs btn-default">
         <i class="fa fa-unlock-alt"></i> Unlock
     </button>
     button to <strong>start playing</strong> with your board.
@@ -332,81 +320,111 @@
 <!-- /ko -->
 
 <!-- ko ifnot: locked -->
-<!-- ko with: position -->
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3 class="panel-title">
-            <span class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-chevron-down"></i> <span data-bind="text: selected().command"></span> :
+<div class="btn-group" role="group">
+    <button data-bind="click: toggleLock" type="button" class="btn btn-default">
+        <i class="fa fa-lock"></i> Lock
+    </button>
+    <button data-bind="click: refreshPosition" type="button" class="btn btn-default">
+        <i class="fa fa-refresh"></i> Refresh
+    </button>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-chevron-down"></i> <span data-bind="text: selectedPosition"></span>
+        </button>
+        <ul data-bind="foreach: positions" class="dropdown-menu">
+            <li data-bind="css: $parent.selectedPosition() == command ? 'active' : null">
+                <a data-bind="click: $parent.selectPosition" href="#">
+                    <span data-bind="text: command"></span>
                 </a>
-                <span data-bind="text: selected().description" class="name truncate"></span>
-                <ul data-bind="foreach: values" class="dropdown-menu">
-                    <li>
-                        <a data-bind="click: select, css: $parent.selected() == $data ? 'active' : null" href="#">
-                            <span data-bind="text: command"></span>
-                        </a>
-                    </li>
-                    <li role="separator" class="divider"></li>
-                </ul>
-            </span>
-            <button data-bind="click: refreshPosition" type="button" class="btn btn-xs btn-default pull-right">
-                <i class="fa fa-refresh"></i> refresh
-            </button>
-        </h3>
+            </li>
+            <li role="separator" class="divider"></li>
+        </ul>
     </div>
-    <div class="panel-body">
-        <div data-bind="foreach: values">
-            <!-- ko if: $parent.selected() == $data -->
-            <div data-bind="foreach: axis">
-                <div class="form-group">
-                    <div class="input-group">
-                        <span data-bind="text: name" class="input-group-addon" style="font-family:monospace;font-weight:bold"></span>
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button">
-                                <i class="fa fa-home"></i>
-                            </button>
-                        </span>
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button">
-                                <i class="fa fa-minus"></i>
-                            </button>
-                        </span>
-                        <input data-bind="value: value" type="text" class="form-control">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button">
-                                <i class="fa fa-plus"></i>
-                            </button>
-                        </span>
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button">SET</button>
-                        </span>
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button">ZERO</button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <!-- /ko -->
-        </div>
+    <!-- ko with: terminal -->
+    <!-- ko ifnot: emptyQueue -->
+    <button data-bind="click: clearQueue" class="btn btn-default" type="button">
+        <i class="fa fa-fw fa-eraser"></i> Clear queue (<span data-bind="text: commands().length"></span>)
+    </button>
+    <!-- /ko -->
+    <!-- /ko -->
+</div>
+
+<hr />
+
+<div data-bind="foreach: positions">
+    <!-- ko if: $parent.selectedPosition() == $data.command -->
+    <h3 data-bind="text: description"></h3>
+    <div data-bind="foreach: axis">
         <div class="form-group">
-            <div class="btn-group">
-                <span class="btn-group-addon"><i class="fa fa-arrows-h"></i></span>
-                <!-- ko foreach: steps -->
-                <button data-bind="text: $data, css: $data == $parent.step() ? 'active' : null" class="btn btn-default" type="button"></button>
-                <!-- /ko -->
+            <div class="input-group">
+                <span data-bind="text: name" class="input-group-addon" style="width:39px;font-family:monospace;font-weight:bold"></span>
+                <span class="input-group-btn">
+                    <button data-bind="click: home" class="btn btn-default" type="button" title="Go to home">
+                        <i class="fa fa-home"></i>
+                    </button>
+                </span>
+                <div class="input-group-btn">
+                    <button data-bind="click: origin" class="btn btn-default" type="button" title="Go to origin">
+                        <i class="fa fa-bullseye" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <span class="input-group-btn">
+                    <button data-bind="click: decrement" class="btn btn-default" type="button">
+                        <i class="fa fa-minus"></i>
+                    </button>
+                </span>
+                <input data-bind="enable: terminal.emptyQueue, value: strValue" type="text" class="form-control">
+                <span class="input-group-btn">
+                    <button data-bind="click: increment" class="btn btn-default" type="button">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                </span>
+                <span class="input-group-btn">
+                    <button data-bind="enable: terminal.emptyQueue, click: set" class="btn btn-default" type="button" title="Set origin">SET ORIGIN</button>
+                </span>
+                <span class="input-group-btn">
+                    <button data-bind="click: zero" class="btn btn-default" type="button" title="Set zero">SET ZERO</button>
+                </span>
             </div>
+        </div>
+    </div>
+    <!-- /ko -->
+</div>
+
+<div class="form-group pull-left" style="margin-right:15px;">
+    <div class="btn-group">
+        <span class="btn-group-addon">X/Y/Z</span>
+        <div class="btn-group">
+            <button data-bind="click: home" class="btn btn-default" type="button" title="Go to home">
+                <i class="fa fa-home"></i>
+            </button>
+        </div>
+        <div class="btn-group">
+            <button data-bind="click: origin" class="btn btn-default" type="button" title="Go to origin">
+                <i class="fa fa-bullseye" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="btn-group">
+            <button data-bind="click: zero" class="btn btn-default" type="button" title="Set zero">SET ZERO</button>
         </div>
     </div>
 </div>
-<!-- /ko -->
+
+<div class="form-group pull-left">
+    <div class="btn-group">
+        <span class="btn-group-addon"><i class="fa fa-arrows-h"></i></span>
+        <!-- ko foreach: steps -->
+        <button data-bind="click: $parent.resolution, text: $data, css: $data == $parent.step() ? 'active' : null" class="btn btn-default" type="button"></button>
+        <!-- /ko -->
+    </div>
+</div>
 
 <!-- /ko -->
 
 <!-- /ko -->
 
                 </div>
-                <div role="tabpanel" class="tab-pane" id="board-files-pane">
+                <div data-bind="css: tabs.selected().id == '#board-files-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-files-pane">
                     <!-- ko with: files -->
 
 <!-- ko ifnot: waitTree -->
@@ -486,7 +504,20 @@
             <a data-bind="click: onSelect, css: (active() ? 'active' : null) + ' ' + (enabled() ? '' : 'disabled') " href="#" class="list-group-item">
                 <i data-bind="css: icon"></i>
                 <span data-bind="text: text"></span>
-                <span data-bind="text: size" class="pull-right label label-info"></span>
+                <span class="pull-right">
+                    <span data-bind="text: size" class="label label-info"></span>
+                    <button data-bind="click: onEdit" type="button" class="btn btn-xs btn-default">
+                        <i class="fa fa-edit fa-fw"></i>
+                    </button>
+                    <button data-bind="click: onDownload" type="button" class="btn btn-xs btn-default">
+                        <!-- ko if: downloading -->
+                        <i class="fa fa-spinner fa-pulse fa-fw"></i>
+                        <!-- /ko -->
+                        <!-- ko ifnot: downloading -->
+                        <i class="fa fa-download fa-fw"></i>
+                        <!-- /ko -->
+                    </button>
+                </span>
             </a>
             <!-- /ko -->
         </div>
@@ -647,11 +678,73 @@
     </div>
 </div><!-- #board-files-remove-modal -->
 
+<!-- ko with: openedFile -->
+<div id="board-files-edit-modal" class="modal fade full-screen" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="pull-right btn btn-sm btn-default" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-close"></i> Close
+                </button>
+                <h4 class="modal-title">
+                    <i class="fa fa-edit"></i> Edit file
+                </h4>
+            </div>
+            <div class="modal-body">
+                <pre id="openedFileContent" data-bind="text: raw" contenteditable="true"></pre>
+            </div>
+            <div class="modal-footer">
+                <button data-bind="click: onSave" type="button" class="btn btn-primary">
+                    <i class="fa fa-save"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div><!-- #board-files-edit-modal -->
+<!-- /ko -->
+
 
 <!-- /ko -->
 
                 </div>
-                <div role="tabpanel" class="tab-pane" id="board-config-pane">
+                <div data-bind="css: tabs.selected().id == '#board-terminal-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-terminal-pane">
+                    <!-- ko with: terminal -->
+<div class="btn-group">
+    <button data-bind="click: clear" class="btn btn-default" type="button">
+        <i class="fa fa-fw fa-eraser"></i> Clear logs
+    </button>
+    <button data-bind="click: toggleAutoscroll" class="btn btn-default" type="button">
+        <i class="fa fa-fw fa-sort-amount-asc"></i>
+        Autoscroll : <span data-bind="text: autoscroll() ? 'on' : 'off'"></span>
+    </button>
+    <!-- ko ifnot: emptyQueue -->
+    <button data-bind="click: clearQueue" class="btn btn-default" type="button">
+        <i class="fa fa-fw fa-eraser"></i> Clear queue (<span data-bind="text: commands().length"></span>)
+    </button>
+    <!-- /ko -->
+</div>
+<hr />
+<form data-bind="submit: send">
+    <div class="form-group">
+        <div class="input-group input-group-sm">
+            <input id="terminal-command-input" type="text" class="form-control" placeholder="Type your command here..." />
+            <span class="input-group-btn">
+                <button data-bind="click: send" class="btn btn-sm btn-default" type="button">
+                    <i class="fa fa-fw fa-send"></i> Send
+                </button>
+            </span>
+        </div>
+    </div>
+</form>
+<ul id="terminal-messages" data-bind="foreach: messages" class="terminal files-tree list-group">
+    <li data-bind="css: style" class="list-group-item">
+        <i data-bind="css: icon"></i> <span data-bind="html: message"></span>
+    </li>
+</ul>
+<!-- /ko -->
+
+                </div>
+                <div data-bind="css: tabs.selected().id == '#board-config-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-config-pane">
                     <!-- ko with: config -->
 
 <!-- ko ifnot: loading -->
@@ -699,7 +792,7 @@
 <!-- ko if: loading -->
 <div class="alert alert-info" role="alert">
     <i class="fa fa-spinner fa-pulse fa-fw"></i>
-    <strong>Please wait...</strong> Loading the configuration. Thanks to be patient, this can take some time (30-60 sec.).
+    <strong>Please wait...</strong> Loading the configuration. Thanks to be patient, this can take some time (1-5 sec.).
 </div>
 <!-- /ko -->
 
@@ -847,7 +940,7 @@
 <!-- /ko -->
 
                 </div>
-                <div role="tabpanel" class="tab-pane" id="board-info-pane">
+                <div data-bind="css: tabs.selected().id == '#board-info-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-info-pane">
                     <table class="table table-bordered">
     <tbody data-bind="with: info">
         <tr><th>Address</th><td><span data-bind="text: $parent.board.address"></span></td></tr>
@@ -894,8 +987,9 @@
         <script src="vendor/bootstrap/js/bootstrap.min.js?v=3.3.5"></script>
         <script src="vendor/bootstrap-notify.min.js?v=3.1.3"></script>
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
+        <script src="vendor/filesaver.min.js?v=1.3.2"></script>
         <script src="vendor/filesize.min.js?v=3.3.0"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=f090d76bab5f5817f3bc6376bf2b4ae5"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=f090d76bab5f5817f3bc6376bf2b4ae5"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=e431a82f68ec3aa7f54618f7c888cbd8"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=e431a82f68ec3aa7f54618f7c888cbd8"></script>
     </body>
 </html>

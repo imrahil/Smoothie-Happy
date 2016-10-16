@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    f090d76bab5f5817f3bc6376bf2b4ae5
-* @date     Thu, 13 Oct 2016 16:00:38 +0000
+* @build    e431a82f68ec3aa7f54618f7c888cbd8
+* @date     Sun, 16 Oct 2016 16:09:46 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -182,77 +182,234 @@ model.scanner = {
 };
 
 // -----------------------------------------------------------------------------
+// board model
+// -----------------------------------------------------------------------------
+
+var BoardTabModel = function(parent, tabs) {
+    // set initial state
+    this.parent = parent;
+    this.title  = tabs.title;
+    this.icon   = 'fa-' + tabs.icon;
+    this.active = ko.observable(tabs.active);
+    this.id     = '#board-' + tabs.title.toLowerCase() + '-pane';
+};
+
+BoardTabModel.prototype.select = function(tabModel, event) {
+    this.parent.select(tabModel);
+};
+
+var BoardTabsModel = function(parent, tabs, defaultTab) {
+    // set initial state
+    this.parent   = parent;
+    this.selected = ko.observable();
+    this.children = ko.observableArray();
+
+    // default tab
+    var selectedTab = defaultTab || tabs[0].title;
+
+    // init tabs children
+    for (var child, i = 0; i < tabs.length; i++) {
+        child = new BoardTabModel(this, tabs[i]);
+
+        if (child.active()) {
+            selectedTab = child.title;
+        }
+
+        this.children.push(child);
+    }
+
+    // select last selected or default
+    selectedTab = store.get('board.' + this.parent.board.address, {
+        selectedTab: selectedTab
+    }).selectedTab;
+
+    this.select(selectedTab);
+};
+
+BoardTabsModel.prototype.select = function(title) {
+    var children = this.children();
+
+    for (var child, i = 0; i < children.length; i++) {
+        child = children[i];
+
+        if (typeof title !== 'string') {
+            title = title.title;
+        }
+
+        child.active(child.title === title);
+
+        if (child.active()) {
+            this.selected(child);
+            store.merge('board.' + this.parent.board.address, {
+                selectedTab: title
+            });
+        }
+    }
+};
+
+// -----------------------------------------------------------------------------
 // board jog model
 // -----------------------------------------------------------------------------
 
-var JogPositionValuesModel = function(parent, values) {
+var JogPositionAxisModel = function(parent, axis) {
+    // set initial state
+    this.parent   = parent;
+    this.jogModel = parent.parent;
+    this.terminal = parent.terminal;
+    this.name     = axis.name;
+    this.value    = ko.observable();
+    this.strValue = ko.observable();
+
+    this.setValue(axis.value);
+};
+
+JogPositionAxisModel.prototype.setValue = function(value) {
+    var position = parseFloat(value);
+
+    if (isNaN(position)) {
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'Invalid' + this.name + ' axis position : ' + value
+        }, { type: 'danger' });
+        return false;
+    }
+
+    this.value(position);
+    this.strValue((position >= 0 ? '+' : '') + position.toFixed(4));
+
+    return true;
+};
+
+JogPositionAxisModel.prototype.send = function(command) {
+    this.jogModel.send(command);
+};
+
+JogPositionAxisModel.prototype.setPosition = function(value) {
+    if (this.setValue(value)) {
+        this.send('G92 ' + this.name + this.value());
+    }
+};
+
+JogPositionAxisModel.prototype.home = function(self, event) {
+    self.send('G28 ' + self.name);
+};
+
+JogPositionAxisModel.prototype.origin = function(self, event) {
+    self.send('G90 G0 ' + self.name + '0');
+};
+
+JogPositionAxisModel.prototype.increment = function(self, event) {
+    self.send('G91 G0 ' + self.name + self.parent.parent.step());
+};
+
+JogPositionAxisModel.prototype.decrement = function(self, event) {
+    self.send('G91 G0 ' + self.name + '-' + self.parent.parent.step());
+};
+
+JogPositionAxisModel.prototype.set = function(self, event) {
+    self.setPosition($(event.target).parent().parent().children('input').val());
+};
+
+JogPositionAxisModel.prototype.zero = function(self, event) {
+    self.setPosition(0);
+};
+
+var JogPositionModel = function(parent, position) {
     // self alias
     var self = this;
 
     // clone values
-    for (var prop in values) {
-        self[prop] = values[prop];
+    for (var prop in position) {
+        self[prop] = position[prop];
     }
 
     // set initial state
-    self.parent = parent;
-    self.axis   = [
-        { name: 'X', value: values.X },
-        { name: 'Y', value: values.Y },
-        { name: 'Z', value: values.Z }
+    self.parent   = parent;
+    self.terminal = parent.terminal;
+    self.axis     = [
+        new JogPositionAxisModel(self, { name: 'X', value: self.X }),
+        new JogPositionAxisModel(self, { name: 'Y', value: self.Y }),
+        new JogPositionAxisModel(self, { name: 'Z', value: self.Z })
     ];
 };
 
-JogPositionValuesModel.prototype.select = function(values, event) {
-    this.parent.selected(values);
-};
-
-var JogPositionModel = function(parent) {
+var JogModel = function(parent) {
     // self alias
     var self = this;
 
     // set initial state
     self.parent   = parent;
-    self.board    = parent.parent.board;
-    self.selected = ko.observable();
-    self.values   = ko.observableArray();
-    self.steps    = ko.observableArray([0.01, 0.1, 1, 10, 100]);
-    self.step     = ko.observable(1);
-};
+    self.board    = parent.board;
+    self.terminal = parent.terminal;
+    self.locked   = ko.observable(true);
 
-JogPositionModel.prototype.refreshPosition = function(jog, event) {
-    // self alias
-    var self = this;
+    self.positions        = ko.observableArray();
+    self.selectedPosition = ko.observable('M114');
 
-    // get positions
-    self.board.pos().then(function(event) {
-        var values = event.data.values;
+    // select last selected or default
+    var storeValue = store.get('board.' + self.board.address);
 
-        for (var i = 0; i < values.length; i++) {
-            values[i] = new JogPositionValuesModel(self, values[i]);
-        }
+    if (storeValue && storeValue.selectedPosition) {
+        self.selectedPosition(storeValue.selectedPosition);
+    }
 
-        self.values(values);
-        self.selected(values[0]);
-        self.parent.locked(false);
-    })
-    .catch(function(event) {
-        console.error('refreshPosition:', event.name, event);
-    })
-    .then(function(event) {
-        self.parent.parent.updateState();
+    // resolution
+    self.steps = ko.observableArray([0.01, 0.1, 1, 10, 100]);
+    self.step  = ko.observable(1);
+
+    self.resolution = function(step, event) {
+        self.step(parseFloat(event.target.innerHTML));
+    };
+
+    // register board events
+    self.board.on('pos', function(event) {
+        self.onPosition(event.data.values);
     });
 };
 
-var JogModel = function(parent) {
-    // set initial state
-    this.parent   = parent;
-    this.locked   = ko.observable(true);
-    this.position = new JogPositionModel(this);
+JogModel.prototype.onPosition = function(positions) {
+    for (var i = 0; i < positions.length; i++) {
+        positions[i] = new JogPositionModel(this, positions[i]);
+    }
+
+    this.positions(positions);
+    this.locked(false);
 };
 
-JogModel.prototype.unlock = function(jog, event) {
-    this.position.refreshPosition();
+JogModel.prototype.selectPosition = function(positionModel, event) {
+    positionModel.parent.selectedPosition(positionModel.command);
+    store.merge('board.' + positionModel.parent.board.address, {
+        selectedPosition: positionModel.command
+    });
+};
+
+JogModel.prototype.refreshPosition = function(self, event) {
+    this.terminal.pushCommand(['pos', 0]);
+};
+
+JogModel.prototype.toggleLock = function(self, event) {
+    this.locked(!this.locked());
+};
+
+JogModel.prototype.send = function(command) {
+    var self = this;
+    self.terminal.pushCommand(command, {
+        allways: function(event) {
+            self.refreshPosition();
+        }
+    });
+};
+
+JogModel.prototype.home = function(self, event) {
+    self.send('G28 X Y Z');
+};
+
+JogModel.prototype.zero = function(self, event) {
+    self.send('G92 X0 Y0 Z0');
+};
+
+JogModel.prototype.origin = function(self, event) {
+    self.send('G90 G0 X0 Y0 Z0');
 };
 
 // -----------------------------------------------------------------------------
@@ -270,6 +427,7 @@ var FileModel = function(node, parent) {
 
     // set parent model
     self.parent = parent;
+    self.board  = parent.parent.board;
 
     // set parents paths
     self.parents = self.root ? self.root.split('/') : [];
@@ -285,6 +443,11 @@ var FileModel = function(node, parent) {
     self.active  = ko.observable(node.active == undefined ? false : true);
     self.visible = ko.observable(node.visible == undefined ? true : false);
     self.enabled = ko.observable(node.enabled == undefined ? true : false);
+
+    self.raw         = ko.observable();
+    self.blob        = ko.observable();
+    self.uploading   = ko.observable(false);
+    self.downloading = ko.observable(false);
 
     // node text
     self.text = ko.pureComputed(function() {
@@ -386,11 +549,102 @@ FileModel.prototype.select = function(selected) {
     }
 };
 
+FileModel.prototype.download = function() {
+    // self alias
+    var self = this;
+
+    if (self.downloading()) {
+        return;
+    }
+
+    // command
+    var settings = {
+        url    : 'http://' + self.board.address + self.path,
+        xhr    : { responseType: 'blob' },
+        timeout: 0
+    };
+
+    // set downloading flag
+    self.downloading(true);
+    self.blob(null);
+
+    // send the command (promise)
+    return sh.network.get(settings).then(function(event) {
+        // file as Blob object
+        self.blob(event.response.raw);
+
+        // forward event
+        return event;
+    })
+    .catch(function(event) {
+        // notify user
+        $.notify({
+            icon: 'fa fa-warning',
+            message: 'An error occurred when downloading : ' + self.name
+        }, { type: 'danger' });
+
+        // forward event
+        return event;
+    })
+    .then(function(event) {
+        // in any case...
+        self.downloading(false);
+
+        // forward event
+        return event;
+    });
+};
+
 FileModel.prototype.onSelect = function(selectedNode, event) {
     // toggle state
     this.select(! this.active());
 };
 
+FileModel.prototype.onEdit = function(selectedNode, event) {
+    // self alias
+    var self = this;
+
+    // stop event propagation
+    event.stopPropagation();
+
+    // download file
+    selectedNode.download().then(function(event) {
+        var blob = selectedNode.blob();
+
+        if (blob) {
+            var reader = new FileReader();
+
+            reader.addEventListener("loadend", function(event) {
+                selectedNode.raw(reader.result);
+                self.parent.openedFile(selectedNode);
+                $('#board-files-edit-modal').modal('show');
+            });
+
+            reader.readAsText(blob);
+        }
+    });
+};
+
+FileModel.prototype.onDownload = function(selectedNode, event) {
+    // stop event propagation
+    event.stopPropagation();
+
+    // download file
+    selectedNode.download().then(function(event) {
+        var blob = selectedNode.blob();
+
+        if (blob) {
+            saveAs(blob, selectedNode.name);
+        }
+    });
+};
+
+FileModel.prototype.onSave = function(selectedNode, event) {
+    var blob = new Blob([$('#openedFileContent')[0].innerText]);
+    this.parent.upload.addFile(blob, selectedNode.path);
+    $('#board-files-edit-modal').modal('hide');
+    this.parent.openUploadModal();
+};
 
 var FilesModel = function(parent) {
     // self alias
@@ -398,12 +652,15 @@ var FilesModel = function(parent) {
 
     // set initial state
     self.parent         = parent;
+    self.board          = parent.board;
+    self.terminal       = parent.terminal;
     self.files          = ko.observableArray();
     self.folders        = ko.observableArray();
     self.selectedFolder = ko.observable();
     self.selectedFiles  = ko.observableArray();
     self.waitTree       = ko.observable(false);
     self.waitRemove     = ko.observable(false);
+    self.openedFile     = ko.observable();
 
     self.upload = new FilesUploadModel(self);
 
@@ -482,16 +739,17 @@ FilesModel.prototype.refreshTree = function(board, event) {
     // empty tree
     var tree = [];
 
-    // get all files or folders
-    self.parent.board.lsAll('/').then(function(event) {
-        tree = event.data;
-    })
-    .catch(function(event) {
-        console.error('refreshTree:', event.name, event);
-    })
-    .then(function(event) {
-        self.resetTree(tree);
-        self.parent.updateState();
+    this.terminal.pushCommand(['lsAll', '/', 0], {
+        done: function(event) {
+            tree = event.data;
+        },
+        error: function(event) {
+            console.error('refreshTree:', event.name, event);
+        },
+        allways: function(event) {
+            self.resetTree(tree);
+            self.parent.updateState();
+        }
     });
 };
 
@@ -585,9 +843,19 @@ var FilesUploadModel = function(parent) {
     };
 };
 
-FilesUploadModel.prototype.addFile = function(file) {
-    var root = this.parent.selectedFolder();
-    var path = root + '/' + file.name;
+FilesUploadModel.prototype.addFile = function(file, path) {
+    var root = '/sd';
+
+    if (path) {
+        root      = path.split('/');
+        file.name = root.pop();
+        root      = root.join('/');
+    }
+    else {
+        root = this.parent.selectedFolder();
+    }
+
+    path = root + '/' + file.name;
 
     // test if file exists
     var exists = false;
@@ -675,7 +943,8 @@ FilesUploadModel.prototype._processQueue = function() {
         }
 
         // set node visibility
-        node.visible(self.parent.selectedFolder() == file.root);
+        var cwd = self.parent.selectedFolder();
+        node.visible(cwd == '/' || cwd == file.root);
 
         // move the file ?
         if (move) {
@@ -718,6 +987,177 @@ FilesUploadModel.prototype.start = function() {
 FilesUploadModel.prototype.abort = function() {
     // unset uploading flag
     this.uploading(false);
+};
+
+// -----------------------------------------------------------------------------
+// board terminal model
+// -----------------------------------------------------------------------------
+
+var TerminalMessageModel = function(type, message) {
+    this.type    = type;
+    this.message = message;
+    this.style   = 'default';
+    this.icon    = 'comment-o';
+
+    // icon/style from type
+    if (type == 'input') {
+        this.icon = 'sign-in';
+    }
+    else if (type == 'output') {
+        this.style = 'highlight';
+        this.icon  = 'sign-out fa-rotate-180';
+    }
+    else if (type == 'info') {
+        this.style = 'info';
+        this.icon  = 'info-circle';
+    }
+    else if (type == 'warning') {
+        this.style = 'warning';
+        this.icon  = 'exclamation-circle';
+    }
+    else if (type == 'error') {
+        this.style = 'danger';
+        this.icon  = 'exclamation-triangle';
+    }
+    else if (type == 'success') {
+        this.style = 'success';
+        this.icon  = 'thumbs-o-up';
+    }
+
+    this.style = 'list-group-item-' + this.style;
+    this.icon  = 'fa fa-fw fa-' + this.icon;
+};
+
+var TerminalModel = function(parent) {
+    // self alias
+    var self = this;
+
+    // set parent model
+    self.parent       = parent;
+    self.board        = parent.board;
+    self.autoscroll   = ko.observable(true);
+    self.messages     = ko.observableArray();
+    self.commands     = ko.observableArray();
+    self.waitResponse = ko.observable(false);
+
+    self.emptyQueue = ko.computed(function() {
+        return ! self.commands().length;
+    });
+
+    self.board.on('command', function(event) {
+        self.pushMessage('output', event.data);
+    })
+    .on('response', function(event) {
+        var message = event.originalEvent.response.raw.replace(/\n/g, '<br />');
+        self.pushMessage('input', message);
+    })
+    .on('error', function(event) {
+        self.pushMessage('error', event.data);
+    });
+};
+
+TerminalModel.prototype.pushMessage = function(type, message) {
+    this.messages.push(new TerminalMessageModel(type, message));
+
+    if (this.autoscroll()) {
+        var messages = $('#terminal-messages')[0];
+        if (messages) {
+            messages.scrollTop = messages.scrollHeight;
+        }
+    }
+};
+
+TerminalModel.prototype._processCommands = function() {
+    // self alias
+    var self = this;
+
+    // waiting response...
+    if (self.waitResponse()) {
+        return;
+    }
+
+    // commands queue empty
+    if (! self.commands().length) {
+        self.waitResponse(false);
+        return;
+    }
+
+    // set waiting response flag
+    self.waitResponse(true);
+
+    // get oldest command
+    var options = self.commands()[0];
+    var command = options.command;
+
+    if (typeof command !== 'string') {
+        var name = command.shift();
+        command = self.board[name].apply(self.board, command);
+    }
+    else {
+        command = self.board.command(command, 0);
+    }
+
+    // send the command
+    command.then(function(event) {
+        if (options.done) {
+            options.done(event);
+        }
+        return event;
+    })
+    .catch(function(event) {
+        if (options.error) {
+            options.error(event);
+        }
+        else {
+            console.error(event);
+        }
+        return event;
+    })
+    .then(function(event) {
+        // in any case...
+        if (options.allways) {
+            options.allways(event);
+        }
+        self.commands.shift();
+        self.waitResponse(false);
+        self._processCommands();
+        self.parent.updateState();
+    });
+};
+
+TerminalModel.prototype.pushCommand = function(command, options) {
+    options = options || {};
+    options.command = command;
+    this.commands.push(options);
+    this._processCommands();
+};
+
+TerminalModel.prototype.send = function(terminal, event) {
+    // get command
+    var $input  = $('#terminal-command-input');
+    var command = $input.val().trim();
+
+    if (! command.length) {
+        return;
+    }
+
+    // reset input value
+    $input.val('');
+
+    // add command
+    this.pushCommand(command);
+};
+
+TerminalModel.prototype.clear = function(terminal, event) {
+    this.messages.removeAll();
+};
+
+TerminalModel.prototype.toggleAutoscroll = function(terminal, event) {
+    this.autoscroll(! this.autoscroll());
+};
+
+TerminalModel.prototype.clearQueue = function(terminal, event) {
+    this.commands.removeAll();
 };
 
 // -----------------------------------------------------------------------------
@@ -816,6 +1256,17 @@ var ConfigModel = function(parent) {
     self.editableSourceModified = ko.pureComputed(function() {
         return self.source() !== self.editedSource();
     });
+
+    // ...
+    self.txtFirst = false;
+
+    var storeValue = store.get('board.' + self.parent.board.address, {
+        config: { txtFirst: self.txtFirst }
+    });
+
+    if (storeValue && storeValue.config) {
+        self.txtFirst = storeValue.config.txtFirst;
+    }
 };
 
 ConfigModel.prototype.setSource = function(source) {
@@ -890,7 +1341,11 @@ ConfigModel.prototype.refresh = function(config, event) {
     self.loading(true);
 
     // get board config
-    self.parent.board.config().then(function(event) {
+    self.parent.board.config(self.txtFirst).then(function(event) {
+        self.txtFirst = event.data.filename() === 'config.txt';
+        store.merge('board.' + event.board.address, {
+            config: { txtFirst: self.txtFirst }
+        });
         self.load(event.data);
     })
     .catch(function(event) {
@@ -985,7 +1440,7 @@ ConfigModel.prototype.applySourceChange = function(config, event) {
         if (! oldItems) {
             continue;
         }
-        
+
         newItems = newConfig.hasItems(name);
 
         for (var j = 0, jl = oldItems.length; j < jl; j++) {
@@ -1027,9 +1482,18 @@ var BoardModel = function(board) {
     self.waitConnect = ko.observable(false);
     self.waitLookup  = ko.observable(false);
 
-    self.jog    = new JogModel(self);
-    self.files  = new FilesModel(self);
-    self.config = new ConfigModel(self);
+    self.tabs = new BoardTabsModel(self, [
+        { title: 'Jog'     , icon: 'arrows-alt' , active: true  },
+        { title: 'Files'   , icon: 'folder-open', active: false },
+        { title: 'Terminal', icon: 'terminal'   , active: false },
+        { title: 'Config'  , icon: 'config'     , active: false },
+        { title: 'Info'    , icon: 'info'       , active: false }
+    ], 'Jog');
+
+    self.terminal = new TerminalModel(self);
+    self.jog      = new JogModel(self);
+    self.files    = new FilesModel(self);
+    self.config   = new ConfigModel(self);
 
     // get board tooltip text
     self.tooltip = ko.pureComputed(function() {

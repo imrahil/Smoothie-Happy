@@ -4,6 +4,10 @@
     margin-top: 65px;
 }
 
+h3 {
+    margin-top: 0;
+}
+
 *[class^='xdebug-'] {
     position: relative;
     z-index: 9999;
@@ -34,6 +38,21 @@ textarea {
     max-width: 100%;
     min-width: 100%;
     font-family: monospace;
+}
+
+/* full screen modal */
+
+.modal.full-screen .modal-dialog {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.modal.full-screen .modal-content {
+    height: auto;
+    min-height: 100%;
+    border-radius: 0;
 }
 
 /* navbar */
@@ -247,10 +266,6 @@ textarea {
 
 /* board: files */
 
-#board-files-pane h3 {
-    margin-top: 0;
-}
-
 #board .files-tree.list-group {
     overflow-y: auto;
     max-height: 250px;
@@ -276,6 +291,20 @@ textarea {
 
 #board .files-tree.list-group .list-group-item:last-child {
     border-bottom: 0;
+}
+
+/* terminal */
+
+#board .files-tree.list-group.terminal {
+    height: 250px;
+    min-height: 250px;
+    max-height: none;
+    resize: vertical;
+    font-family: monospace;
+}
+
+.list-group-item-highlight {
+    background-color: #eee;
 }
 
 /* upload */
