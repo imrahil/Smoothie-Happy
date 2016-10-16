@@ -12,6 +12,7 @@
 {$store.js}
 {$model.js}
 {$scanner.js}
+{$board-tabs.js}
 {$board-jog.js}
 {$board-files.js}
 {$board-files-upload.js}

@@ -22,6 +22,14 @@ var BoardModel = function(board) {
     self.waitConnect = ko.observable(false);
     self.waitLookup  = ko.observable(false);
 
+    self.tabs = new BoardTabsModel(self, [
+        { title: 'Jog'     , icon: 'arrows-alt' , active: true  },
+        { title: 'Files'   , icon: 'folder-open', active: false },
+        { title: 'Terminal', icon: 'terminal'   , active: false },
+        { title: 'Config'  , icon: 'config'     , active: false },
+        { title: 'Info'    , icon: 'info'       , active: false }
+    ], 'Jog');
+
     self.terminal = new TerminalModel(self);
     self.jog      = new JogModel(self);
     self.files    = new FilesModel(self);
