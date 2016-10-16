@@ -49,6 +49,10 @@ var TerminalModel = function(parent) {
     self.commands     = ko.observableArray();
     self.waitResponse = ko.observable(false);
 
+    self.emptyQueue = ko.computed(function() {
+        return ! self.commands().length;
+    });
+
     self.board.on('command', function(event) {
         self.pushMessage('output', event.data);
     })

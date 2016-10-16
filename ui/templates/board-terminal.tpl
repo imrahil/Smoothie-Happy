@@ -7,7 +7,7 @@
         <i class="fa fa-fw fa-sort-amount-asc"></i>
         Autoscroll : <span data-bind="text: autoscroll() ? 'on' : 'off'"></span>
     </button>
-    <!-- ko if: commands().length -->
+    <!-- ko ifnot: emptyQueue -->
     <button data-bind="click: clearQueue" class="btn btn-default" type="button">
         <i class="fa fa-fw fa-eraser"></i> Clear queue (<span data-bind="text: commands().length"></span>)
     </button>

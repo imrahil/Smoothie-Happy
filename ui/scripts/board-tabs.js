@@ -59,7 +59,7 @@ BoardTabsModel.prototype.select = function(title) {
             this.selected(child);
             store.merge('board.' + this.parent.board.address, {
                 selectedTab: title
-            })
+            });
         }
     }
 };
