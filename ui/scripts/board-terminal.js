@@ -160,3 +160,7 @@ TerminalModel.prototype.clear = function(terminal, event) {
 TerminalModel.prototype.toggleAutoscroll = function(terminal, event) {
     this.autoscroll(! this.autoscroll());
 };
+
+TerminalModel.prototype.clearQueue = function(terminal, event) {
+    this.commands.removeAll();
+};
