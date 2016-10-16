@@ -18,6 +18,7 @@
                     <a class="navbar-brand" href="#">{$name} <sup>(v{$version})</sup></a>
                 </div>
                 <ul class="nav navbar-nav navbar-right">
+                    <li><a href="https://www.paypal.me/skarab" target="_blank">Beer fund :)</a></li>
                     <li><a href="docs/smoothie-happy/{$version}/" target="_blank">Docs</a></li>
                     <li><a href="https://github.com/lautr3k/Smoothie-Happy" target="_blank">GitHub</a></li>
                 </ul>
