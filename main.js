@@ -2,8 +2,8 @@
 * Smoothie-Happy (UI) - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    e431a82f68ec3aa7f54618f7c888cbd8
-* @date     Sun, 16 Oct 2016 16:09:46 +0000
+* @build    40f9187abfaceb0661d08b6379e6f5a9
+* @date     Sun, 16 Oct 2016 16:52:35 +0000
 * @version  0.2.0-dev
 * @license  MIT
 */
@@ -1631,6 +1631,7 @@ model.boards = {
     knownAddresses   : ko.observableArray(),
     autoloadAddresses: ko.observableArray(),
     selectedBoard    : ko.observable(),
+    fullScreen       : ko.observable(store.get('fullScreen', false)),
 
     autoloadProgression: ko.pureComputed(function() {
         return model.boards.knownAddresses().length
@@ -1686,6 +1687,12 @@ model.boards = {
     selectBoard: function(boardModel, event) {
         store.set('boards.selected', boardModel.board.address);
         model.boards.selectedBoard(boardModel);
+    },
+
+    toggleFullScreen: function(boardModel, event) {
+        var fullScreen = ! boardModel.fullScreen();
+        store.set('fullScreen', fullScreen);
+        boardModel.fullScreen(fullScreen);
     }
 };
 

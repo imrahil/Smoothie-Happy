@@ -7,6 +7,7 @@ model.boards = {
     knownAddresses   : ko.observableArray(),
     autoloadAddresses: ko.observableArray(),
     selectedBoard    : ko.observable(),
+    fullScreen       : ko.observable(store.get('fullScreen', false)),
 
     autoloadProgression: ko.pureComputed(function() {
         return model.boards.knownAddresses().length
@@ -62,5 +63,11 @@ model.boards = {
     selectBoard: function(boardModel, event) {
         store.set('boards.selected', boardModel.board.address);
         model.boards.selectedBoard(boardModel);
+    },
+
+    toggleFullScreen: function(boardModel, event) {
+        var fullScreen = ! boardModel.fullScreen();
+        store.set('fullScreen', fullScreen);
+        boardModel.fullScreen(fullScreen);
     }
 };

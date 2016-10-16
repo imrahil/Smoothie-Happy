@@ -9,7 +9,7 @@
         <meta name="description" content="A SmoothieBoard network communication API">
         <link rel="stylesheet" type="text/css" href="vendor/font-awesome/css/font-awesome.min.css?v=4.6.3" />
         <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css?v=3.3.5" />
-        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=e431a82f68ec3aa7f54618f7c888cbd8" />
+        <link rel="stylesheet" type="text/css" href="style.css?v=0.2.0-dev&amp;b=40f9187abfaceb0661d08b6379e6f5a9" />
     </head>
     <body id="smoothie-happy">
         <nav id="navbar" class="navbar navbar-inverse navbar-fixed-top">
@@ -23,6 +23,749 @@
                 </ul>
             </div>
         </nav>
+        <!-- ko if: boards.fullScreen() -->
+        <div id="body" class="full-screen">
+            <div id="board" data-bind="with: boards" class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <span class="dropdown">
+                <a href="#" class="dropdown-toggle" id="drop1" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-chevron-down"></i> Boards
+                </a>
+                <!-- ko if: selectedBoard -->
+                <!-- ko with: selectedBoard -->
+                : <i data-bind="css: online() ? (connected() ? 'text-success' : 'text-danger') : ''" class="fa fa-fw fa-rocket"></i>
+                <span data-bind="text: name" class="name truncate"></span>
+                <!-- /ko -->
+                <!-- /ko -->
+                <!-- ko if: knownBoards().length -->
+                <ul data-bind="foreach: { data: knownBoards }" class="dropdown-menu" aria-labelledby="drop1">
+                    <li>
+                        <a data-bind="click: $parent.selectBoard" href="#">
+                            <i data-bind="css: online() ? (connected() ? 'text-success' : 'text-danger') : ''" class="fa fa-fw fa-rocket"></i>
+                            <span data-bind="text: name"></span>
+                        </a>
+                    </li>
+                    <li role="separator" class="divider"></li>
+                </ul>
+                <!-- /ko -->
+            </span>
+            <a class="pull-right" role="button" data-toggle="modal" data-target="#board-help">
+                <i class="text-primary fa fa-fw fa-question-circle-o"></i>
+            </a>
+            <a data-bind="click: toggleFullScreen" class="pull-right" role="button">
+                <i class="text-primary fa fa-fw fa-arrows-alt"></i>
+            </a>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <!-- ko if: knownBoards().length && !selectedBoard() -->
+        <div class="alert alert-warning" role="alert">
+            <strong>No board selected!</strong> Please select a board to play with.
+        </div>
+        <!-- /ko -->
+        <!-- ko if: selectedBoard -->
+        <!-- ko with: selectedBoard -->
+        <!-- ko ifnot: online -->
+        <div class="alert alert-warning" role="alert">
+    <strong>Oups!</strong> This board seems to be offline. Please, click ont the
+    <button data-bind="disable: waitLookup, click: lookup" type="button" class="btn btn-xs btn-warning" data-dismiss="modal">
+        <i class="fa fa-search"></i> Lookup
+    </button> button to try to reach it.
+</div>
+
+        <!-- /ko -->
+        <!-- ko if: online -->
+        <div>
+            <!-- Nav tabs -->
+            <!-- ko with: tabs -->
+            <ul data-bind="foreach: children" class="nav nav-tabs" role="tablist">
+                <li data-bind="css: active() ? 'active' : null" role="presentation">
+                    <a data-bind="click: select, attr: { href: id }" role="tab" data-toggle="tab">
+                        <i data-bind="css: icon" class="text-primary fa"></i>
+                        <span data-bind="text: title"></span>
+                    </a>
+                </li>
+            </ul>
+            <!-- /ko -->
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div data-bind="css: tabs.selected().id == '#board-jog-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-jog-pane">
+                    <!-- ko with: jog -->
+
+<!-- ko if: locked -->
+<div class="alert alert-warning" role="alert">
+    Click on the
+    <button data-bind="click: refreshPosition" type="button" class="btn btn-xs btn-default">
+        <i class="fa fa-unlock-alt"></i> Unlock
+    </button>
+    button to <strong>start playing</strong> with your board.
+</div>
+<!-- /ko -->
+
+<!-- ko ifnot: locked -->
+<div class="btn-group" role="group">
+    <button data-bind="click: toggleLock" type="button" class="btn btn-default">
+        <i class="fa fa-lock"></i> Lock
+    </button>
+    <button data-bind="click: refreshPosition" type="button" class="btn btn-default">
+        <i class="fa fa-refresh"></i> Refresh
+    </button>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-chevron-down"></i> <span data-bind="text: selectedPosition"></span>
+        </button>
+        <ul data-bind="foreach: positions" class="dropdown-menu">
+            <li data-bind="css: $parent.selectedPosition() == command ? 'active' : null">
+                <a data-bind="click: $parent.selectPosition" href="#">
+                    <span data-bind="text: command"></span>
+                </a>
+            </li>
+            <li role="separator" class="divider"></li>
+        </ul>
+    </div>
+    <!-- ko with: terminal -->
+    <!-- ko ifnot: emptyQueue -->
+    <button data-bind="click: clearQueue" class="btn btn-default" type="button">
+        <i class="fa fa-fw fa-eraser"></i> Clear queue (<span data-bind="text: commands().length"></span>)
+    </button>
+    <!-- /ko -->
+    <!-- /ko -->
+</div>
+
+<hr />
+
+<div data-bind="foreach: positions">
+    <!-- ko if: $parent.selectedPosition() == $data.command -->
+    <h3 data-bind="text: description"></h3>
+    <div data-bind="foreach: axis">
+        <div class="form-group">
+            <div class="input-group">
+                <span data-bind="text: name" class="input-group-addon" style="width:39px;font-family:monospace;font-weight:bold"></span>
+                <span class="input-group-btn">
+                    <button data-bind="click: home" class="btn btn-default" type="button" title="Go to home">
+                        <i class="fa fa-home"></i>
+                    </button>
+                </span>
+                <div class="input-group-btn">
+                    <button data-bind="click: origin" class="btn btn-default" type="button" title="Go to origin">
+                        <i class="fa fa-bullseye" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <span class="input-group-btn">
+                    <button data-bind="click: decrement" class="btn btn-default" type="button">
+                        <i class="fa fa-minus"></i>
+                    </button>
+                </span>
+                <input data-bind="enable: terminal.emptyQueue, value: strValue" type="text" class="form-control">
+                <span class="input-group-btn">
+                    <button data-bind="click: increment" class="btn btn-default" type="button">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                </span>
+                <span class="input-group-btn">
+                    <button data-bind="enable: terminal.emptyQueue, click: set" class="btn btn-default" type="button" title="Set origin">SET ORIGIN</button>
+                </span>
+                <span class="input-group-btn">
+                    <button data-bind="click: zero" class="btn btn-default" type="button" title="Set zero">SET ZERO</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <!-- /ko -->
+</div>
+
+<div class="form-group pull-left" style="margin-right:15px;">
+    <div class="btn-group">
+        <span class="btn-group-addon">X/Y/Z</span>
+        <div class="btn-group">
+            <button data-bind="click: home" class="btn btn-default" type="button" title="Go to home">
+                <i class="fa fa-home"></i>
+            </button>
+        </div>
+        <div class="btn-group">
+            <button data-bind="click: origin" class="btn btn-default" type="button" title="Go to origin">
+                <i class="fa fa-bullseye" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div class="btn-group">
+            <button data-bind="click: zero" class="btn btn-default" type="button" title="Set zero">SET ZERO</button>
+        </div>
+    </div>
+</div>
+
+<div class="form-group pull-left">
+    <div class="btn-group">
+        <span class="btn-group-addon"><i class="fa fa-arrows-h"></i></span>
+        <!-- ko foreach: steps -->
+        <button data-bind="click: $parent.resolution, text: $data, css: $data == $parent.step() ? 'active' : null" class="btn btn-default" type="button"></button>
+        <!-- /ko -->
+    </div>
+</div>
+
+<!-- /ko -->
+
+<!-- /ko -->
+
+                </div>
+                <div data-bind="css: tabs.selected().id == '#board-files-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-files-pane">
+                    <!-- ko with: files -->
+
+<!-- ko ifnot: waitTree -->
+<!-- ko if: files().length -->
+<div class="btn-group" role="group">
+    <button data-bind="click: refreshTree" type="button" class="btn btn-default">
+        <i class="fa fa-refresh"></i> Refresh
+    </button>
+    <!-- ko if: uploadEnabled -->
+    <button data-bind="click: openUploadModal" type="button" class="btn btn-default">
+        <i class="fa fa-upload"></i> Upload
+        <!-- ko if: upload.queue().length -->
+        (<span data-bind="text: upload.queue().length"></span>)
+        <!-- /ko -->
+    </button>
+    <!-- /ko -->
+    <!-- ko if: selectedFiles().length -->
+    <button data-bind="click: openRemoveFilesModal" type="button" class="btn btn-default">
+        <i class="fa fa-trash"></i> Remove (<span data-bind="text: selectedFiles().length"></span>)
+    </button>
+    <!-- /ko -->
+</div>
+
+<hr />
+<!-- /ko -->
+<!-- /ko -->
+
+<!-- ko if: waitTree -->
+<div class="alert alert-info" role="alert">
+    <i class="fa fa-spinner fa-pulse fa-fw"></i>
+    <strong>Please wait...</strong> Loading the file tree. Thanks to be patient, this can take some time (2-30 sec.).
+</div>
+<!-- /ko -->
+
+<!-- ko ifnot: waitTree -->
+<!-- ko ifnot: files().length -->
+<div class="alert alert-warning" role="alert">
+    Click on the
+    <button data-bind="click: refreshTree" type="button" class="btn btn-xs btn-default">
+        <i class="fa fa-refresh"></i> Refresh
+    </button>
+    button to <strong>list all files</strong> on your board.
+</div>
+<!-- /ko -->
+<!-- ko if: files().length -->
+<div class="row">
+    <div class="col-xs-12 col-md-4">
+        <h3>Folders</h3>
+        <div id="board-folders" data-bind="foreach: folders" class="files-tree list-group">
+            <a data-bind="click: onSelect, css: active() ? 'active' : null" href="#" class="list-group-item">
+                <!-- ko if: path == '/' -->
+                <i class="fa fa-eye"></i> <span>View all files</span>
+                <!-- /ko -->
+                <!-- ko ifnot: path == '/' -->
+                <!-- ko if: parents.length -->
+                <span data-bind="foreach: parents">
+                    <span class="indent"></span>
+                </span>
+                <!-- /ko -->
+                <i data-bind="css: icon"></i> <span data-bind="text: name"></span>
+                <span data-bind="text: size" class="pull-right label label-info"></span>
+                <!-- /ko -->
+            </a>
+        </div>
+    </div>
+    <div class="col-xs-12 col-md-8">
+        <h3>
+            <!-- ko if: selectedFolder() == '/' -->
+            <i class="fa fa-eye"></i> <span>All files on the board</span>
+            <!-- /ko -->
+            <!-- ko ifnot: selectedFolder() == '/' -->
+            <i class="fa fa-folder-open-o"></i> <span data-bind="text: selectedFolder"></span>
+            <!-- /ko -->
+        </h3>
+        <div id="board-files" data-bind="foreach: files" class="files-tree list-group">
+            <!-- ko if: visible -->
+            <a data-bind="click: onSelect, css: (active() ? 'active' : null) + ' ' + (enabled() ? '' : 'disabled') " href="#" class="list-group-item">
+                <i data-bind="css: icon"></i>
+                <span data-bind="text: text"></span>
+                <span class="pull-right">
+                    <span data-bind="text: size" class="label label-info"></span>
+                    <button data-bind="click: onEdit" type="button" class="btn btn-xs btn-default">
+                        <i class="fa fa-edit fa-fw"></i>
+                    </button>
+                    <button data-bind="click: onDownload" type="button" class="btn btn-xs btn-default">
+                        <!-- ko if: downloading -->
+                        <i class="fa fa-spinner fa-pulse fa-fw"></i>
+                        <!-- /ko -->
+                        <!-- ko ifnot: downloading -->
+                        <i class="fa fa-download fa-fw"></i>
+                        <!-- /ko -->
+                    </button>
+                </span>
+            </a>
+            <!-- /ko -->
+        </div>
+    </div>
+</div>
+<!-- /ko -->
+<!-- /ko -->
+
+<div data-bind="with: upload" id="board-files-upload-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="pull-right btn btn-sm btn-default" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-close"></i> Close
+                </button>
+                <h4 class="modal-title">
+                    <i class="fa fa-upload"></i> File upload
+                </h4>
+            </div>
+            <div class="modal-body">
+                <!-- ko ifnot: queue().length -->
+                <div class="alert alert-info" role="alert">
+                    <strong>Upload queue empty!</strong>
+                    <p>
+                        Please click on the
+                        <span class="btn btn-xs btn-default btn-file">
+                            <i class="fa fa-plus"></i> Add files <input data-bind="event: { change: onAddFiles }" type="file" multiple />
+                        </span> button ton select some files to upload.
+                    </p>
+                </div>
+                <!-- /ko -->
+                <!-- ko if: queue().length -->
+                The following files will be uploaded :
+                <!-- /ko -->
+                <ul data-bind="foreach: queue" class="list-group">
+                    <li class="list-group-item">
+                        <div class="clearfix">
+                            <i data-bind="css: icon"></i>
+                            <span class="filename truncate">
+                                <span data-bind="text: root"></span>/<strong data-bind="text: name"></strong>
+                            </span>
+                            <span class="pull-right">
+                                <!-- ko if: exists -->
+                                <span class="label label-warning">EXISTS</span>
+                                <!-- /ko -->
+                                <span data-bind="text: size" class="label label-info"></span>
+                                <!-- ko ifnot: percent -->
+                                <button data-bind="click: $parent.removeFile" type="button" class="btn btn-xs btn-danger">
+                                    <i class="fa fa-close"></i>
+                                </button>
+                                <!-- /ko -->
+                            </span>
+                        </div>
+                        <!-- ko if: percent -->
+                        <div class="progress">
+                            <div data-bind="style: { width: percent }" class="progress-bar progress-bar-success progress-bar-striped" role="progressbar">
+                                <span data-bind="text: percent">0%</span>
+                            </div>
+                        </div>
+                        <!-- /ko -->
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <span class="dropup">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                        <i class="fa fa-folder-o"></i> Target
+                    </button>
+                    <ul data-bind="foreach: parent.folders()" class="dropdown-menu">
+                        <!-- ko ifnot: path == '/' -->
+                        <li data-bind="click: onSelect, css: active() ? 'active' : null">
+                            <a data-bind="css: active() ? 'active' : null" href="#">
+                                <!-- ko if: parents.length -->
+                                <span data-bind="foreach: parents">
+                                    <span class="indent"></span>
+                                </span>
+                                <!-- /ko -->
+                                <i data-bind="css: icon"></i>
+                                <span data-bind="text: name"></span>
+                            </a>
+                        </li>
+                        <!-- /ko -->
+                    </ul>
+                </span>
+                <span class="btn btn-default btn-file">
+                    <i class="fa fa-plus"></i>
+                    Add files <input data-bind="event: { change: onAddFiles }" type="file" multiple />
+                </span>
+                <!-- ko if: queue().length -->
+                <!-- ko ifnot: uploading -->
+                <button data-bind="click: start" type="button" class="btn btn-success">
+                    <i class="fa fa-upload"></i> Upload
+                </button>
+                <!-- /ko -->
+                <!-- ko if: uploading -->
+                <button data-bind="click: abort" type="button" class="btn btn-warning">
+                    <i class="fa fa-stop"></i> Stop
+                </button>
+                <!-- /ko -->
+                <!-- /ko -->
+            </div>
+        </div>
+    </div>
+</div><!-- #board-files-upload-modal -->
+
+<div id="board-files-remove-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="pull-right btn btn-sm btn-default" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-close"></i> Close
+                </button>
+                <h4 class="modal-title">
+                    <i class="fa fa-trash"></i> Remove files
+                </h4>
+            </div>
+            <div class="modal-body">
+                The following files will be removed :
+                <!-- ko ifnot: selectedFiles().length -->
+                <div class="alert alert-info" role="alert">
+                    <strong>Empty queue!</strong>
+                </div>
+                <!-- /ko -->
+                <!-- ko if: selectedFiles().length -->
+                <ul data-bind="foreach: selectedFiles" class="list-group">
+                    <li data-bind="css: enabled() ? '' : 'disabled'" class="list-group-item">
+                        <div class="clearfix">
+                            <i data-bind="css: icon"></i>
+                            <span class="filename truncate">
+                                <span data-bind="text: root"></span>/<strong data-bind="text: name"></strong>
+                            </span>
+                            <span class="pull-right">
+                                <span data-bind="text: size" class="label label-info"></span>
+                                <!-- ko if: enabled -->
+                                <button data-bind="click: $parent.unselectedFile" type="button" class="btn btn-xs btn-danger">
+                                    <i class="fa fa-close"></i>
+                                </button>
+                                <!-- /ko -->
+                            </span>
+                        </div>
+                    </li>
+                </ul>
+                <!-- /ko -->
+            </div>
+            <!-- ko if: selectedFiles().length -->
+            <div class="modal-footer">
+                <!-- ko if: waitRemove -->
+                <p><i class="fa fa-spinner fa-pulse fa-fw"></i> Deleting files ...</p>
+                <!-- /ko -->
+                <!-- ko ifnot: waitRemove -->
+                <button data-bind="click: removeFiles" type="button" class="btn btn-danger">
+                    <i class="fa fa-trash"></i> Remove
+                </button>
+                <!-- /ko -->
+            </div>
+            <!-- /ko -->
+        </div>
+    </div>
+</div><!-- #board-files-remove-modal -->
+
+<!-- ko with: openedFile -->
+<div id="board-files-edit-modal" class="modal fade full-screen" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="pull-right btn btn-sm btn-default" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-close"></i> Close
+                </button>
+                <h4 class="modal-title">
+                    <i class="fa fa-edit"></i> Edit file
+                </h4>
+            </div>
+            <div class="modal-body">
+                <pre id="openedFileContent" data-bind="text: raw" contenteditable="true"></pre>
+            </div>
+            <div class="modal-footer">
+                <button data-bind="click: onSave" type="button" class="btn btn-primary">
+                    <i class="fa fa-save"></i> Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div><!-- #board-files-edit-modal -->
+<!-- /ko -->
+
+
+<!-- /ko -->
+
+                </div>
+                <div data-bind="css: tabs.selected().id == '#board-terminal-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-terminal-pane">
+                    <!-- ko with: terminal -->
+<div class="btn-group">
+    <button data-bind="click: clear" class="btn btn-default" type="button">
+        <i class="fa fa-fw fa-eraser"></i> Clear logs
+    </button>
+    <button data-bind="click: toggleAutoscroll" class="btn btn-default" type="button">
+        <i class="fa fa-fw fa-sort-amount-asc"></i>
+        Autoscroll : <span data-bind="text: autoscroll() ? 'on' : 'off'"></span>
+    </button>
+    <!-- ko ifnot: emptyQueue -->
+    <button data-bind="click: clearQueue" class="btn btn-default" type="button">
+        <i class="fa fa-fw fa-eraser"></i> Clear queue (<span data-bind="text: commands().length"></span>)
+    </button>
+    <!-- /ko -->
+</div>
+<hr />
+<form data-bind="submit: send">
+    <div class="form-group">
+        <div class="input-group input-group-sm">
+            <input id="terminal-command-input" type="text" class="form-control" placeholder="Type your command here..." />
+            <span class="input-group-btn">
+                <button data-bind="click: send" class="btn btn-sm btn-default" type="button">
+                    <i class="fa fa-fw fa-send"></i> Send
+                </button>
+            </span>
+        </div>
+    </div>
+</form>
+<ul id="terminal-messages" data-bind="foreach: messages" class="terminal files-tree list-group">
+    <li data-bind="css: style" class="list-group-item">
+        <i data-bind="css: icon"></i> <span data-bind="html: message"></span>
+    </li>
+</ul>
+<!-- /ko -->
+
+                </div>
+                <div data-bind="css: tabs.selected().id == '#board-config-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-config-pane">
+                    <!-- ko with: config -->
+
+<!-- ko ifnot: loading -->
+<!-- ko if: loaded -->
+<div class="btn-group" role="group">
+    <button data-bind="click: refresh" type="button" class="btn btn-default">
+        <i class="fa fa-refresh"></i> Refresh
+    </button>
+
+    <!-- ko if: editMode() == 'form' -->
+    <button data-bind="click: toggleEditMode" type="button" class="btn btn-default">
+        <i class="fa fa-file-text-o"></i> Raw
+    </button>
+    <!-- ko if: modified -->
+    <button data-bind="click: openSaveModal" type="button" class="btn btn-default">
+        <i class="fa fa-upload"></i> Save
+    </button>
+    <button data-bind="click: reset" type="button" class="btn btn-default">
+        <i class="fa fa-undo"></i> Reset (<span data-bind="text: modified().length"></span>)
+    </button>
+    <!-- /ko -->
+    <!-- /ko -->
+
+    <!-- ko if: editMode() == 'raw' -->
+    <!-- ko ifnot: editableSourceModified -->
+    <button data-bind="click: toggleEditMode" type="button" class="btn btn-default">
+        <i class="fa fa-list"></i> Form
+    </button>
+    <!-- /ko -->
+    <!-- ko if: editableSourceModified -->
+    <button data-bind="click: applySourceChange" type="button" class="btn btn-default">
+        <i class="fa fa-list"></i> <i class="fa fa-mail-reply"></i> Apply to form
+    </button>
+    <button data-bind="click: resetEditableSource" type="button" class="btn btn-default">
+        <i class="fa fa-undo"></i> Reset
+    </button>
+    <!-- /ko -->
+    <!-- /ko -->
+</div>
+
+<hr />
+<!-- /ko -->
+<!-- /ko -->
+
+<!-- ko if: loading -->
+<div class="alert alert-info" role="alert">
+    <i class="fa fa-spinner fa-pulse fa-fw"></i>
+    <strong>Please wait...</strong> Loading the configuration. Thanks to be patient, this can take some time (1-5 sec.).
+</div>
+<!-- /ko -->
+
+<!-- ko ifnot: loaded -->
+<!-- ko ifnot: loading -->
+<div class="alert alert-warning" role="alert">
+    Click on the
+    <button data-bind="click: refresh" type="button" class="btn btn-xs btn-default">
+        <i class="fa fa-refresh"></i> Refresh
+    </button>
+    button to <strong>load the configuration</strong> from your board.
+</div>
+<!-- /ko -->
+<!-- /ko -->
+
+<!-- ko if: loaded -->
+<!-- ko ifnot: loading -->
+<!-- ko if: editMode() == 'form' -->
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th style="width:200px">Value</th>
+            <th>Comments</th>
+        </tr>
+    </thead>
+    <tbody data-bind="foreach: items">
+        <!-- ko if: isValue -->
+        <tr data-bind="css: modified() ? 'info' : (disabled() ? 'warning' : 'default')">
+            <td>
+                <span data-bind="text: name"></span>
+            </td>
+            <td style="min-width:200px">
+                <span class="input-group input-group-sm">
+                    <input data-bind="value: value, event: { input: onChange }, disable: disabled" type="text" class="form-control" />
+                    <span class="input-group-btn">
+                        <!-- ko if: modified -->
+                        <button data-bind="click: onReset, attr: { title: 'Reset value to : ' + firstValue }" type="button" class="btn btn-default">
+                            <i class="fa fa-undo"></i>
+                        </button>
+                        <!-- /ko -->
+                        <button data-bind="click: onToggle, css: disabled() ? 'btn-warning' : 'btn-default', text: disabled() ? 'off' : 'on'" type="button" class="btn"></button>
+                    </span>
+                </span>
+            </td>
+            <td>
+                <span data-bind="text: comments"></span>
+            </td>
+        </tr>
+        <!-- /ko -->
+        <!-- ko ifnot: isValue -->
+        <tr>
+            <th colspan="3" class="active">
+                <span data-bind="text: comments"></span>
+            </th>
+        </tr>
+        <!-- /ko -->
+    </tbody>
+</table>
+<!-- /ko -->
+
+<!-- ko if: editMode() == 'raw' -->
+<textarea data-bind="value: editableSource, event: { input: onEditableSourceChange }" class="well" rows="25"></textarea>
+<!-- /ko -->
+<!-- /ko -->
+<!-- /ko -->
+
+<div id="board-config-save-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="pull-right btn btn-sm btn-default" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-close"></i> Close
+                </button>
+                <h4 class="modal-title">
+                    <i class="fa fa-upload"></i> Save configuration
+                </h4>
+            </div>
+            <div class="modal-body">
+                <!-- ko ifnot: modified -->
+                <div class="alert alert-info" role="alert">
+                    <strong>Configuration up-to-date!</strong>
+                </div>
+                <!-- /ko -->
+                <!-- ko if: uploading -->
+                <div class="alert alert-info" role="alert">
+                    <p><strong><i class="fa fa-spinner fa-pulse fa-fw"></i> Uploading <code data-bind="text: filename"></code> file to the board...</strong></p>
+                    <div class="progress">
+                        <div data-bind="style: { width: uploadPercent }" class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="min-width: 2em;">
+                            <span data-bind="text: uploadPercent"></span>
+                        </div>
+                    </div>
+                </div>
+                <!-- /ko -->
+                <!-- ko if: modified -->
+                <!-- ko ifnot: uploading -->
+                The following settings have been modified and will be written on your board :
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th style="width:200px">Value</th>
+                            <th>Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: modified">
+                        <tr data-bind="css: modified() ? 'info' : (disabled() ? 'warning' : 'default')">
+                            <td>
+                                <span data-bind="text: name"></span>
+                            </td>
+                            <td style="min-width:200px">
+                                <span class="input-group input-group-sm">
+                                    <input data-bind="value: value, event: { input: onChange }, disable: disabled" type="text" class="form-control" />
+                                    <span class="input-group-btn">
+                                        <button data-bind="click: onReset, attr: { title: 'Reset value to : ' + firstValue }" type="button" class="btn btn-default">
+                                            <i class="fa fa-undo"></i>
+                                        </button>
+                                        <button data-bind="click: onToggle, css: disabled() ? 'btn-warning' : 'btn-default', text: disabled() ? 'off' : 'on'" type="button" class="btn"></button>
+                                    </span>
+                                </span>
+                            </td>
+                            <td>
+                                <span data-bind="text: comments"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- /ko -->
+                <!-- /ko -->
+            </div>
+            <!-- ko if: modified -->
+            <!-- ko ifnot: uploading -->
+            <div class="modal-footer">
+                <button data-bind="click: upload" type="button" class="btn btn-success">
+                    <i class="fa fa-upload"></i> Upload
+                </button>
+            </div>
+            <!-- /ko -->
+            <!-- /ko -->
+        </div>
+    </div>
+</div><!-- #board-config-save-modal -->
+
+
+<!-- /ko -->
+
+                </div>
+                <div data-bind="css: tabs.selected().id == '#board-info-pane' ? 'active' : null" role="tabpanel" class="tab-pane" id="board-info-pane">
+                    <table class="table table-bordered">
+    <tbody data-bind="with: info">
+        <tr><th>Address</th><td><span data-bind="text: $parent.board.address"></span></td></tr>
+        <tr><th>Branch</th><td><span data-bind="text: branch"></span> (#<span data-bind="text: hash"></span>)</td></tr>
+        <tr><th>Date</th><td><span data-bind="text: date"></span></td></tr>
+        <tr><th>MCU</th><td><span data-bind="text: mcu"></span> at <span data-bind="text: clock"></span></td></tr>
+    </tbody>
+</table>
+
+                </div>
+            </div>
+        </div>
+        <!-- /ko -->
+        <!-- /ko -->
+        <!-- /ko -->
+    </div>
+</div>
+<!-- #board -->
+
+<div id="board-help" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="board-help-title">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-primary">
+                <button type="button" class="pull-right btn btn-sm btn-primary" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-close"></i> Close
+                </button>
+                <h4 class="modal-title" id="board-help-title">
+                    <i class="fa fa-question-circle-o"></i> Board
+                </h4>
+            </div>
+            <div class="modal-body">
+                <p>Sorry, no help for this section.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- #board-help -->
+
+        </div>
+        <!-- /ko -->
+        <!-- ko ifnot: boards.fullScreen() -->
         <div id="body" class="container-fluid">
             <div class="row">
                 <div class="col-xs-12 col-sm-6 col-md-4">
@@ -270,7 +1013,10 @@
                 <!-- /ko -->
             </span>
             <a class="pull-right" role="button" data-toggle="modal" data-target="#board-help">
-                <i class="text-primary fa fa-question-circle-o"></i>
+                <i class="text-primary fa fa-fw fa-question-circle-o"></i>
+            </a>
+            <a data-bind="click: toggleFullScreen" class="pull-right" role="button">
+                <i class="text-primary fa fa-fw fa-arrows-alt"></i>
             </a>
         </h3>
     </div>
@@ -982,6 +1728,7 @@
                 </div>
             </div>
         </div>
+        <!-- /ko -->
         <script src="vendor/jquery.min.js?v=2.2.3"></script>
         <script src="vendor/knockout.min.js?v=3.4.0"></script>
         <script src="vendor/bootstrap/js/bootstrap.min.js?v=3.3.5"></script>
@@ -989,7 +1736,7 @@
         <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="vendor/filesaver.min.js?v=1.3.2"></script>
         <script src="vendor/filesize.min.js?v=3.3.0"></script>
-        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=e431a82f68ec3aa7f54618f7c888cbd8"></script>
-        <script src="main.js?v=0.2.0-dev&amp;b=e431a82f68ec3aa7f54618f7c888cbd8"></script>
+        <script src="dist/smoothie-happy.js?v=0.2.0-dev&amp;b=40f9187abfaceb0661d08b6379e6f5a9"></script>
+        <script src="main.js?v=0.2.0-dev&amp;b=40f9187abfaceb0661d08b6379e6f5a9"></script>
     </body>
 </html>

@@ -4,6 +4,21 @@
     margin-top: 65px;
 }
 
+#body.full-screen {
+    margin-top: 50px;
+}
+
+#body.full-screen #board {
+    border: 0;
+    box-shadow: none;
+}
+
+#body.full-screen #board > .panel-heading {
+    border: 0;
+    border-radius: 0;
+    border-bottom: 1px solid #ddd;
+}
+
 h3 {
     margin-top: 0;
 }

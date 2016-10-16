@@ -24,7 +24,10 @@
                 <!-- /ko -->
             </span>
             <a class="pull-right" role="button" data-toggle="modal" data-target="#board-help">
-                <i class="text-primary fa fa-question-circle-o"></i>
+                <i class="text-primary fa fa-fw fa-question-circle-o"></i>
+            </a>
+            <a data-bind="click: toggleFullScreen" class="pull-right" role="button">
+                <i class="text-primary fa fa-fw fa-arrows-alt"></i>
             </a>
         </h3>
     </div>
