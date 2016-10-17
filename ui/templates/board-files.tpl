@@ -93,6 +93,9 @@
                         <i class="fa fa-download fa-fw"></i>
                         <!-- /ko -->
                     </button>
+                    <button data-bind="click: onPlay" type="button" class="btn btn-xs btn-default">
+                        <i class="fa fa-edit fa-play"></i>
+                    </button>
                 </span>
             </a>
             <!-- /ko -->

@@ -7,7 +7,7 @@
                     <i class="fa fa-close"></i> Close
                 </button>
                 <h4 class="modal-title">
-                    <i class="fa fa-edit"></i> Files settings
+                    <i class="fa fa-cogs"></i> Files settings
                 </h4>
             </div>
             <div class="modal-body">
