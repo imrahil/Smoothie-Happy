@@ -6,6 +6,9 @@
     <button data-bind="click: refreshTree" type="button" class="btn btn-default">
         <i class="fa fa-refresh"></i> Refresh
     </button>
+    <button data-bind="click: openSettingsModal" type="button" class="btn btn-default">
+        <i class="fa fa-cogs"></i> Settings
+    </button>
     <!-- ko if: uploadEnabled -->
     <button data-bind="click: openUploadModal" type="button" class="btn btn-default">
         <i class="fa fa-upload"></i> Upload
@@ -102,5 +105,6 @@
 {$board-files-upload.tpl}
 {$board-files-remove.tpl}
 {$board-files-edit.tpl}
+{$board-files-settings.tpl}
 
 <!-- /ko -->

@@ -22,7 +22,7 @@ var store = {
         var oldValue = store.get(key, {});
 
         // merge and store value
-        $.extend(oldValue, value);
+        $.extend(true, oldValue, value);
         store.set(key, oldValue);
     },
 
