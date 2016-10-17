@@ -170,6 +170,20 @@
         // default timeout
         timeout = timeout === undefined ? 0 : timeout;
 
+        // format ignore : TODO create an utils.js libs...
+        var pregQuote = function(str) {
+            return str.replace(/[\\\/\.\-\[\]\{\{\^\$\?\!\+\*]/g, '\$&');
+        }
+
+        for (var test, i = 0, il = ignore.length; i < il; i++) {
+            test = ignore[i];
+            if (test.indexOf('*') !== -1) {
+                test = self.normalizePath(test.toLowerCase().trim());
+                test = pregQuote(test.replace('*', '___WILDCARD___'));
+                ignore[i] = test.replace('___WILDCARD___', '(.*)');
+            }
+        }
+
         var ignorePath = function(testPath) {
             if (! ignore) {
                 return false;
@@ -179,7 +193,7 @@
                 if (testPath == ignore[i]) {
                     return true;
                 }
-                if (testPath.match(new RegExp(ignore[i], 'gi'))) {
+                if (testPath.match(new RegExp(ignore[i], 'g'))) {
                     return true;
                 }
             }
