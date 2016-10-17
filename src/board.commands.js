@@ -147,14 +147,15 @@
     *
     * @method
     *
-    * @param {String}  [path='/']  The path to list file.
-    * @param {Integer} [timeout=0] Connection timeout.
+    * @param {String}   [path='/']  The path to list file.
+    * @param {String[]} [ignore]   Paths or regex to ignore.
+    * @param {Integer}  [timeout=0] Connection timeout.
     *
     * @return {sh.network.Request}
     *
     * {$examples sh.Board.ls}
     */
-    sh.Board.prototype.ls = function(path, timeout) {
+    sh.Board.prototype.ls = function(path, ignore, timeout) {
         // self alias
         var self = this;
 
@@ -168,6 +169,23 @@
 
         // default timeout
         timeout = timeout === undefined ? 0 : timeout;
+
+        var ignorePath = function(testPath) {
+            if (! ignore) {
+                return false;
+            }
+
+            for (var i = 0, il = ignore.length; i < il; i++) {
+                if (testPath == ignore[i]) {
+                    return true;
+                }
+                if (testPath.match(new RegExp(ignore[i], 'gi'))) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
 
         // get board version (raw)
         return this.command('ls -s ' + path, timeout).then(function(event) {
@@ -190,6 +208,7 @@
             var file  = null;
             var isDir = false;
             var root  = null;
+            var name  = null;
 
             // for each lines (file)
             for (var i = 0, il = lines.length; i < il; i++) {
@@ -204,13 +223,19 @@
                     isDir = info[2] == '/';
 
                     // fix root path
+                    name = info[1];
                     root = path.length ? path : '/';
+
+                    // ignore ?
+                    if (ignorePath(path + '/' + name)) {
+                        continue;
+                    }
 
                     // set file info
                     files.push({
                         root: root,
-                        name: info[1],
-                        path: path + '/' + info[1],
+                        name: name,
+                        path: path + '/' + name,
                         type: isDir ? 'directory' : 'file',
                         size: isDir ? 0 : parseInt(info[2])
                     });
@@ -227,15 +252,16 @@
     *
     * @method
     *
-    * @param {String}  [path='/']  The path to list file.
-    * @param {Integer} [timeout]   Connection timeout.
-    * @param {Boolean} [innerCall] Used internaly for recursion.
+    * @param {String}   [path='/']  The path to list file.
+    * @param {String[]} [ignore]    Paths or regex to ignore.
+    * @param {Integer}  [timeout]   Connection timeout.
+    * @param {Boolean}  [innerCall] Used internaly for recursion.
     *
     * @return {sh.network.Request}
     *
     * {$examples sh.Board.lsAll}
     */
-    sh.Board.prototype.lsAll = function(path, timeout, innerCall) {
+    sh.Board.prototype.lsAll = function(path, ignore, timeout, innerCall) {
         // self alias
         var self = this;
 
@@ -248,7 +274,7 @@
         var promise   = null;
 
         // List root path
-        return this.ls(path, timeout).then(function(event) {
+        return this.ls(path, ignore, timeout).then(function(event) {
             // files list
             files = event.data;
 
@@ -281,7 +307,7 @@
                 }
 
                 // list the directory
-                directory.push(self.lsAll(file.path, timeout, true));
+                directory.push(self.lsAll(file.path, ignore, timeout, true));
             }
 
             if (! directory.length) {
