@@ -32,6 +32,7 @@ var BoardModel = function(board) {
 
     self.terminal = new TerminalModel(self);
     self.jog      = new JogModel(self);
+    self.player   = new PlayerModel(self);
     self.files    = new FilesModel(self);
     self.config   = new ConfigModel(self);
 

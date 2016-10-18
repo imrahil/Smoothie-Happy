@@ -14,6 +14,7 @@
 {$scanner.js}
 {$board-tabs.js}
 {$board-jog.js}
+{$board-player.js}
 {$board-files.js}
 {$board-files-upload.js}
 {$board-terminal.js}
