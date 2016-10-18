@@ -7,7 +7,7 @@
                     <i class="fa fa-close"></i> Close
                 </button>
                 <h4 class="modal-title">
-                    <i class="fa fa-edit"></i> Edit file
+                    <i class="fa fa-edit"></i> Edit : <span data-bind="text: path"></span>
                 </h4>
             </div>
             <div class="modal-body">

@@ -8,22 +8,7 @@
         </h3>
     </div>
     <div class="panel-body">
-        <!-- ko if: !knownBoards().length && !autoloadAddresses().length -->
-        <div class="alert alert-warning" role="alert">
-            <strong>No boards!</strong> Please scan the network to find some boards to play with.
-        </div>
-        <!-- /ko -->
-        <!-- ko if: autoloadAddresses().length -->
-        <div class="alert alert-info" role="alert">
-            <i class="fa fa-spinner fa-pulse fa-fw"></i>
-            <strong>Please wait...</strong>
-            Lookup for known boards
-            (
-            <span data-bind="text: autoloadProgression"></span> /
-            <span data-bind="text: knownAddresses().length"></span>
-            ).
-        </div>
-        <!-- /ko -->
+        {$boards-loading.tpl}
         <!-- ko if: knownBoards().length -->
         <div data-bind="foreach: { data: knownBoards, afterRender: afterRender }">
             <div data-bind="attr: { id: 'board-' + board.id }" class="board form-group">
@@ -94,21 +79,4 @@
 </div>
 <!-- #boards -->
 
-<div id="boards-help" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="boards-help-title">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header modal-header-primary">
-                <button type="button" class="pull-right btn btn-sm btn-primary" data-dismiss="modal" aria-label="Close">
-                    <i class="fa fa-close"></i> Close
-                </button>
-                <h4 class="modal-title" id="boards-help-title">
-                    <i class="fa fa-question-circle-o"></i> Boards
-                </h4>
-            </div>
-            <div class="modal-body">
-                <p>Sorry, no help for this section.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- #boards-help -->
+{$boards-help.tpl}
