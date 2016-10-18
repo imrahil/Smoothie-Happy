@@ -11,7 +11,7 @@
                 </h4>
             </div>
             <div class="modal-body">
-                <h3>Ignore list</h3>
+                <h3>Ignore paths</h3>
                 <textarea data-bind="value: ignoreText, event: { input: onIgnoreTextChange }" class="well" rows="5"></textarea>
             </div>
             <!-- ko if: ignoreTextModified -->

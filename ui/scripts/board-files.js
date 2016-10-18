@@ -225,11 +225,84 @@ FileModel.prototype.onDownload = function(selectedNode, event) {
     });
 };
 
+FileModel.prototype.onPlay = function(selectedNode, event) {
+    // stop event propagation
+    event.stopPropagation();
+
+    // init file player
+    var player = this.parent.parent.player;
+    player.setFile(selectedNode);
+    player.openPlayModal();
+};
+
 FileModel.prototype.onSave = function(selectedNode, event) {
     var blob = new Blob([$('#openedFileContent')[0].innerText]);
     this.parent.upload.addFile(blob, selectedNode.path);
     $('#board-files-edit-modal').modal('hide');
     this.parent.openUploadModal();
+};
+
+var FilesSettingsModel = function(parent) {
+    // self alias
+    var self = this;
+
+    // set initial state
+    self.parent       = parent;
+    self.ignoreSource = ko.observable();
+    self.ignoreText   = ko.observable();
+    self.ignore       = ko.observableArray();
+
+    self.ignoreTextModified = ko.pureComputed(function() {
+        return self.ignoreSource() !== self.ignoreText();
+    });
+
+    // get stored values
+    var storeValue = store.get('board.' + self.parent.board.address);
+
+    if (storeValue && storeValue.ignorePaths) {
+        var ignore = storeValue.ignorePaths;
+    } else {
+        var ignore = [
+            '/sd/webif',
+            '/sd/config*',
+            '/sd/*.cur',
+            '/sd/*.bin'
+        ]
+    }
+
+    self.setIgnore(ignore);
+};
+
+FilesSettingsModel.prototype.setIgnore = function(lines) {
+    var ignore = [];
+
+    if (typeof lines === 'string') {
+        lines = lines.trim().split('\n');
+    }
+
+    for (var line, i = 0, il = lines.length; i < il; i++) {
+        line = lines[i].trim();
+
+        if (line.length) {
+            ignore.push(line.toLowerCase());
+        }
+    }
+
+    var source = ignore.join('\n');
+    this.ignoreSource(source);
+    this.ignoreText(source);
+    this.ignore(ignore);
+};
+
+FilesSettingsModel.prototype.onIgnoreTextChange = function(self, event) {
+    self.ignoreText(event.target.value);
+};
+
+FilesSettingsModel.prototype.updateIgnoreText = function(self, event) {
+    self.setIgnore(this.ignoreText());
+    store.merge('board.' + self.parent.board.address, {
+        ignorePaths: self.ignore()
+    });
 };
 
 var FilesModel = function(parent) {
@@ -247,8 +320,10 @@ var FilesModel = function(parent) {
     self.waitTree       = ko.observable(false);
     self.waitRemove     = ko.observable(false);
     self.openedFile     = ko.observable();
+    self.playingFile    = ko.observable(false);
 
-    self.upload = new FilesUploadModel(self);
+    self.settings = new FilesSettingsModel(self);
+    self.upload   = new FilesUploadModel(self);
 
     self.uploadEnabled = ko.pureComputed(function() {
         return self.folders().length && self.selectedFolder() != '/';
@@ -273,6 +348,10 @@ FilesModel.prototype.openUploadModal = function(board, event) {
 
 FilesModel.prototype.openRemoveFilesModal = function(board, event) {
     $('#board-files-remove-modal').modal('show');
+};
+
+FilesModel.prototype.openSettingsModal = function(board, event) {
+    $('#board-files-settings-modal').modal('show');
 };
 
 FilesModel.prototype.sortTree = function(tree) {
@@ -325,7 +404,7 @@ FilesModel.prototype.refreshTree = function(board, event) {
     // empty tree
     var tree = [];
 
-    this.terminal.pushCommand(['lsAll', '/', 0], {
+    this.terminal.pushCommand(['lsAll', '/', self.settings.ignore(), 0], {
         done: function(event) {
             tree = event.data;
         },
