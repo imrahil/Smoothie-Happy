@@ -130,6 +130,86 @@
     };
 
     /**
+    * Get playing file progression.
+    *
+    * @method
+    *
+    * @param {Integer} [timeout] Response timeout.
+    *
+    * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.progress}
+    */
+    sh.Board.prototype.progress = function(timeout) {
+        // self alias
+        var self = this;
+
+        // get board version (raw)
+        return this.command('progress', timeout).then(function(event) {
+            // raw response string expected:
+            // -> File size is unknown
+            // -> Not currently playing
+            // -> SD printing byte 10/100 (Marlin [M27] : not supported)
+            // -> SD print is paused at 10/100
+            // -> file: /sd/test.nc, 1 % complete, elapsed time: 15 s
+            // -> file: /sd/test.nc, 1 % complete, elapsed time: 15 s, est time: 1169 s
+            var raw = event.originalEvent.response.raw.trim();
+
+            // error !
+            if (raw === 'File size is unknown') {
+                // reject the promise
+                return Promise.reject(self._trigger('error', event, raw));
+            }
+
+            // response data
+            var data = {
+                playing  : raw !== 'Not currently playing',
+                paused   : raw.indexOf('SD print is paused') === 0,
+                waiting  : raw.length === 0,
+                file     : null,
+                percent  : 0,
+                elapsed  : 0,
+                estimated: 0
+            };
+
+            if (data.playing && !data.waiting && !data.paused) {
+                // -> file: /sd/test.nc, 1 % complete, elapsed time: 15 s
+                // -> file: /sd/test.nc, 1 % complete, elapsed time: 15 s, est time: 1169 s
+                if (raw.indexOf('file: ') !== 0) {
+                    // unknown response...
+                    data = 'Unknown response: ' + raw;
+
+                    // reject the promise
+                    return Promise.reject(self._trigger('error', event, data));
+                }
+
+                var parts = raw.split(',');
+
+                // extract file path
+                data.file = parts.shift().substr(6);
+
+                // extract percentage
+                var percent  = parts.shift();
+                data.percent = percent.substr(1, percent.length - 12);
+
+                // extract elapsed time
+                var elapsed  = parts.shift();
+                data.elapsed = elapsed.substr(15, elapsed.length - 17);
+
+                // extract elapsed time
+                var estimated = parts.shift();
+
+                if (estimated) {
+                    data.estimated = estimated.substr(11, estimated.length - 13);
+                }
+            }
+
+            // resolve the promise
+            return Promise.resolve(self._trigger('progression', event, data));
+        });
+    };
+
+    /**
     * Return a normalized path.
     *
     * @method
