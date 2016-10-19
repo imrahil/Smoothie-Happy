@@ -2,49 +2,61 @@
     'use strict';
 
     /**
-    * Custom board event.
+    * Board event.
     *
     * @class
-    *
-    * @param {String}                  name  Event name.
-    * @param {sh.Board}                board Board instance.
-    * @param {sh.network.RequestEvent} event Original `sh.network.RequestEvent` instance.
-    * @param {Object|null}             data  Event data (depending on the command).
+    * @param  {sh.Board}                board        Board instance.
+    * @param  {String}                  name         Event name.
+    * @param  {Mixed|Error}             [data=null]  Event data (see data member description for more details).
+    * @param  {sh.network.RequestEvent} [event=null] Original `sh.network.RequestEvent` instance.
+    * @throws {Error}
     */
-    sh.BoardEvent = function(name, board, event, data) {
+    sh.BoardEvent = function(board, name, data, event) {
         // instance factory
         if (! (this instanceof sh.BoardEvent)) {
-            return new sh.BoardEvent(name, board, event, data);
+            return new sh.BoardEvent(board, name, data, event);
         }
 
-        /** @property  {String}  -  Event name. */
-        this.name = name;
-
-        /** @property  {sh.Board}  -  Board instance. */
+        /** @property {sh.Board} - Board instance. */
         this.board = board;
 
-        /** @property  {Object|null}  -  Event data (depending on the command). */
+        /** @property {String} - Event name. */
+        this.name = name;
+
+        /**
+        * - If NO error occured: can be anything depending on the command.
+        * - If AN error occured: must be an `Error` instance.
+        *
+        * @property {Mixed|Error} - Event data
+        * @default  null
+        */
         this.data = data || null;
 
-        /** @property  {sh.network.RequestEvent}  -  Original `sh.network.RequestEvent` instance. */
-        this.originalEvent = event;
+        /**
+        * @property {sh.network.RequestEvent|null} - Original event.
+        * @default  null
+        */
+        this.originalEvent = event || null;
     };
 
     /**
     * Board class.
     *
     * @class
-    *
-    * @param {String|Object} address|settings         Board ip or hostname.
-    * @param {Object}        [settings]               Board settings.
-    * @param {String}        [settings.address]       Board ip or hostname.
-    * @param {Integer}       [settings.timeout]       Response timeout in milliseconds.
-    * @param {Integer}       [settings.watchInterval] Watch interval in milliseconds.
-    * @param {Integer}       [settings.watchTimeout]  Watch timeout in milliseconds.
+    * @param {String|Object}      address|settings         Board address or settings.
+    * @param {Object}             [settings]               Board settings.
+    * @param {String}             [settings.address]       Board address (ip or hostname).
+    * @param {Integer}            [settings.timeout]       Default response timeout in milliseconds for all commands.
+    * @param {Integer|null|false} [settings.retryInterval] Retry interval in milliseconds for all commands.
     *
     * {$examples sh.Board}
     */
     sh.Board = function(address, settings) {
+        // instance factory
+        if (! (this instanceof sh.Board)) {
+            return new sh.Board(address, settings);
+        }
+
         // defaults settings
         settings = settings || {};
 
@@ -54,42 +66,20 @@
             address  = settings.address;
         }
 
-        // invalid address type
-        if (typeof address !== 'string') {
-            throw new Error('Address must be a string.');
-        }
-
         // Trim whitespaces
         address = address.trim();
 
-        // address not provided or too short
-        if (!address || address.length <= 4) {
-            throw new Error('Address too short [min.: 4].');
-        }
-
-        // instance factory
-        if (! (this instanceof sh.Board)) {
-            return new sh.Board(address, settings);
-        }
-
         /**
-        * @property {String} address Board ip or hostname.
+        * @property {String} - Board address (ip or hostname).
         * @readonly
         */
         this.address = address;
 
         /**
-        * @property {String} id Board ip or hostname as DOM id.
-        * @readonly
-        */
-        this.id = address.replace(/[^0-9a-z_\-]+/gi, '-');
-
-        /**
-        * @property {Integer} timeout Default response timeout in milliseconds.
+        * @property {Integer} - Default response timeout in milliseconds for all commands.
         * @default 5000
-        * @readonly
         */
-        this.timeout = settings.timeout !== undefined ? settings.timeout : 5000;
+        this.timeout = settings.timeout || 5000;
 
         /**
         * @property {Object|null} info        Board info parsed from version command.
@@ -99,177 +89,111 @@
         * @property {String}      info.mcu    Board MCU.
         * @property {String}      info.clock  Board clock freqency.
         * @default
-        *
         * @readonly
         */
         this.info = null;
 
         /**
-        * @property {Boolean} online Is board online.
+        * @property {Boolean} - Is board online.
         * @default
         * @readonly
         */
         this.online = false;
 
         /**
-        * @property {Integer} lastOnlineTime Last time the board was seen online.
+        * @property {Integer} - Last time the board was seen online.
         * @default
         * @readonly
         */
         this.lastOnlineTime = null;
 
         /**
-        * @property {Boolean} online Is board connected.
-        * @default
-        * @readonly
-        */
-        this.connected = false;
-
-        /**
-        * @property {Integer} watchTimeoutId Connection timer id.
-        * @default
-        * @readonly
-        */
-        this.watchTimeoutId = null;
-
-        /**
-        * @property {Integer} watchInterval Connection timer interval.
-        * @default 5000
-        * @readonly
-        */
-        this.watchInterval = settings.watchInterval || 5000;
-
-        /**
-        * @property {Integer} watchInterval Connection timeout interval.
-        * @default 2000
-        * @readonly
-        */
-        this.watchTimeout = settings.watchTimeout || 2000;
-
-        /**
-        * @property {Integer} reconnectAttempts Number of reconnection attempts.
-        * @default
-        * @readonly
-        */
-        this.reconnectAttempts = 0;
-
-        /**
-        * @property {Integer} connections Number of successful connections from the first connection.
-        * @default
-        * @readonly
-        */
-        this.connections = 0;
-
-        /**
-        * @property {Integer} reconnections Number of successful reconnections from the last connection.
-        * @default
-        * @readonly
-        */
-        this.reconnections = 0;
-
-        /**
-        * @property {Object} - Registred callbacks.
+        * @property {Object} - Subscriptions.
         * @protected
         */
-        this._on = {};
+        this._subscriptions = {};
 
         /**
-        * @property {sh.Commands} - Commands manager.
+        * @property {Integer} - Number of retry occured.
+        * @default
         * @readonly
         */
-        this.commands = new sh.Commands(this);
+        this.retryCount = 0;
+
+        /**
+        * @property {Integer} - Number of retry before rejection.
+        * @default
+        * @readonly
+        */
+        this.retryLimit = 5;
+
+        /**
+        * @property {Integer} - Retry interval in milliseconds for all commands.
+        * @default 5000
+        */
+        this.retryInterval = settings.retryInterval || 5000;
     };
 
     // -------------------------------------------------------------------------
 
     /**
-    * On request response.
+    * On command sent.
+    *
+    * @callback sh.Board~onCommand
+    * @param {sh.BoardEvent} event Board event.
+    */
+
+    /**
+    * On command response.
     *
     * @callback sh.Board~onResponse
-    *
     * @param {sh.BoardEvent} event Board event.
     */
 
     /**
-    * On request error.
+    * On command error.
     *
     * @callback sh.Board~onError
-    *
     * @param {sh.BoardEvent} event Board event.
     */
 
     /**
-    * On board connect.
+    * On retry to send command.
     *
-    * @callback sh.Board~onConnect
-    *
-    * @param {sh.BoardEvent} event Board event.
-    */
-
-    /**
-    * On board disconnect.
-    *
-    * @callback sh.Board~onDisconnect
-    *
-    * @param {sh.BoardEvent} event Board event.
-    */
-
-    /**
-    * On board reconnect.
-    *
-    * @callback sh.Board~onReconnect
-    *
-    * @param {sh.BoardEvent} event Board event.
-    */
-
-    /**
-    * On board redisconnect.
-    *
-    * @callback sh.Board~onRedisconnect
-    *
-    * @param {sh.BoardEvent} event Board event.
-    */
-
-    /**
-    * On watch board.
-    *
-    * @callback sh.Board~onWatch
-    *
+    * @callback sh.Board~onRetry
     * @param {sh.BoardEvent} event Board event.
     */
 
     // -------------------------------------------------------------------------
 
     /**
-    * Register an event callback.
+    * Subscription to an event.
     *
     * @method
-    *
-    * @param {String}   event    Event name.
-    * @param {Function} callback Function to call on event is fired.
-    *
+    * @param  {String}      event          Event name.
+    * @param  {Function}    callback       Function to call on event is fired.
+    * @param  {Object|null} [context=null] Callback context to apply on call.
     * @return {this}
     *
     * @callbacks
-    * | Name         | Type                                           | Description                   |
-    * | ------------ | ---------------------------------------------- | ----------------------------- |
-    * | response     | {@link sh.Board~onResponse|onResponse}         | Called on request response.   |
-    * | error        | {@link sh.Board~onError|onError}               | Called on request error.      |
-    * | connect      | {@link sh.Board~onConnect|onConnect}           | Called on board connect.      |
-    * | disconnect   | {@link sh.Board~onDisconnect|onDisconnect}     | Called on board disconnect.   |
-    * | reconnect    | {@link sh.Board~onReconnect|onReconnect}       | Called on board reconnect.    |
-    * | redisconnect | {@link sh.Board~onRedisconnect|onRedisconnect} | Called on board redisconnect. |
-    * | watch        | {@link sh.Board~onWatch|onWatch}               | Called on watch board.        |
+    * | Name     | Type                                   | Description                 |
+    * | -------- | -------------------------------------- | --------------------------- |
+    * | command  | {@link sh.Board~onCommand|onCommand}   | Called on command sent.     |
+    * | response | {@link sh.Board~onResponse|onResponse} | Called on command response. |
+    * | error    | {@link sh.Board~onError|onError}       | Called on command error.    |
+    * | retry    | {@link sh.Board~onRetry|onRetry}       | Called on command retry.    |
     */
-    sh.Board.prototype.on = function(event, callback) {
-        // init callback section
-        if (! this._on[event]) {
-            this._on[event] = [];
+    sh.Board.prototype.subscribe = function(event, callback, context) {
+        // first subscription
+        if (! this._subscriptions[event]) {
+            // create callbacks collection
+            this._subscriptions[event] = [];
         }
 
-        // register callback
-        if (this._on[event].indexOf(callback) === -1) {
-            this._on[event].push(callback);
+        // if not already registered
+        if (this._subscriptions[event].indexOf(callback) === -1) {
+            // register callback to collection
+            this._subscriptions[event].push([callback, context || null]);
         }
 
         // -> this (chainable)
@@ -277,26 +201,24 @@
     };
 
     /**
-    * Trigger an user defined callback with the scope of this class.
+    * Publish an event with the scope of this class.
     *
     * @method
-    * @protected
-    *
-    * @param {String} name  Event name.
-    * @param {String} event Original event.
-    * @param {Mixed}  data  Event data.
+    * @param {String}                  name         Event name.
+    * @param {Mixed|Error}             [data=null]  Event data (see {@link sh.network.BoardEvent}.data member for more details).
+    * @param {sh.network.RequestEvent} [event=null] Original `sh.network.RequestEvent` instance.
     *
     * @return {sh.BoardEvent}
     */
-    sh.Board.prototype._trigger = function(name, event, data) {
-        // to board event
-        event = sh.BoardEvent(name, this, event, data);
+    sh.Board.prototype.publish = function(name, data, event) {
+        // create new board event
+        event = new sh.BoardEvent(this, name, data, event);
 
         // call user callback with the scope of this instance
-        var callbacks = this._on[name] || [];
+        var callbacks = this._subscriptions[name] || [];
 
-        for (var i = 0; i < callbacks.length; i++) {
-            callbacks[i].call(this, event);
+        for (var callback, context, i = 0; i < callbacks.length; i++) {
+            callbacks[i][0].call(callbacks[i][1] || this, event);
         }
 
         // return the board event
@@ -306,179 +228,216 @@
     // -------------------------------------------------------------------------
 
     /**
-    * Watch periodicaly if the board is online.
+    * Publish the event and return an resolved Promise.
     *
+    * @method
     * @protected
-    * @method
-    */
-    sh.Board.prototype._watchConnection = function() {
-        // not connected
-        if (! this.connected) {
-            throw new Error('Not connected.');
-        }
-
-        // next interval offset
-        var intervalOffset = Date.now() - this.lastOnlineTime;
-
-        // next interval timeout
-        var nextInterval = this.watchInterval;
-
-        // adjust interval (save some request, anti flood)
-        if (intervalOffset < this.watchInterval) {
-            nextInterval += intervalOffset;
-        }
-
-        // self alias
-        var self = this;
-
-        // new timeout
-        this.watchTimeoutId = setTimeout(function() {
-            // board online status before ping
-            var online = self.online;
-
-            // send ping command
-            self.ping(self.watchTimeout).then(function(event) {
-                // if online flag as changed
-                if (! online) {
-                    // reset reconnection attempts
-                    self.reconnectAttempts = 0;
-
-                    // increment reconnections counter
-                    self.reconnections++;
-
-                    // trigger events
-                    self._trigger('connect', event);
-                    self._trigger('reconnect', event);
-                }
-
-                // return the event
-                return event;
-            })
-            .catch(function(event) {
-                // if online flag as changed
-                if (! online) {
-                    // increment reconnection attempts
-                    self.reconnectAttempts++;
-                    self._trigger('reconnectAttempt', event, {
-                        attempts: self.reconnectAttempts
-                    });
-                }
-                else {
-                    // trigger events
-                    self._trigger('disconnect', event);
-
-                    if (self.reconnections > 0) {
-                        self._trigger('redisconnect', event);
-                    }
-                }
-
-                // return the event
-                return event;
-            })
-            .then(function(event) {
-                // not connected
-                if (! self.connected) {
-                    // stop watching
-                    return null;
-                }
-
-                // trigger watch event
-                self._trigger('watch', event);
-
-                // next connection watch
-                self._watchConnection();
-            });
-
-        }, nextInterval);
-    };
-
-    /**
-    * Connect the board (watch periodicaly if the board is online).
-    *
-    * @method
-    *
-    * @param {Integer} [timeout] Connection timeout.
-    *
-    * @return {sh.network.Request}
-    *
-    * {$examples sh.Board.connect}
-    */
-    sh.Board.prototype.connect = function(timeout) {
-        // already connected
-        if (this.connected) {
-            throw new Error('Already connected.');
-        }
-
-        // reset reconnection attempts
-        this.reconnectAttempts = 0;
-
-        // self alias
-        var self = this;
-
-        // get board version
-        return this.version(timeout).then(function(event) {
-            // set connected flag
-            self.connected = true;
-
-            // reset reconnection counter
-            self.reconnections = 0;
-
-            // increment connections counter
-            self.connections++;
-
-            // start watching
-            self._watchConnection();
-
-            // trigger event
-            var board_event = self._trigger('connect', event);
-
-            // resolve the promise
-            return Promise.resolve(board_event);
-        });
-    };
-
-    /**
-    * Disconnect the board (stop watching periodicaly if the board is online).
-    *
-    * @method
+    * @param  {String}              name        Event name.
+    * @param  {sh.network.Response} event       Resolved event.
+    * @param  {Mixed|Error}         [data=null] Event data (see {@link sh.network.BoardEvent}.data member for more details).
     * @return {Promise}
-    *
-    * {$examples sh.Board.disconnect}
     */
-    sh.Board.prototype.disconnect = function() {
-        // not connected
-        if (! this.connected) {
-            throw new Error('Not connected.');
-        }
-
-        // stop watching the connection
-        clearTimeout(this.watchTimeoutId);
-        this.watchTimeoutId = null;
-
-        // set connected flag
-        this.connected = false;
-
-        // trigger event
-        var board_event = this._trigger('disconnect');
-
-        // resolve the promise
-        return Promise.resolve(board_event);
+    sh.Board.prototype._resolveEvent = function(name, event, data) {
+        return Promise.resolve(this.publish(name, data, event));
     };
 
     /**
-    * Send a command to the board.
+    * Publish an `error` event and return an rejected Promise.
+    *
+    * - If an string is provided as raison, it will be converted to an `Error` instance.
     *
     * @method
+    * @protected
+    * @param  {sh.network.Response} event    Rejected event.
+    * @param  {String|Error}        [raison] Reject raison.
+    * @return {Promise}
+    */
+    sh.Board.prototype._rejectEvent = function(event, raison) {
+        // force error instance
+        if (typeof raison === 'string') {
+            raison = new Error(raison);
+        }
+
+        return Promise.reject(this.publish('error', raison, event));
+    };
+
+    // -------------------------------------------------------------------------
+
+    /**
+    * Send a raw command to the board.
     *
-    * @param {String}  command   Command to send.
-    * @param {Object}  settings  Command settings.
-    *
+    * @method
+    * @param  {String|Object}      command                  Command to send or command settings object.
+    * @param  {Object}             [settings]               Command settings (see {@link sh.network.Request} for more details).
+    * @param  {String}             [settings.command]       Command to send.
+    * @param  {Integer|null|false} [settings.retryInterval] Retry interval in milliseconds.
     * @return {sh.network.Request}
     *
     * {$examples sh.Board.command}
     */
     sh.Board.prototype.command = function(command, settings) {
-        return this.commands.send(command, settings);
+        // self alias
+        var self = this;
+
+        // defaults settings
+        settings = settings || {};
+
+        // settings provided on first argument
+        if (typeof command === 'object') {
+            settings = command;
+            command  = settings.command;
+        }
+
+        // clean command
+        settings.command = command.trim() + '\n';
+
+        // default response timeout
+        if (settings.timeout === undefined) {
+            settings.timeout = self.timeout;
+        }
+
+        // default retry interval
+        if (settings.retryInterval === undefined) {
+            settings.retryInterval = self.retryInterval;
+        }
+
+        // request settings
+        settings.data = settings.command;
+        settings.url  = 'http://' + self.address + '/command';
+
+        // publish event
+        self.publish('command', settings);
+
+        // return POST request (promise)
+        return sh.network.post(settings).then(function(event) {
+            // set board online flag
+            self.online = true;
+
+            // reset retry counter
+            self.retryCount = 0;
+
+            // set board last online time
+            self.lastOnlineTime = Date.now();
+
+            // response text
+            var raw = event.response.raw;
+
+            // unsupported command...
+            if (raw.indexOf('error:Unsupported command') === 0) {
+                return Promise.reject({
+                    rejected: true,
+                    event   : event,
+                    raison  : raw.substr(6)
+                });
+            }
+
+            // resolve event
+            return self._resolveEvent('response', event, raw);
+        })
+        .catch(function(event) {
+            // fatal error in response
+            if (event.rejected) {
+                return self._rejectEvent(event.event, event.raison);
+            }
+
+            // unset online flag
+            self.online = false;
+
+            // increment retry counter
+            self.retryCount++;
+
+            // reject raison
+            // like: upload.timeout: version\n
+            var raison = new Error(event.name + ': ' + settings.command);
+
+            // if retry limit not reached
+            if (self.retryCount <= self.retryLimit) {
+                // publish events
+                self.publish('error', raison, event);
+                self.publish('retry', settings, event);
+
+                // create and return a new Promise
+                return new Promise(function(resolve, reject) {
+                    // delayed retry
+                    setTimeout(function() {
+                        self.command(settings).then(resolve).catch(reject);
+                    }, settings.retryInterval);
+                });
+            }
+
+            // reject event
+            return self._rejectEvent(event, raison);
+        });
+    };
+
+    // -------------------------------------------------------------------------
+
+    /**
+    * Send ok command to the board.
+    *
+    * @method
+    * @param  {Object} [settings] Command settings (see {@link sh.Board~command} for more details).
+    * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.cmd_ok}
+    */
+    sh.Board.prototype.cmd_ok = function(settings) {
+        // self alias
+        var self = this;
+
+        // send ok command as ping
+        return self.command('ok', settings).then(function(event) {
+            return self._resolveEvent('ok', event, 'ok');
+        });
+    };
+
+    // -------------------------------------------------------------------------
+
+    /**
+    * Send version command to the board.
+    *
+    * @method
+    * @param  {Object} [settings] Command settings (see {@link sh.Board~command} for more details).
+    * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.cmd_version}
+    */
+    sh.Board.prototype.cmd_version = function(settings) {
+        // self alias
+        var self = this;
+
+        // send ok command as ping
+        return self.command('version', settings).then(function(event) {
+            // version string
+            // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
+            var versionString = event.data.trim();
+
+            // version pattern
+            var versionPattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
+
+            // test the pattern
+            var info = versionString.match(versionPattern);
+
+            if (info) {
+                // split branch-hash on dash
+                var branch = info[1].split('-');
+
+                // update board info
+                self.info = {
+                    branch: branch[0].trim(),
+                    hash  : branch[1].trim(),
+                    date  : info[2].trim(),
+                    mcu   : info[3].trim(),
+                    clock : info[4].trim()
+                };
+
+                // resolve event
+                return self._resolveEvent('version', event, self.info);
+            }
+
+            // reject event
+            return self._rejectEvent(event, 'Unknown version string');
+        });
     };
 
 })();

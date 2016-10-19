@@ -1,5 +1,5 @@
 // // @example sh.network.Request - Single request
-// sh.network.Request({
+// new sh.network.Request({
 //     url: 'index.html'
 // })
 // .onProgress(function(event) {
@@ -31,64 +31,83 @@
 
 // -----------------------------------------------------------------------------
 
-// @example sh.network.Request - Chaining requests
-sh.network.Request({
-    url: 'index.html'
-})
-.onProgress(function(event) {
-    // notify progression
-    console.info(event.request._url, '>> progress >>',  event.percent, '%');
-})
-.then(function(event) {
-    // index.html is loaded
-    console.info(event.request._url, '>> loaded >>', event.response);
-
-    // return another request
-    return sh.network.Request({
-        url: 'not_found.html'
-    })
-    .onProgress(function(event) {
-        // notify progression
-        console.info(event.request._url, '>> progress >>',  event.percent, '%');
-    });
-})
-.then(function(event) {
-    // not_found.html is loaded
-    console.info(event.request._url, '>> loaded >>', event.response);
-
-    // return result for final then
-    return { event: event, error: false };
-})
-.catch(function(event) {
-    // error loading index.html or not_found.html
-    console.warn(event.request._url, '>> error >>', event.response);
-
-    // return error for final then
-    return { event: event, error: true };
-})
-.then(function(result) {
-    // finaly ...
-    var event    = result.event;
-    var logType  = result.error ? 'error' : 'info';
-    var logLabel = result.error ? 'error' : 'loaded';
-
-    console[logType](event.request._url, '>>', logLabel, '>>', event.response);
-});
+// // @example sh.network.Request - Chaining requests
+// new sh.network.Request({
+//     url: 'index.html'
+// })
+// .onProgress(function(event) {
+//     // notify progression
+//     console.info(event.request._url, '>> progress >>',  event.percent, '%');
+// })
+// .then(function(event) {
+//     // index.html is loaded
+//     console.info(event.request._url, '>> loaded >>', event.response);
+//
+//     // return another request
+//     return new sh.network.Request({
+//         url: 'not_found.html'
+//     })
+//     .onProgress(function(event) {
+//         // notify progression
+//         console.info(event.request._url, '>> progress >>',  event.percent, '%');
+//     });
+// })
+// .then(function(event) {
+//     // not_found.html is loaded
+//     console.info(event.request._url, '>> loaded >>', event.response);
+//
+//     // return result for final then
+//     return { event: event, error: false };
+// })
+// .catch(function(event) {
+//     // error loading index.html or not_found.html
+//     console.warn(event.request._url, '>> error >>', event.response);
+//
+//     // return error for final then
+//     return { event: event, error: true };
+// })
+// .then(function(result) {
+//     // finaly ...
+//     var event    = result.event;
+//     var logType  = result.error ? 'error' : 'info';
+//     var logLabel = result.error ? 'error' : 'loaded';
+//
+//     console[logType](event.request._url, '>>', logLabel, '>>', event.response);
+// });
 
 // -----------------------------------------------------------------------------
 
-// // @example sh.Board - Board class usage
-// // create the board instance
-// var board = sh.Board('192.168.1.102');
+// @example sh.Board.command - Send arbitrary command(s)
+// create the board instance
+var board = new sh.Board('192.168.1.102');
 
-// // @example sh.Board.command - Send arbitrary command(s)
-// // create the board instance
-// var board = sh.Board('192.168.1.102');
-//
+// subscribe to events
+board.subscribe('command', function(event) {
+    console.info('on:command:', event);
+});
+
+board.subscribe('response', function(event) {
+    console.info('on:response:', event);
+});
+
+board.subscribe('retry', function(event) {
+    console.warn('on:retry:', event);
+});
+
+board.subscribe('error', function(event) {
+    console.error('on:error:', event);
+});
+
 // // get board version (raw)
 // board.command('version').then(function(event) {
-//     console.info('board:', event.board);                        // Board instance
-//     console.info('version:', event.originalEvent.response.raw); // Raw response text
+//     // event = sh.BoardEvent {
+//     //     board        : {sh.Board},
+//     //     name         : "response",
+//     //     data         : "Build version: edge-9ab4538, Build date: Oct 10 2016 04:09:42, MCU: LPC1769, System Clock: 120MHz↵",
+//     //     originalEvent: {sh.network.RequestEvent}
+//     // }
+//     console.info('board:'  , event.board); // Board instance
+//     console.info('version:', event.data);  // Raw response text (shortcut for event.originalEvent.response.raw)
 // })
 // .catch(function(event) {
 //     console.error('version:', event.name, event);
@@ -96,7 +115,62 @@ sh.network.Request({
 
 // -----------------------------------------------------------------------------
 
+// // @example sh.Board.cmd_ok - Send ok command to the board
+// // create the board instance
+// var board = new sh.Board('192.168.1.102');
+//
+// // subscribe to events
+// board.subscribe('ok', function(event) {
+//     console.info('on:ok:', event);
+// });
+//
+// // send ok command with 5s timeout
+// board.cmd_ok({ timeout: 5000 }).then(function(event) {
+//     // event = sh.BoardEvent {
+//     //     board        : {sh.Board},
+//     //     name         : "ok",
+//     //     data         : "ok",
+//     //     originalEvent: {sh.network.RequestEvent}
+//     // }
+//     console.info('ok:', event.data); // => ok
+// })
+// .catch(function(event) {
+//     console.error('ok:', event.name, event);
+// });
 
+// -----------------------------------------------------------------------------
+
+// // @example sh.Board.cmd_version - Send version command to the board
+// // create the board instance
+// var board = new sh.Board('192.168.1.102');
+//
+// subscribe to events
+board.subscribe('version', function(event) {
+    console.info('on:version:', event);
+});
+
+// send ok command with 5s timeout
+board.cmd_version({ timeout: 5000 }).then(function(event) {
+    // event = sh.BoardEvent {
+    //     board        : {sh.Board},
+    //     name         : "version",
+    //     data         : {Object},
+    //     originalEvent: {sh.network.RequestEvent}
+    // }
+    console.info('version:', event.data);
+    // event.data = Object {
+    //     branch: "edge",
+    //     hash  : "9ab4538",
+    //     date  : "Oct 10 2016 04:09:42",
+    //     mcu   : "LPC1769",
+    //     clock : "120MHz"
+    // }
+})
+.catch(function(event) {
+    console.error('version:', event.name, event);
+});
+
+// -----------------------------------------------------------------------------
 
 
 
@@ -420,9 +494,9 @@ sh.network.Request({
 
 // -----------------------------------------------------------------------------
 
-// // @example sh.Scanner - Scanne the network
+// // @example sh.network.Scanner - Scanne the network
 // // create the scanner instance
-// var scanner = sh.Scanner();
+// var scanner = sh.network.Scanner();
 //
 // // register events callbacks
 // scanner.on('start', function(scan) {

@@ -5,8 +5,7 @@
 // library modules
 $modules = [
     'network',
-    'scanner',
-    'commands',
+    'network.scanner',
     'board',
     // 'board.config'
 ];

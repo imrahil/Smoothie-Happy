@@ -14,42 +14,42 @@ var sh = sh || {};
     'use strict';
 
     /**
-    * @property {String} version API version.
+    * @property {String} - API version.
     * @default
     * @readonly
     */
     sh.version = '{$version}';
 
     /**
-    * @property {String} build API build hash.
+    * @property {String} - API build hash.
     * @default
     * @readonly
     */
     sh.build = '{$build}';
 
     /**
-    * @property {String} id API id.
+    * @property {String} - API id.
     * @default
     * @readonly
     */
     sh.id = '{$id}';
 
     /**
-    * @property {String} name API name.
+    * @property {String} - API name.
     * @default
     * @readonly
     */
     sh.name = '{$name}';
 
     /**
-    * @property {String} description API description.
+    * @property {String} - API description.
     * @default
     * @readonly
     */
     sh.description = '{$description}';
 
     /**
-    * @property {String} gitURL API repository url.
+    * @property {String} - API repository url.
     * @default
     * @readonly
     */
