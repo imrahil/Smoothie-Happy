@@ -270,12 +270,14 @@
             self._xhr.timeout = self._timeout;
 
             // on load
+            var LOAD_EVENT = 'load';
+
             self._xhr.onload = function () {
                 if (self._xhr.status >= 200 && self._xhr.status < 300) {
-                    resolve(sh.network.RequestEvent('load', self));
+                    resolve(sh.network.RequestEvent(LOAD_EVENT, self));
                 }
                 else {
-                    reject(sh.network.RequestEvent('load', self));
+                    reject(sh.network.RequestEvent(LOAD_EVENT, self));
                 }
             };
 
@@ -295,14 +297,9 @@
             };
 
             // on upload.load
-            // self._xhr.upload.onload = function () {
-            //     if (self._xhr.status >= 200 && self._xhr.status < 300) {
-            //         resolve(sh.network.RequestEvent('upload.load', self));
-            //     }
-            //     else {
-            //         reject(sh.network.RequestEvent('upload.load', self));
-            //     }
-            // };
+            self._xhr.upload.onload = function () {
+                LOAD_EVENT = 'upload.load';
+            };
 
             // on upload.error
             self._xhr.upload.onerror = function () {

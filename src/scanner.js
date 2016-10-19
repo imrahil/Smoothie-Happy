@@ -1,0 +1,493 @@
+(function () {
+    'use strict';
+
+    /**
+    * Network scanner.
+    *
+    * @class
+    *
+    * @param {Object}       settings         Scanner settings.
+    * @param {String|Array} settings.input   Ip's scan pattern. See {@link sh.Scanner#setInput|setInput} for details.
+    * @param {Integer}      settings.timeout Scan timeout in milliseconds. See {@link sh.Scanner#setTimeout|setTimeout} for details.
+    *
+    * {$examples sh.Scanner}
+    */
+    sh.Scanner = function(settings) {
+        // instance factory
+        if (! (this instanceof sh.Scanner)) {
+            return new sh.Scanner(settings);
+        }
+
+        // defaults settings
+        settings = settings || {};
+
+        /**
+        * @property {Object} - Registred callbacks.
+        * @protected
+        */
+        this._on = {};
+
+        /**
+        * @property {String} input Input to scan.
+        * @default 192.168.1.*.
+        * @readonly
+        */
+        this.input = settings.input || '192.168.1.*';
+
+        /**
+        * @property {Array} queue Ip's queue to scann.
+        * @readonly
+        */
+        this.queue = [];
+
+        /**
+        * @property {Integer} timeout Default scan response timeout in milliseconds.
+        * @default 2000
+        * @readonly
+        */
+        this.timeout = settings.timeout === undefined ? 2000 : settings.timeout;
+
+        /**
+        * @property {Integer} boardTimeout Default board response timeout in milliseconds.
+        * @default 1000
+        * @readonly
+        */
+        this.boardTimeout = settings.boardTimeout === undefined ? 5000 : settings.boardTimeout;
+
+        /**
+        * @property {Boolean} scanning Is scanning.
+        * @readonly
+        */
+        this.scanning = false;
+
+        /**
+        * @property {Boolean} aborted Aborted scann status.
+        * @readonly
+        */
+        this.aborted = false;
+
+        /**
+        * @property {Integer} total Total number of ip to scan.
+        * @readonly
+        */
+        this.total = 0;
+
+        /**
+        *@property {Integer} scanned Number of ip scanned.
+        * @readonly
+        */
+        this.scanned = 0;
+
+        /**
+        * @property {Integer} found Number of boards found.
+        * @readonly
+        */
+        this.found = 0;
+
+        /**
+        * @property {Object} boards Known boards list.
+        * @readonly
+        */
+        this.boards = {};
+
+    };
+
+    // -------------------------------------------------------------------------
+
+    /**
+    * On scan start callback.
+    *
+    * @callback sh.Scanner~onStart
+    *
+    * @param {sh.Scanner} scanner Scanner instance.
+    */
+
+    /**
+    * On scan pause callback.
+    *
+    * @callback sh.Scanner~onPause
+    *
+    * @param {sh.Scanner} scanner Scanner instance.
+    */
+
+    /**
+    * On scan resume callback.
+    *
+    * @callback sh.Scanner~onResume
+    *
+    * @param {sh.Scanner} scanner Scanner instance.
+    */
+
+    /**
+    * On scan stop callback.
+    *
+    * @callback sh.Scanner~onStop
+    *
+    * @param {sh.Scanner} scanner Scanner instance.
+    */
+
+    /**
+    * On board found callback.
+    *
+    * @callback sh.Scanner~onBoard
+    *
+    * @param {sh.Scanner} scanner Scanner instance.
+    * @param {sh.Board}           board   Board instance.
+    */
+
+    /**
+    * On scan end callback.
+    *
+    * @callback sh.Scanner~onEnd
+    *
+    * @param {sh.Scanner} scanner Scanner instance.
+    */
+
+    // -------------------------------------------------------------------------
+
+    /**
+    * Register an event callback.
+    *
+    * @method
+    *
+    * @param {String}   event    Event name.
+    * @param {Function} callback Function to call on event is fired.
+    *
+    * @return {this}
+    *
+    * @callbacks
+    * | Name   | Type                                         | Description                |
+    * | -------| -------------------------------------------- | -------------------------- |
+    * | start  | {@link sh.Scanner~onStart|onStart}   | Called before scan start.  |
+    * | pause  | {@link sh.Scanner~onPause|onPause}   | Called after scan pause.   |
+    * | resume | {@link sh.Scanner~onResume|onResume} | Called before scan resume. |
+    * | stop   | {@link sh.Scanner~onStop|onStop}     | Called after scan stop.    |
+    * | stop   | {@link sh.Scanner~onBoard|onBoard}   | Called after board found.  |
+    * | stop   | {@link sh.Scanner~onEnd|onEnd}       | Called after scan end.     |
+    */
+    sh.Scanner.prototype.on = function(event, callback) {
+        // register callback
+        this._on[event] = callback;
+
+        // -> this (chainable)
+        return this;
+    };
+
+    /**
+    * Trigger an user defined callback with the scope of this class.
+    *
+    * @method
+    * @protected
+    *
+    * @param {String} event Event name.
+    * @param {Array}  args  Arguments to pass to the callback.
+    *
+    * @return {this}
+    */
+    sh.Scanner.prototype._trigger = function(name, args) {
+        // if defined, call user callback
+        this._on[name] && this._on[name].apply(this, args || []);
+
+        // -> this (chainable)
+        return this;
+    };
+
+    // -------------------------------------------------------------------------
+
+    /**
+    * Set the input and compute the scan queue.
+    *
+    * **Allowed inputs :**
+    * ```
+    * - Wildcard  : '192.168.1.*'
+    * - Single IP : '192.168.1.100'
+    * - IP Range  : '192.168.1.100-120'
+    * - Hostname  : 'my.smoothie.board'
+    * - Mixed     : '192.168.1.100, my.smoothie.board'
+    * - Array     : ['192.168.1.100-120', 'my.smoothie.board']
+    * ```
+    *
+    * @method
+    *
+    * @param {String|Array} input Ip's scan pattern.
+    *
+    * @return {this}
+    */
+    sh.Scanner.prototype.setInput = function(input) {
+        // Not alowed in scan mode.
+        if (this.scanning) {
+            throw new Error('Already in scan mode.');
+        }
+
+        // reset queue
+        this.queue = [];
+
+        // input array
+        var inputArray = input;
+
+        // split input on comma if not an array
+        if (typeof inputArray === 'string') {
+            inputArray = inputArray.split(',');
+        }
+
+        // too short or not defined
+        if (! inputArray || inputArray.length === 0) {
+            throw new Error('Invalid input.');
+        }
+
+        // trim input parts
+        inputArray = inputArray.map(function(part) {
+            return part.trim();
+        });
+
+        // for each parts
+        for (var y = 0, yl = inputArray.length; y < yl; y++) {
+            // current part
+            var currentInput = inputArray[y];
+
+            // Wildcard | ex.: [192.168.1.*]
+            if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.\*$/.test(currentInput)) {
+                var currentInputParts = currentInput.split('.');
+                currentInputParts.pop(); // remove last part (*)
+                var baseIp = currentInputParts.join('.');
+                for (var i = 0; i <= 255; i++) {
+                    this.queue.push(baseIp + '.' + i);
+                }
+            }
+
+            // Single ip | ex.: [192.168.1.55]
+            else if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(currentInput)) {
+                this.queue.push(currentInput);
+            }
+
+            // Ip's range | ex.: [192.168.1.50-100]
+            else if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\-[0-9]{1,3}$/.test(currentInput)) {
+                var currentInputParts = currentInput.split('.');
+                var currentInputRange = currentInputParts.pop().split('-'); // last part (xxx-xxx)
+                var baseIp     = currentInputParts.join('.');
+                for (var i = currentInputRange[0], il = currentInputRange[1]; i <= il; i++) {
+                    this.queue.push(baseIp + '.' + i);
+                }
+            }
+
+            // Hostname | ex.: [www.host.name]
+            else if (/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/.test(currentInput)) {
+                this.queue.push(currentInput);
+            }
+
+            // Invalid...
+            else {
+                throw new Error('Invalid input.');
+            }
+        }
+
+        // update input
+        this.input = input;
+
+        // return self
+        return this;
+    };
+
+    /**
+    * Set scan timeout.
+    *
+    * @method
+    *
+    * @param {Integer} timeout Scan timeout in milliseconds [min: 100, max: 2000].
+    *
+    * @return {this}
+    */
+    sh.Scanner.prototype.setTimeout = function(timeout) {
+        // out of range test
+        if (timeout < 100 || timeout > 2000) {
+            throw new Error('Timeout is out of range [100, 2000].');
+        }
+
+        // set the timeout
+        this.timeout = timeout;
+
+        // return self
+        return this;
+    };
+
+    // -------------------------------------------------------------------------
+
+    /**
+    * Shift and scan an ip from the queue looking for a SmoothieBoard.
+    *
+    * @method
+    * @protected
+    *
+    * @return {Boolean|null}
+    */
+    sh.Scanner.prototype._processQueue = function() {
+        // not in scan mode
+        if (! this.scanning) {
+            return false;
+        }
+
+        // shift first address from the queue
+        var address = this.queue.shift();
+
+        // end of queue
+        if (! address) {
+            this._trigger('end', [this]);
+            this.scanning = false;
+            return true;
+        }
+
+        // increment scanned counter
+        this.scanned++;
+
+        // self alias
+        var self  = this;
+
+        try {
+            // create board instance
+            var board = sh.Board({
+                address: address,
+                timeout: this.timeout
+            });
+
+            // get board version
+            board.version().then(function(event) {
+                // increment counters
+                self.found++;
+
+                // add the board
+                self.boards[address] = event.board;
+
+                // set board default timeout
+                event.board.timeout = self.boardTimeout;
+
+                // trigger board event
+                self._trigger('board', [self, event.board]);
+            })
+            .catch(function(event) {
+                // return event
+                return event;
+            })
+            .then(function(event) {
+                // trigger progress event
+                self._trigger('progress', [self]);
+
+                // process queue
+                self._processQueue();
+            });
+        }
+        catch(error) {
+            // trigger progress event
+            self._trigger('progress', [self]);
+
+            // process queue
+            self._processQueue();
+        }
+
+        // return null
+        return null;
+    };
+
+    // -------------------------------------------------------------------------
+
+    /**
+    * Start new scan.
+    *
+    * @method
+    *
+    * @param {String|Array} input   Ip's scan pattern. See {@link sh.Scanner#setInput|setInput} for details.
+    * @param {Integer}      timeout Scan timeout in milliseconds. See {@link sh.Scanner#setTimeout|setTimeout} for details.
+    *
+    * @return {this}
+    */
+    sh.Scanner.prototype.start = function(input, timeout) {
+        // set the input
+        this.setInput(input || this.input);
+
+        // set the timeout
+        timeout && this.setTimeout(timeout);
+
+        // set scan status
+        this.scanning = true;
+        this.aborted  = false;
+        this.total    = this.queue.length;
+        this.scanned  = 0;
+        this.found    = 0;
+        this.boards   = {};
+
+        // call user callback
+        this._trigger('start', [this]);
+
+        // process queue
+        this._processQueue();
+
+        // -> this (chainable)
+        return this;
+    };
+
+    /**
+    * Stop current scan.
+    *
+    * @method
+    *
+    * @return {this}
+    */
+    sh.Scanner.prototype.stop = function() {
+        if (this.scanning || this.aborted) {
+            // set scan status
+            this.scanning = false;
+            this.aborted  = false;
+
+            // call user callback
+            this._trigger('stop', [this]);
+        }
+
+        // -> this (chainable)
+        return this;
+    };
+
+    /**
+    * Pause current scan.
+    *
+    * @method
+    *
+    * @return {this}
+    */
+    sh.Scanner.prototype.pause = function() {
+        if (this.scanning) {
+            // set scan status
+            this.scanning = false;
+            this.aborted  = true;
+
+            // call user callback
+            this._trigger('pause', [this]);
+       }
+
+        // -> this (chainable)
+        return this;
+    };
+
+    /**
+    * Resume current scan.
+    *
+    * @method
+    *
+    * @return {this}
+    */
+    sh.Scanner.prototype.resume = function() {
+        if (this.aborted) {
+            // set scan status
+            this.aborted  = false;
+            this.scanning = true;
+
+            // call user callback
+            this._trigger('resume', [this]);
+
+            // process queue
+            this._processQueue();
+        }
+
+        // -> this (chainable)
+        return this;
+    };
+
+})();

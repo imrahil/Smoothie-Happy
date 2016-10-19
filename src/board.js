@@ -172,6 +172,12 @@
         * @protected
         */
         this._on = {};
+
+        /**
+        * @property {sh.Commands} - Commands manager.
+        * @readonly
+        */
+        this.commands = new sh.Commands(this);
     };
 
     // -------------------------------------------------------------------------
@@ -457,6 +463,22 @@
 
         // resolve the promise
         return Promise.resolve(board_event);
+    };
+
+    /**
+    * Send a command to the board.
+    *
+    * @method
+    *
+    * @param {String}  command   Command to send.
+    * @param {Object}  settings  Command settings.
+    *
+    * @return {sh.network.Request}
+    *
+    * {$examples sh.Board.command}
+    */
+    sh.Board.prototype.command = function(command, settings) {
+        return this.commands.send(command, settings);
     };
 
 })();

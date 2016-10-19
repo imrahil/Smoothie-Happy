@@ -9,6 +9,8 @@
         <meta name="description" content="{$description}">
     </head>
     <body id="{$id}">
-        <a href="?noCache&amp;noDocs&amp;examples">Examples (open the console to see output)</a>
+        <script src="vendor/es6-promise.auto.min.js?v=4.0.3"></script>
+        <script src="dist/smoothie-happy.js?v={$version}&amp;b={$build}"></script>
+        <script src="ui/scripts/examples.js?v={$version}&amp;b={$build}"></script>
     </body>
 </html>

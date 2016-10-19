@@ -5,15 +5,15 @@
 // library modules
 $modules = [
     'network',
-    'network.scanner',
+    'scanner',
+    'commands',
     'board',
-    'board.commands',
-    'board.config'
+    // 'board.config'
 ];
 
 // library settings
 $settings = [
-    'version'     => '0.2.0-dev',
+    'version'     => '0.2.1-dev',
     'build'       => 'auto',
     'date'        => date(DATE_RSS),
     'id'          => 'smoothie-happy',
@@ -37,14 +37,14 @@ $scripts_path   = './ui/scripts';
 $templates_path = './ui/templates';
 
 // index template
-$main_js_template = 'main.js';
-$debug_template   = 'debug.tpl';
-$index_template   = 'index.tpl';
-$index_file       = './index.html';
-$main_js_file     = './main.js';
+$main_js_template  = 'index.js';
+$examples_template = 'examples.tpl';
+$index_template    = 'index.tpl';
+$index_file        = './index.html';
+$main_js_file      = './index.js';
 
 // examples file
-$example_file = './examples.js';
+$example_file = './ui/scripts/examples.js';
 
 // docs directory
 $docs_directory = './docs';
@@ -68,10 +68,10 @@ if ($settings['build'] === 'auto') {
 // -----------------------------------------------------------------------------
 $noCache = isset($_GET['noCache']);
 $noDocs  = isset($_GET['noDocs']);
-$debug   = isset($_GET['debug']);
+$examples   = isset($_GET['examples']);
 
-if ($debug) {
-    $index_template = $debug_template;
+if ($examples) {
+    $index_template = $examples_template;
 }
 
 // -----------------------------------------------------------------------------
