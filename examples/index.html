@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Smoothie-Happy - v0.3.0-dev</title>
+        <link rel="icon" href="../favicon.ico" />
+        <meta name="description" content="A SmoothieBoard network communication API" />
+        <link rel="stylesheet" type="text/css" href="styles.css" />
+        <link rel="stylesheet" type="text/css" href="../vendor/prism/prism.css" />
+    </head>
+    <body>
+        <h3>Open the console <small>[ Ctrl + Shift + I ]</small> to see all messages !</h3>
+        <select>
+	<optgroup label="sh.network.Request">
+		<option value="none" selected disabled>Select an example to run...</option>
+		<option value="example0">Single request</option>
+		<option value="example1">Chaining requests</option>
+		<option value="example2">Multiple requests (all)</option>
+		<option value="example3">Multiple requests (race)</option>
+	</optgroup>
+</select>
+ <button>Run</button>
+        <pre><code id="source" class="language-javascript"></code></pre>
+        <script src="../vendor/es6-promise.auto.min.js?v=4.0.3"></script>
+        <script src="../dist/sh.js?v=0.3.0-dev&amp;b=e9516897078299e99536ad82dd09cb2f"></script>
+        <script src="../vendor/prism/prism.js"></script>
+        <script>
+	// Example n°0 - sh.network.Request : Single request
+
+	function example0() {
+		new sh.network.Request({
+		    url: 'index.html'
+		})
+		.onProgress(function(event) {
+		    // notify progression
+		    console.info(event.request._url, '>> progress >>',  event.percent, '%');
+		})
+		.then(function(event) {
+		    // index.html is loaded
+		    console.info(event.request._url, '>> loaded >>', event.response);
+		
+		    // return result for final then
+		    return { event: event, error: false };
+		})
+		.catch(function(event) {
+		    // error loading index.html
+		    console.warn(event.request._url, '>> error >>', event.response);
+		
+		    // return error for final then
+		    return { event: event, error: true };
+		})
+		.then(function(result) {
+		    // finaly ...
+		    var event    = result.event;
+		    var logType  = result.error ? 'error' : 'info';
+		    var logLabel = result.error ? 'error' : 'loaded';
+		
+		    console[logType](event.request._url, '>>', logLabel, '>>', event.response);
+		});
+	}
+
+	// Example n°1 - sh.network.Request : Chaining requests
+
+	function example1() {
+		new sh.network.Request({
+		    url: 'index.html'
+		})
+		.onProgress(function(event) {
+		    // notify progression
+		    console.info(event.request._url, '>> progress >>',  event.percent, '%');
+		})
+		.then(function(event) {
+		    // index.html is loaded
+		    console.info(event.request._url, '>> loaded >>', event.response);
+		
+		    // return another request
+		    return new sh.network.Request({
+		        url: 'not_found.html'
+		    })
+		    .onProgress(function(event) {
+		        // notify progression
+		        console.info(event.request._url, '>> progress >>',  event.percent, '%');
+		    });
+		})
+		.then(function(event) {
+		    // not_found.html is loaded
+		    console.info(event.request._url, '>> loaded >>', event.response);
+		
+		    // return result for final then
+		    return { event: event, error: false };
+		})
+		.catch(function(event) {
+		    // error loading index.html or not_found.html
+		    console.warn(event.request._url, '>> error >>', event.response);
+		
+		    // return error for final then
+		    return { event: event, error: true };
+		})
+		.then(function(result) {
+		    // finaly ...
+		    var event    = result.event;
+		    var logType  = result.error ? 'error' : 'info';
+		    var logLabel = result.error ? 'error' : 'loaded';
+		
+		    console[logType](event.request._url, '>>', logLabel, '>>', event.response);
+		});
+	}
+
+	// Example n°2 - sh.network.Request : Multiple requests (all)
+
+	function example2() {
+		var requests = [
+		    new sh.network.Request({ url: 'index.html?request=1'}),
+		    new sh.network.Request({ url: 'index.html?request=2'}),
+		    new sh.network.Request({ url: 'index.html?request=3'})
+		];
+		
+		// The Promise.all(iterable) method returns a promise that resolves
+		// when all of the promises in the iterable argument have resolved,
+		// or rejects with the event of the first passed promise that rejects
+		Promise.all(requests).then(function(events) {
+		    // All requests are resloved
+		    for (var i = 0; i < events.length; i++) {
+		        console.info(events[i].request._url, '>> loaded >>', events[i].response);
+		    }
+		})
+		.catch(function(event) {
+		    // First passed promise that rejects
+		    console.warn(event.request._url, '>> error >>', event.response);
+		});
+	}
+
+	// Example n°3 - sh.network.Request : Multiple requests (race)
+
+	function example3() {
+		var requests = [
+		    new sh.network.Request({ url: 'index.html?request=1'}),
+		    new sh.network.Request({ url: 'index.html?request=2'}),
+		    new sh.network.Request({ url: 'index.html?request=3'})
+		];
+		
+		// The Promise.race(iterable) method returns a promise that resolves or rejects
+		// as soon as one of the promises in the iterable resolves or rejects,
+		// with the event from that promise.
+		Promise.race(requests).then(function(event) {
+		    // First passed promise that resolves
+		    console.info(event.request._url, '>> loaded >>', event.response);
+		})
+		.catch(function(event) {
+		    // First passed promise that rejects
+		    console.warn(event.request._url, '>> error >>', event.response);
+		});
+	}
+</script>
+
+        <script>
+            var select = document.querySelector('select');
+            var button = document.querySelector('button');
+            var source = document.querySelector('#source');
+
+            select.addEventListener('change', function() {
+                var example = window[select.value];
+                if (example) {
+                    var text  = example.toString();
+                    var lines = text.split('\n');
+                        lines = lines.slice(1, lines.length - 1);
+                        text  = lines.join('\n').replace(/\t/gm, '');
+                    var html  = Prism.highlight(text, Prism.languages.javascript);
+                    source.innerHTML = html;
+                }
+            }, false);
+
+            button.addEventListener('click', function() {
+                var example = window[select.value];
+                example && example();
+            }, false);
+        </script>
+    </body>
+</html>
