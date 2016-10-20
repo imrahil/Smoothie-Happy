@@ -83,28 +83,56 @@ var board = new sh.Board('192.168.1.102');
 // @example sh.Board.send.subscribe - Subscribe to events
 board.subscribe('request', function(event) {
     console.info('on:request:', event);
+    // => sh.BoardEvent {
+    //     board        : {sh.Board},
+    //     name         : "request",
+    //     data         : {Object}, <- request settings
+    //     originalEvent: null
+    // }
 });
 
 board.subscribe('response', function(event) {
     console.info('on:response:', event);
+    // => sh.BoardEvent {
+    //     board        : {sh.Board},
+    //     name         : "response",
+    //     data         : {Object|String},  <- parsed response data
+    //     originalEvent: {sh.network.RequestEvent}
+    // }
 });
 
 board.subscribe('data', function(event) {
-    console.info('on:data:', event);
+    console.info('on:data:', event.data);
+    // => Object {
+    //     request : {Object},        <- request settings
+    //     response: {Object|String}  <- parsed response data
+    // }
 });
 
 board.subscribe('retry', function(event) {
     console.warn('on:retry:', event);
+    // => sh.BoardEvent {
+    //     board        : {sh.Board},
+    //     name         : "error",
+    //     data         : {Object}, <- request settings
+    //     originalEvent: {sh.network.RequestEvent}
+    // }
 });
 
 board.subscribe('error', function(event) {
     console.error('on:error:', event);
+    // => sh.BoardEvent {
+    //     board        : {sh.Board},
+    //     name         : "error",
+    //     data         : {Error}, <- Error instance
+    //     originalEvent: {sh.network.RequestEvent}
+    // }
 });
 
 // // @example sh.Board.send.version1 - Send version command (raw response)
 // board.send('version').then(function(event) {
 //     console.info('version:event:', event);
-//     // event = sh.BoardEvent {
+//     // => sh.BoardEvent {
 //     //     board        : {sh.Board},
 //     //     name         : "response",
 //     //     data         : "Build version: edge-9ab4538, Build date: Oct 10 2016 04:09:42, MCU: LPC1769, System Clock: 120MHz↵",
@@ -119,7 +147,7 @@ board.subscribe('error', function(event) {
 // })
 // .catch(function(event) {
 //     console.info('version:event:', event);
-//     // event = sh.BoardEvent {
+//     // => sh.BoardEvent {
 //     //     board        : {sh.Board},
 //     //     name         : "error",
 //     //     data         : {Error},
@@ -137,7 +165,7 @@ board.subscribe('error', function(event) {
 //     // => "Build version: edge-9ab4538, Build date: Oct 10 2016 04:09:42, MCU: LPC1769, System Clock: 120MHz↵"
 //
 //     console.info('version:event:data:', event.data); // Parsed response data
-//     // event.data = Object {
+//     // => Object {
 //     //     branch: "edge",
 //     //     hash  : "9ab4538",
 //     //     date  : "Oct 10 2016 04:09:42",
@@ -155,7 +183,7 @@ board.command('version').then(function(event) {
     // => "Build version: edge-9ab4538, Build date: Oct 10 2016 04:09:42, MCU: LPC1769, System Clock: 120MHz↵"
 
     console.info('version:event:data:', event.data); // Parsed response data
-    // event.data = Object {
+    // => Object {
     //     branch: "edge",
     //     hash  : "9ab4538",
     //     date  : "Oct 10 2016 04:09:42",

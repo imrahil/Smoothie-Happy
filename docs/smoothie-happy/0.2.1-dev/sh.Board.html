@@ -1,0 +1,3726 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Smoothie-Happy</title>
+    
+    <meta name="description" content="A SmoothieBoard network communication API" />
+    
+        <meta name="keywords" content="SmoothieBoard, SmoothieWare, Smoothie Firmware, Network, API, js, JavaScript" />
+        <meta name="keyword" content="SmoothieBoard, SmoothieWare, Smoothie Firmware, Network, API, js, JavaScript" />
+    
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/jaguar.css">
+    
+    
+    <script>
+    var config = {"monospaceLinks":true,"cleverLinks":true,"default":{"outputSourceFiles":true},"applicationName":"smoothie-happy","meta":{"title":"Smoothie-Happy","description":"A SmoothieBoard network communication API","keyword":"SmoothieBoard, SmoothieWare, Smoothie Firmware, Network, API, js, JavaScript"},"linenums":true};
+    </script>
+    
+
+    
+</head>
+<body>
+<div id="wrap" class="clearfix">
+    
+<div class="navigation">
+    <h3 class="applicationName"><a href="index.html">smoothie-happy</a></h3>
+
+    <div class="search">
+        <input id="search" type="text" class="form-control input-sm" placeholder="Search Documentations">
+    </div>
+    <ul class="list">
+    
+        <li class="item" data-name="sh">
+            <span class="title">
+                <a href="sh.html">sh</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.build"><a href="sh.html#.build">build</a></li>
+            
+                <li data-name="sh.description"><a href="sh.html#.description">description</a></li>
+            
+                <li data-name="sh.gitURL"><a href="sh.html#.gitURL">gitURL</a></li>
+            
+                <li data-name="sh.id"><a href="sh.html#.id">id</a></li>
+            
+                <li data-name="sh.name"><a href="sh.html#.name">name</a></li>
+            
+                <li data-name="sh.version"><a href="sh.html#.version">version</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.commands">
+            <span class="title">
+                <a href="sh.commands.html">sh.commands</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.commands.parse"><a href="sh.commands.html#.parse">parse</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.commands.parsers">
+            <span class="title">
+                <a href="sh.commands.parsers.html">sh.commands.parsers</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.commands.parsers._error"><a href="sh.commands.parsers.html#._error">_error</a></li>
+            
+                <li data-name="sh.commands.parsers._success"><a href="sh.commands.parsers.html#._success">_success</a></li>
+            
+                <li data-name="sh.commands.parsers.ok"><a href="sh.commands.parsers.html#.ok">ok</a></li>
+            
+                <li data-name="sh.commands.parsers.version"><a href="sh.commands.parsers.html#.version">version</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network">
+            <span class="title">
+                <a href="sh.network.html">sh.network</a>
+                
+                <span class="static">static</span>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.network.get"><a href="sh.network.html#.get">get</a></li>
+            
+                <li data-name="sh.network.post"><a href="sh.network.html#.post">post</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.Board">
+            <span class="title">
+                <a href="sh.Board.html">sh.Board</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.Board#_subscriptions"><a href="sh.Board.html#_subscriptions">_subscriptions</a></li>
+            
+                <li data-name="sh.Board#address"><a href="sh.Board.html#address">address</a></li>
+            
+                <li data-name="sh.Board#info"><a href="sh.Board.html#info">info</a></li>
+            
+                <li data-name="sh.Board#lastOnlineTime"><a href="sh.Board.html#lastOnlineTime">lastOnlineTime</a></li>
+            
+                <li data-name="sh.Board#online"><a href="sh.Board.html#online">online</a></li>
+            
+                <li data-name="sh.Board#retryCount"><a href="sh.Board.html#retryCount">retryCount</a></li>
+            
+                <li data-name="sh.Board#retryInterval"><a href="sh.Board.html#retryInterval">retryInterval</a></li>
+            
+                <li data-name="sh.Board#retryLimit"><a href="sh.Board.html#retryLimit">retryLimit</a></li>
+            
+                <li data-name="sh.Board#timeout"><a href="sh.Board.html#timeout">timeout</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            <span class="subtitle">Type Definitions</span>
+            
+                <li data-name="sh.Board~onData"><a href="sh.Board.html#~onData">onData</a></li>
+            
+                <li data-name="sh.Board~onError"><a href="sh.Board.html#~onError">onError</a></li>
+            
+                <li data-name="sh.Board~onRequest"><a href="sh.Board.html#~onRequest">onRequest</a></li>
+            
+                <li data-name="sh.Board~onResponse"><a href="sh.Board.html#~onResponse">onResponse</a></li>
+            
+                <li data-name="sh.Board~onRetry"><a href="sh.Board.html#~onRetry">onRetry</a></li>
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.Board#_rejectEvent"><a href="sh.Board.html#_rejectEvent">_rejectEvent</a></li>
+            
+                <li data-name="sh.Board#_resolveEvent"><a href="sh.Board.html#_resolveEvent">_resolveEvent</a></li>
+            
+                <li data-name="sh.Board#command"><a href="sh.Board.html#command">command</a></li>
+            
+                <li data-name="sh.Board#publish"><a href="sh.Board.html#publish">publish</a></li>
+            
+                <li data-name="sh.Board#send"><a href="sh.Board.html#send">send</a></li>
+            
+                <li data-name="sh.Board#subscribe"><a href="sh.Board.html#subscribe">subscribe</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.BoardEvent">
+            <span class="title">
+                <a href="sh.BoardEvent.html">sh.BoardEvent</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.BoardEvent#board"><a href="sh.BoardEvent.html#board">board</a></li>
+            
+                <li data-name="sh.BoardEvent#data"><a href="sh.BoardEvent.html#data">data</a></li>
+            
+                <li data-name="sh.BoardEvent#name"><a href="sh.BoardEvent.html#name">name</a></li>
+            
+                <li data-name="sh.BoardEvent#originalEvent"><a href="sh.BoardEvent.html#originalEvent">originalEvent</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.ProgressEvent">
+            <span class="title">
+                <a href="sh.network.ProgressEvent.html">sh.network.ProgressEvent</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.ProgressEvent#computable"><a href="sh.network.ProgressEvent.html#computable">computable</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#loaded"><a href="sh.network.ProgressEvent.html#loaded">loaded</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#name"><a href="sh.network.ProgressEvent.html#name">name</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#percent"><a href="sh.network.ProgressEvent.html#percent">percent</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#request"><a href="sh.network.ProgressEvent.html#request">request</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#response"><a href="sh.network.ProgressEvent.html#response">response</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#source"><a href="sh.network.ProgressEvent.html#source">source</a></li>
+            
+                <li data-name="sh.network.ProgressEvent#total"><a href="sh.network.ProgressEvent.html#total">total</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.Request">
+            <span class="title">
+                <a href="sh.network.Request.html">sh.network.Request</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.Request#_data"><a href="sh.network.Request.html#_data">_data</a></li>
+            
+                <li data-name="sh.network.Request#_headers"><a href="sh.network.Request.html#_headers">_headers</a></li>
+            
+                <li data-name="sh.network.Request#_method"><a href="sh.network.Request.html#_method">_method</a></li>
+            
+                <li data-name="sh.network.Request#_promise"><a href="sh.network.Request.html#_promise">_promise</a></li>
+            
+                <li data-name="sh.network.Request#_timeout"><a href="sh.network.Request.html#_timeout">_timeout</a></li>
+            
+                <li data-name="sh.network.Request#_url"><a href="sh.network.Request.html#_url">_url</a></li>
+            
+                <li data-name="sh.network.Request#_xhr"><a href="sh.network.Request.html#_xhr">_xhr</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            <span class="subtitle">Methods</span>
+            
+                <li data-name="sh.network.Request#_execute"><a href="sh.network.Request.html#_execute">_execute</a></li>
+            
+                <li data-name="sh.network.Request#catch"><a href="sh.network.Request.html#catch">catch</a></li>
+            
+                <li data-name="sh.network.Request#onProgress"><a href="sh.network.Request.html#onProgress">onProgress</a></li>
+            
+                <li data-name="sh.network.Request#onUploadProgress"><a href="sh.network.Request.html#onUploadProgress">onUploadProgress</a></li>
+            
+                <li data-name="sh.network.Request#then"><a href="sh.network.Request.html#then">then</a></li>
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.RequestEvent">
+            <span class="title">
+                <a href="sh.network.RequestEvent.html">sh.network.RequestEvent</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.RequestEvent#name"><a href="sh.network.RequestEvent.html#name">name</a></li>
+            
+                <li data-name="sh.network.RequestEvent#request"><a href="sh.network.RequestEvent.html#request">request</a></li>
+            
+                <li data-name="sh.network.RequestEvent#response"><a href="sh.network.RequestEvent.html#response">response</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+        <li class="item" data-name="sh.network.Response">
+            <span class="title">
+                <a href="sh.network.Response.html">sh.network.Response</a>
+                
+            </span>
+            <ul class="members itemMembers">
+            
+            <span class="subtitle">Members</span>
+            
+                <li data-name="sh.network.Response#code"><a href="sh.network.Response.html#code">code</a></li>
+            
+                <li data-name="sh.network.Response#message"><a href="sh.network.Response.html#message">message</a></li>
+            
+                <li data-name="sh.network.Response#raw"><a href="sh.network.Response.html#raw">raw</a></li>
+            
+                <li data-name="sh.network.Response#text"><a href="sh.network.Response.html#text">text</a></li>
+            
+                <li data-name="sh.network.Response#type"><a href="sh.network.Response.html#type">type</a></li>
+            
+                <li data-name="sh.network.Response#url"><a href="sh.network.Response.html#url">url</a></li>
+            
+                <li data-name="sh.network.Response#xml"><a href="sh.network.Response.html#xml">xml</a></li>
+            
+            </ul>
+            <ul class="typedefs itemMembers">
+            
+            </ul>
+            <ul class="methods itemMembers">
+            
+            </ul>
+            <ul class="events itemMembers">
+            
+            </ul>
+        </li>
+    
+    </ul>
+</div>
+
+    <div class="main">
+        <h1 class="page-title" data-filename="sh.Board.html">Class: Board</h1>
+        
+
+
+
+<section>
+
+<header>
+    <h2>
+        <span class="ancestors"><a href="sh.html">sh</a>.</span>
+    
+    Board
+    </h2>
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+
+    
+        
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="Board">
+            
+             new sh.Board<span class="signature">(address|settings, <span class="optional">settings</span>)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line792">line 792</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Board class.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>address|settings</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+|
+
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                    
+                    
+
+                    
+                
+                <p>Board address or settings.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>settings</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Board settings.</p>
+                
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>address</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Board address (ip or hostname).</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>timeout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Default response timeout in milliseconds for all commands.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>retryInterval</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+|
+
+<span class="param-type">null</span>
+|
+
+<span class="param-type">false</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Retry interval in milliseconds for all commands.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+            </td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="_subscriptions"><span class="type-signature ">protected</span> _subscriptions</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Subscriptions.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="address"><span class="type-signature ">readonly</span> address</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Board address (ip or hostname).</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="info"><span class="type-signature ">readonly</span> info</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+|
+
+<span class="param-type">null</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Board info parsed from version command.</p>
+                <h6>Properties</h6>
+
+<table class="props">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>branch</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Firmware branch.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>hash</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Firmware hash.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>date</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Firmware date.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>mcu</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Board MCU.</p></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>clock</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"><p>Board clock freqency.</p></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+            </td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="lastOnlineTime"><span class="type-signature ">readonly</span> lastOnlineTime</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Last time the board was seen online.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="online"><span class="type-signature ">readonly</span> online</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Is board online.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="retryCount"><span class="type-signature ">readonly</span> retryCount</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Number of retry occured.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="retryInterval"> retryInterval</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Retry interval in milliseconds for all commands.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>5000</li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="retryLimit"><span class="type-signature ">readonly</span> retryLimit</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Number of retry before rejection.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>5</li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="timeout"> timeout</h4>
+    </div>
+
+    
+</dt>
+<dd>
+    
+
+    
+<dl class="details">
+    
+
+        <dl>
+
+<table class="props">
+    <thead>
+	<tr>
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Default response timeout in milliseconds for all commands.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+</dl>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy"><li>5000</li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="_rejectEvent">
+            
+            <span class="type-signature ">protected</span> _rejectEvent<span class="signature">(event, <span class="optional">raison</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Promise}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1007">line 1007</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Publish an <code>error</code> event and return an rejected Promise.</p>
+<ul>
+<li>If an string is provided as raison, it will be converted to an <code>Error</code> instance.</li>
+</ul>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.Response.html">sh.network.Response</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                    
+                    
+
+                    
+                
+                <p>Rejected event.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>raison</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+|
+
+<span class="param-type">Error</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Reject raison.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="_resolveEvent">
+            
+            <span class="type-signature ">protected</span> _resolveEvent<span class="signature">(name, event, <span class="optional">data</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{Promise}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line992">line 992</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Publish the event and return an resolved Promise.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Default</th>
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                    
+
+                    
+                
+                <p>Event name.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.Response.html">sh.network.Response</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                    
+
+                    
+                
+                <p>Resolved event.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Mixed</span>
+|
+
+<span class="param-type">Error</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Event data (see <code>sh.network.BoardEvent</code>.data member for more details).</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="command">
+            
+             command<span class="signature">(command|settings, <span class="optional">settings</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Request.html">sh.network.Request</a>}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1294">line 1294</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Send a command to the board (force parsed response).</p>
+<ul>
+<li>Shortcut for <code>board.send('version', { parseResponse: true });</code>.</li>
+</ul>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>command|settings</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+|
+
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                    
+                    
+
+                    
+                
+                <p>Command to send or command settings object.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>settings</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Command settings (see <a href="sh.Board.html#send"><code>sh.Board#send</code></a> for more details).</p>
+                
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Default</th>
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>parseResponse</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                    true
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Parse the response string (see <a href="sh.commands.parsers.html"><code>sh.commands.parsers</code></a> for a list of knowns parsers).</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+            </td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+        <h5>Example</h5>
+        
+
+    <h3>Send version command (force parsed response)</h3><pre class="prettyprint source"><code>// Shortcut for `board.send('version', { parseResponse: true });`.
+board.command('version').then(function(event) {
+    console.info('version:event:raw:', event.originalEvent.response.raw);
+    // => &quot;Build version: edge-9ab4538, Build date: Oct 10 2016 04:09:42, MCU: LPC1769, System Clock: 120MHz↵&quot;
+
+    console.info('version:event:data:', event.data); // Parsed response data
+    // => Object {
+    //     branch: &quot;edge&quot;,
+    //     hash  : &quot;9ab4538&quot;,
+    //     date  : &quot;Oct 10 2016 04:09:42&quot;,
+    //     mcu   : &quot;LPC1769&quot;,
+    //     clock : &quot;120MHz&quot;
+    // }
+});</code></pre>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="publish">
+            
+             publish<span class="signature">(name, <span class="optional">data</span>, <span class="optional">event</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.BoardEvent.html">sh.BoardEvent</a>}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line965">line 965</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Publish an event with the scope of this class.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Default</th>
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>name</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                    
+
+                    
+                
+                <p>Event name.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Mixed</span>
+|
+
+<span class="param-type">Error</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Event data (see <code>sh.network.BoardEvent</code>.data member for more details).</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.network.RequestEvent.html">sh.network.RequestEvent</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Original <code>sh.network.RequestEvent</code> instance.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="send">
+            
+             send<span class="signature">(command|settings, <span class="optional">settings</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{<a href="sh.network.Request.html">sh.network.Request</a>}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line1135">line 1135</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Send a command to the board.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>command|settings</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+|
+
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                    
+                    
+
+                    
+                
+                <p>Command to send or command settings object.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>settings</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Command settings (see <a href="sh.network.Request.html"><code>sh.network.Request</code></a> for more details).</p>
+                
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Default</th>
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>command</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Command to send.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>parseResponse</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                    false
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Parse the response string (see <a href="sh.commands.parsers.html"><code>sh.commands.parsers</code></a> for a list of knowns parsers).</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>retryInterval</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Integer</span>
+|
+
+<span class="param-type">null</span>
+|
+
+<span class="param-type">false</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Retry interval in milliseconds.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+            </td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+        <h5>Examples</h5>
+        
+
+    <h3>Create the board instance</h3><pre class="prettyprint source"><code>var board = new sh.Board('192.168.1.102');</code></pre>
+
+
+    <h3>Subscribe to events</h3><pre class="prettyprint source"><code>board.subscribe('request', function(event) {
+    console.info('on:request:', event);
+    // => sh.BoardEvent {
+    //     board        : {sh.Board},
+    //     name         : &quot;request&quot;,
+    //     data         : {Object}, &lt;- request settings
+    //     originalEvent: null
+    // }
+});
+
+board.subscribe('response', function(event) {
+    console.info('on:response:', event);
+    // => sh.BoardEvent {
+    //     board        : {sh.Board},
+    //     name         : &quot;response&quot;,
+    //     data         : {Object|String},  &lt;- parsed response data
+    //     originalEvent: {sh.network.RequestEvent}
+    // }
+});
+
+board.subscribe('data', function(event) {
+    console.info('on:data:', event.data);
+    // => Object {
+    //     request : {Object},        &lt;- request settings
+    //     response: {Object|String}  &lt;- parsed response data
+    // }
+});
+
+board.subscribe('retry', function(event) {
+    console.warn('on:retry:', event);
+    // => sh.BoardEvent {
+    //     board        : {sh.Board},
+    //     name         : &quot;error&quot;,
+    //     data         : {Object}, &lt;- request settings
+    //     originalEvent: {sh.network.RequestEvent}
+    // }
+});
+
+board.subscribe('error', function(event) {
+    console.error('on:error:', event);
+    // => sh.BoardEvent {
+    //     board        : {sh.Board},
+    //     name         : &quot;error&quot;,
+    //     data         : {Error}, &lt;- Error instance
+    //     originalEvent: {sh.network.RequestEvent}
+    // }
+});</code></pre>
+
+
+    <h3>Send version command (raw response)</h3><pre class="prettyprint source"><code>board.send('version').then(function(event) {
+    console.info('version:event:', event);
+    // => sh.BoardEvent {
+    //     board        : {sh.Board},
+    //     name         : &quot;response&quot;,
+    //     data         : &quot;Build version: edge-9ab4538, Build date: Oct 10 2016 04:09:42, MCU: LPC1769, System Clock: 120MHz↵&quot;,
+    //     originalEvent: {sh.network.RequestEvent}
+    // }
+
+    console.info('version:event:raw:', event.originalEvent.response.raw);
+    // => &quot;Build version: edge-9ab4538, Build date: Oct 10 2016 04:09:42, MCU: LPC1769, System Clock: 120MHz↵&quot;
+
+    console.info('version:event:data:' , event.data); // Shortcut for event.originalEvent.response.raw
+    // => &quot;Build version: edge-9ab4538, Build date: Oct 10 2016 04:09:42, MCU: LPC1769, System Clock: 120MHz↵&quot;
+})
+.catch(function(event) {
+    console.info('version:event:', event);
+    // => sh.BoardEvent {
+    //     board        : {sh.Board},
+    //     name         : &quot;error&quot;,
+    //     data         : {Error},
+    //     originalEvent: {sh.network.RequestEvent}
+    // }
+
+    console.error('version:', event.name);               // => error
+    console.error('version:', event.originalEvent.name); // => upload.timeout
+    console.error('version:', event.data);               // => Error: upload.timeout: version at ...
+});</code></pre>
+
+
+    <h3>Send version command (parsed response)</h3><pre class="prettyprint source"><code>board.send('version', { parseResponse: true }).then(function(event) {
+    console.info('version:event:raw:', event.originalEvent.response.raw);
+    // => &quot;Build version: edge-9ab4538, Build date: Oct 10 2016 04:09:42, MCU: LPC1769, System Clock: 120MHz↵&quot;
+
+    console.info('version:event:data:', event.data); // Parsed response data
+    // => Object {
+    //     branch: &quot;edge&quot;,
+    //     hash  : &quot;9ab4538&quot;,
+    //     date  : &quot;Oct 10 2016 04:09:42&quot;,
+    //     mcu   : &quot;LPC1769&quot;,
+    //     clock : &quot;120MHz&quot;
+    // }
+});</code></pre>
+
+
+    
+</dd>
+
+        
+            
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="subscribe">
+            
+             subscribe<span class="signature">(event, callback, <span class="optional">context</span>)</span><span class="glyphicon glyphicon-circle-arrow-right"></span><span class="type-signature returnType">{this}</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line938">line 938</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Subscription to an event.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Default</th>
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                    
+
+                    
+                
+                <p>Event name.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                    
+
+                    
+                
+                <p>Function to call on event is fired.</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>context</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+|
+
+<span class="param-type">null</span>
+
+
+            
+            </td>
+
+            
+                <td class="default">
+                
+                    null
+                
+                </td>
+            
+
+            <td class="description last">
+                
+                    
+                        <span class="optional">optional</span>
+                    
+                    
+
+                    
+                
+                <p>Callback context to apply on call.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+    <div class="callbacks">
+        <h5>Callbacks</h5>
+        <div class="wrapper">
+            <table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>request</td>
+<td><a href="sh.Board.html#~onRequest"><code>onRequest</code></a></td>
+<td>Called on command request.</td>
+</tr>
+<tr>
+<td>response</td>
+<td><a href="sh.Board.html#~onResponse"><code>onResponse</code></a></td>
+<td>Called on command response.</td>
+</tr>
+<tr>
+<td>data</td>
+<td><a href="sh.Board.html#~onData"><code>onData</code></a></td>
+<td>Called on command data.</td>
+</tr>
+<tr>
+<td>retry</td>
+<td><a href="sh.Board.html#~onRetry"><code>onRetry</code></a></td>
+<td>Called on command retry.</td>
+</tr>
+<tr>
+<td>error</td>
+<td><a href="sh.Board.html#~onError"><code>onError</code></a></td>
+<td>Called on command error.</td>
+</tr>
+</tbody>
+</table>
+        </div>
+    </div>
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+    
+
+
+    
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Type Definitions</h3>
+
+        <dl>
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onData">
+            
+             onData<span class="signature">(event)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line897">line 897</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On command data.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.BoardEvent.html">sh.BoardEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board event.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onError">
+            
+             onError<span class="signature">(event)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line911">line 911</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On command error.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.BoardEvent.html">sh.BoardEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board event.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onRequest">
+            
+             onRequest<span class="signature">(event)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line877">line 877</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On command request.</p>
+<pre class="prettyprint source"><code>=> sh.BoardEvent {
+    board        : {sh.Board},
+    name         : &quot;request&quot;,
+    data         : {Object}, &lt;- request settings
+    originalEvent: null
+}</code></pre>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.BoardEvent.html">sh.BoardEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board event.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onResponse">
+            
+             onResponse<span class="signature">(event)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line890">line 890</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On command response.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.BoardEvent.html">sh.BoardEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board event.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            
+                
+<dt>
+    <div class="nameContainer">
+        <h4 class="name" id="~onRetry">
+            
+             onRetry<span class="signature">(event)</span>
+        </h4>
+
+        
+        <div class="tag-source">
+            <a href="smoothie-happy.js.html">smoothie-happy.js</a>, <a href="smoothie-happy.js.html#line904">line 904</a>
+        </div>
+        
+    </div>
+
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>On retry to send command.</p>
+    </div>
+    
+
+    
+
+    
+
+    
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="sh.BoardEvent.html">sh.BoardEvent</a></span>
+
+
+            
+            </td>
+
+            
+
+            <td class="description last">
+                
+                <p>Board event.</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+
+    
+
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+            </dl>
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+
+        
+
+        <footer>
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Oct 20 2016 13:34:26 GMT+0200 (Europe de l’Ouest (heure d’été))
+        </footer>
+    </div>
+</div>
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<script src="scripts/main.js"></script>
+</body>
+</html>

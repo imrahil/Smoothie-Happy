@@ -138,11 +138,17 @@
 
     /**
     * On command request.
-    *
+    * ```
+    * => sh.BoardEvent {
+    *     board        : {sh.Board},
+    *     name         : "request",
+    *     data         : {Object}, <- request settings
+    *     originalEvent: null
+    * }
+    * ```
     * @callback sh.Board~onRequest
     * @param {sh.BoardEvent} event Board event.
     */
-
     /**
     * On command response.
     *
@@ -317,6 +323,11 @@
         settings.data = settings.command;
         settings.url  = 'http://' + self.address + '/command';
 
+        // first request time
+        if (! settings.time) {
+            settings.time = Date.now();
+        }
+
         // publish event
         self.publish('request', settings);
 
@@ -344,6 +355,8 @@
             }
 
             // parse the response ?
+            var parsedData = null;
+
             if (settings.parseResponse) {
                 // parse response string
                 data = sh.commands.parse(command, data);
@@ -358,14 +371,20 @@
                 }
 
                 // publish event
-                self.publish('data', {
-                    command: settings,
-                    data   : data
-                }, event);
+                parsedData = {
+                    request : settings,
+                    response: data
+                };
             }
 
             // resolve event
-            return self._resolveEvent('response', event, data);
+            var promise = self._resolveEvent('response', event, data);
+
+            if (parsedData) {
+                self.publish('data', parsedData, event);
+            }
+
+            return promise;
         })
         .catch(function(event) {
             // fatal error in response
