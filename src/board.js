@@ -137,9 +137,9 @@
     // -------------------------------------------------------------------------
 
     /**
-    * On command sent.
+    * On command request.
     *
-    * @callback sh.Board~onCommand
+    * @callback sh.Board~onRequest
     * @param {sh.BoardEvent} event Board event.
     */
 
@@ -151,9 +151,9 @@
     */
 
     /**
-    * On command error.
+    * On command data.
     *
-    * @callback sh.Board~onError
+    * @callback sh.Board~onData
     * @param {sh.BoardEvent} event Board event.
     */
 
@@ -161,6 +161,13 @@
     * On retry to send command.
     *
     * @callback sh.Board~onRetry
+    * @param {sh.BoardEvent} event Board event.
+    */
+
+    /**
+    * On command error.
+    *
+    * @callback sh.Board~onError
     * @param {sh.BoardEvent} event Board event.
     */
 
@@ -178,10 +185,11 @@
     * @callbacks
     * | Name     | Type                                   | Description                 |
     * | -------- | -------------------------------------- | --------------------------- |
-    * | command  | {@link sh.Board~onCommand|onCommand}   | Called on command sent.     |
+    * | request  | {@link sh.Board~onRequest|onRequest}   | Called on command request.  |
     * | response | {@link sh.Board~onResponse|onResponse} | Called on command response. |
-    * | error    | {@link sh.Board~onError|onError}       | Called on command error.    |
+    * | data     | {@link sh.Board~onData|onData}         | Called on command data.     |
     * | retry    | {@link sh.Board~onRetry|onRetry}       | Called on command retry.    |
+    * | error    | {@link sh.Board~onError|onError}       | Called on command error.    |
     */
     sh.Board.prototype.subscribe = function(event, callback, context) {
         // first subscription
@@ -264,18 +272,22 @@
     // -------------------------------------------------------------------------
 
     /**
-    * Send a raw command to the board.
+    * Send a command to the board.
     *
     * @method
-    * @param  {String|Object}      command                  Command to send or command settings object.
-    * @param  {Object}             [settings]               Command settings (see {@link sh.network.Request} for more details).
-    * @param  {String}             [settings.command]       Command to send.
-    * @param  {Integer|null|false} [settings.retryInterval] Retry interval in milliseconds.
+    * @param  {String|Object}      command|settings               Command to send or command settings object.
+    * @param  {Object}             [settings]                     Command settings (see {@link sh.network.Request} for more details).
+    * @param  {String}             [settings.command]             Command to send.
+    * @param  {Boolean}            [settings.parseResponse=false] Parse the response string (see {@link sh.commands.parsers} for a list of knowns parsers).
+    * @param  {Integer|null|false} [settings.retryInterval=null]  Retry interval in milliseconds.
     * @return {sh.network.Request}
     *
-    * {$examples sh.Board.command}
+    * {$examples sh.Board.send.instance}
+    * {$examples sh.Board.send.subscribe}
+    * {$examples sh.Board.send.version1}
+    * {$examples sh.Board.send.version2}
     */
-    sh.Board.prototype.command = function(command, settings) {
+    sh.Board.prototype.send = function(command, settings) {
         // self alias
         var self = this;
 
@@ -306,7 +318,7 @@
         settings.url  = 'http://' + self.address + '/command';
 
         // publish event
-        self.publish('command', settings);
+        self.publish('request', settings);
 
         // return POST request (promise)
         return sh.network.post(settings).then(function(event) {
@@ -320,19 +332,40 @@
             self.lastOnlineTime = Date.now();
 
             // response text
-            var raw = event.response.raw;
+            var data = event.response.raw;
 
             // unsupported command...
-            if (raw.indexOf('error:Unsupported command') === 0) {
+            if (data.indexOf('error:Unsupported command') === 0) {
                 return Promise.reject({
                     rejected: true,
                     event   : event,
-                    raison  : raw.substr(6)
+                    raison  : data.substr(6)
                 });
             }
 
+            // parse the response ?
+            if (settings.parseResponse) {
+                // parse response string
+                data = sh.commands.parse(command, data);
+
+                // rejected ?
+                if (data instanceof Error) {
+                    return Promise.reject({
+                        rejected: true,
+                        event   : event,
+                        raison  : data
+                    });
+                }
+
+                // publish event
+                self.publish('data', {
+                    command: settings,
+                    data   : data
+                }, event);
+            }
+
             // resolve event
-            return self._resolveEvent('response', event, raw);
+            return self._resolveEvent('response', event, data);
         })
         .catch(function(event) {
             // fatal error in response
@@ -360,7 +393,7 @@
                 return new Promise(function(resolve, reject) {
                     // delayed retry
                     setTimeout(function() {
-                        self.command(settings).then(resolve).catch(reject);
+                        self.send(settings).then(resolve).catch(reject);
                     }, settings.retryInterval);
                 });
             }
@@ -370,74 +403,30 @@
         });
     };
 
-    // -------------------------------------------------------------------------
-
     /**
-    * Send ok command to the board.
+    * Send a command to the board (force parsed response).
+    *
+    * - Shortcut for `board.send('version', { parseResponse: true });`.
     *
     * @method
-    * @param  {Object} [settings] Command settings (see {@link sh.Board~command} for more details).
+    * @param  {String|Object}      command|settings              Command to send or command settings object.
+    * @param  {Object}             [settings]                    Command settings (see {@link sh.Board#send} for more details).
+    * @param  {Boolean}            [settings.parseResponse=true] Parse the response string (see {@link sh.commands.parsers} for a list of knowns parsers).
     * @return {sh.network.Request}
     *
-    * {$examples sh.Board.cmd_ok}
+    * {$examples sh.Board.command}
     */
-    sh.Board.prototype.cmd_ok = function(settings) {
-        // self alias
-        var self = this;
+    sh.Board.prototype.command = function(command, settings) {
+        // default settings
+        settings = settings || {};
 
-        // send ok command as ping
-        return self.command('ok', settings).then(function(event) {
-            return self._resolveEvent('ok', event, 'ok');
-        });
-    };
+        // force parseResponse to true if not defined
+        if (settings.parseResponse === undefined) {
+            settings.parseResponse = true;
+        }
 
-    // -------------------------------------------------------------------------
-
-    /**
-    * Send version command to the board.
-    *
-    * @method
-    * @param  {Object} [settings] Command settings (see {@link sh.Board~command} for more details).
-    * @return {sh.network.Request}
-    *
-    * {$examples sh.Board.cmd_version}
-    */
-    sh.Board.prototype.cmd_version = function(settings) {
-        // self alias
-        var self = this;
-
-        // send ok command as ping
-        return self.command('version', settings).then(function(event) {
-            // version string
-            // expected : Build version: edge-94de12c, Build date: Oct 28 2014 13:24:47, MCU: LPC1769, System Clock: 120MHz
-            var versionString = event.data.trim();
-
-            // version pattern
-            var versionPattern = /Build version: (.*), Build date: (.*), MCU: (.*), System Clock: (.*)/;
-
-            // test the pattern
-            var info = versionString.match(versionPattern);
-
-            if (info) {
-                // split branch-hash on dash
-                var branch = info[1].split('-');
-
-                // update board info
-                self.info = {
-                    branch: branch[0].trim(),
-                    hash  : branch[1].trim(),
-                    date  : info[2].trim(),
-                    mcu   : info[3].trim(),
-                    clock : info[4].trim()
-                };
-
-                // resolve event
-                return self._resolveEvent('version', event, self.info);
-            }
-
-            // reject event
-            return self._rejectEvent(event, 'Unknown version string');
-        });
+        // send the command
+        return board.send(command, settings);
     };
 
 })();
