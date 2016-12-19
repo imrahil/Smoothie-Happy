@@ -1,0 +1,39 @@
+{
+  "name": "smoothie-happy",
+  "version": "1.0.0",
+  "description": "A Smoothie firmware network communication API",
+  "main": "./dist/smoothie-happy.js",
+  "scripts": {
+    "start": "webpack-dev-server --progress --colors",
+    "build": "npm run build-dev && npm run build-prod && npm run build-docs",
+    "build-prod": "webpack -p --progress --colors",
+    "build-dev": "webpack --progress --colors",
+    "build-docs": "jsdoc -c ./jsdoc.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lautr3k/smoothie-happy.git"
+  },
+  "keywords": [
+    "smoothie",
+    "firmware",
+    "communication",
+    "network"
+  ],
+  "author": "Sébastien Mischler (skarab, Lautr3k)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lautr3k/smoothie-happy/issues"
+  },
+  "homepage": "https://github.com/lautr3k/smoothie-happy#readme",
+  "devDependencies": {
+    "babel-core": "^6.20.0",
+    "babel-loader": "^6.2.9",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-react": "^6.16.0",
+    "ink-docstrap": "^1.3.0",
+    "jsdoc": "^3.4.3",
+    "webpack": "^1.14.0",
+    "webpack-dev-server": "^1.16.2"
+  }
+}
