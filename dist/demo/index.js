@@ -1,8 +1,8 @@
 // API shortcut
-var sh = SmoothieHappy;
+var Request = SmoothieHappy.Request;
 
 // Single request
-new sh.Request({
+new Request({
     url: 'hello.html'
 })
 .onProgress(function(event) {
