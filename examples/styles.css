@@ -39,3 +39,16 @@ button:hover {
     border-color: #555;
     background-color: #ccc;
 }
+
+pre {
+    float: left;
+    display: block;
+    overflow: auto;
+    font-size: 0.9em;
+    width: calc(50% - 10px);
+    height: calc(100% - 50px);
+}
+
+body pre:first-of-type {
+    margin-right: 20px;
+}

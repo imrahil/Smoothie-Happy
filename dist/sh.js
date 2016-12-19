@@ -2,8 +2,8 @@
 * Smoothie-Happy - A SmoothieBoard network communication API.
 * @author   Sébastien Mischler (skarab) <sebastien@onlfait.ch>
 * @see      {@link https://github.com/lautr3k/Smoothie-Happy}
-* @build    e9516897078299e99536ad82dd09cb2f
-* @date     Thu, 20 Oct 2016 16:41:17 +0000
+* @build    b19e25cc36910806e8fd245c3f131422
+* @date     Sun, 23 Oct 2016 09:14:40 +0000
 * @version  0.3.0-dev
 * @license  MIT
 * @namespace
@@ -39,39 +39,55 @@ var sh = {};
     * @param {XMLHttpRequest} xhr An `XMLHttpRequest` instance.
     */
     sh.network.Response = function(xhr) {
-        // instance factory
-        if (! (this instanceof sh.network.Response)) {
-            return new sh.network.Response(xhr);
-        }
-
         // text/xml response available ?
         var responseText = null;
         var responseXML  = null;
 
-        if (xhr.responseType == '' || xhr.responseType == 'document') {
+        if (xhr.responseType === '' || xhr.responseType === 'document') {
             responseText = xhr.responseText;
             responseXML  = xhr.responseXML;
         }
 
-        /** @property {Integer} - Response status code. */
+        /**
+         * @property {Integer} - Response status code.
+         * @readonly
+         */
         this.code = xhr.status;
 
-        /** @property {String} - Respons status text. */
+        /**
+         * @property {String} - Respons status text.
+         * @readonly
+         */
         this.message = xhr.statusText;
 
-        /** @property {String} - Response type. */
+        /**
+         * @property {String} - Response type.
+         * @readonly
+         */
         this.type = xhr.responseType;
 
-        /** @property {String} - Response url. */
+        /**
+         * @property {String} - Response url.
+         * @readonly
+         */
         this.url = xhr.responseURL;
 
-        /** @property {String} - Response XML. */
+        /**
+         * @property {String} - Response XML.
+         * @readonly
+         */
         this.xml = responseXML;
 
-        /** @property {String} - Response text. */
+        /**
+         * @property {String} - Response text.
+         * @readonly
+         */
         this.text = responseText;
 
-        /** @property {Mixed} - Raw response. */
+        /**
+         * @property {Mixed} - Raw response.
+         * @readonly
+         */
         this.raw = xhr.response;
     };
 
@@ -83,19 +99,29 @@ var sh = {};
     * @param {sh.network.Request} request Original `sh.network.Request` instance.
     */
     sh.network.RequestEvent = function(name, request) {
-        // instance factory
-        if (! (this instanceof sh.network.RequestEvent)) {
-            return new sh.network.RequestEvent(name, request);
-        }
-
-        /** @property {String} - Possible values is `[upload.]load`, `[upload.]timeout`, `[upload.]abort` or `[upload.]error`. */
+        /**
+         * @property {String} - Possible values is `[upload.]load`, `[upload.]timeout`, `[upload.]abort` or `[upload.]error`.
+         * @readonly
+         */
         this.name = name;
 
-        /** @property {sh.network.Request} - Request instance. */
+        /**
+         * @property {sh.network.Request} - Request instance.
+         * @readonly
+         */
         this.request = request;
 
-        /** @property {sh.network.Response} - Response instance. */
-        this.response = sh.network.Response(request._xhr);
+        /**
+         * @property {sh.network.Response} - Response instance.
+         * @readonly
+         */
+        this.response = new sh.network.Response(request._xhr);
+
+        /**
+         * @property {Object|null} - Arbitrary data.
+         * @readonly
+         */
+        this.data = null;
     };
 
     /**
@@ -105,34 +131,36 @@ var sh = {};
     * @extends sh.network.RequestEvent
     * @param {String}             name    Event name, possible values is `progress` or `upload.progress`.
     * @param {sh.network.Request} request Original `sh.network.Request`.
-    * @param {ProgressEvent}      source  Original `ProgressEvent`.
+    * @param {ProgressEvent}      event   Original `ProgressEvent`.
     */
-    sh.network.ProgressEvent = function(name, request, source) {
-        // instance factory
-        if (! (this instanceof sh.network.ProgressEvent)) {
-            return new sh.network.ProgressEvent(name, request, source);
-        }
-
+    sh.network.ProgressEvent = function(name, request, event) {
         // call parent constructor
         sh.network.RequestEvent.call(this, name, request);
 
-        /** @property {String} - Possible values is `progress` or `upload.progress`. */
+        /**
+         * @property {String} - Possible values is `progress` or `upload.progress`.
+         * @readonly
+         */
         this.name = name;
 
-        /** @property {ProgressEvent} - `ProgressEvent` instance. */
-        this.source = source;
+        /**
+         * @property {ProgressEvent} - `ProgressEvent` instance.
+         * @readonly
+         */
+        this.originalEvent = event;
 
-        /** @property {Boolean} - If computable length. */
-        this.computable = source.lengthComputable;
-
-        /** @property {Integer} - Total bytes. */
-        this.total = this.computable ? source.total : null;
-
-        /** @property {Integer} - Loaded bytes. */
-        this.loaded = this.computable ? source.loaded : null;
-
-        /** @property {Integer} - Loaded bytes as percent. */
-        this.percent = this.computable ? (this.loaded / this.total) * 100 : null;
+        /**
+         * @property {Object|null} data         Progress data or null if not computable.
+         * @property {Integer}     data.total   Total bytes.
+         * @property {Integer}     data.loaded  Loaded bytes.
+         * @property {Integer}     data.percent Loaded percent.
+         * @readonly
+         */
+        this.data = ! event.lengthComputable ? null : {
+            total  : event.total,
+            loaded : event.loaded,
+            percent: parseInt(event.loaded / event.total * 100)
+        };
     };
 
     // extends sh.network.RequestEvent
@@ -155,47 +183,46 @@ var sh = {};
     * ### Single request
     * ```
     * new sh.network.Request({
-    *     url: 'index.html'
+    *     url: 'hello.html'
     * })
     * .onProgress(function(event) {
     *     // notify progression
-    *     console.info(event.request._url, '>> progress >>',  event.percent, '%');
+    *     console.info('on:progress', event);
     * })
     * .then(function(event) {
-    *     // index.html is loaded
-    *     console.info(event.request._url, '>> loaded >>', event.response);
+    *     // hello.html is loaded
+    *     console.info('on:load', event);
     * 
     *     // return result for final then
     *     return { event: event, error: false };
     * })
     * .catch(function(event) {
-    *     // error loading index.html
-    *     console.warn(event.request._url, '>> error >>', event.response);
+    *     // error loading hello.html
+    *     console.warn('on:error', event);
     * 
     *     // return error for final then
     *     return { event: event, error: true };
     * })
     * .then(function(result) {
-    *     // finaly ...
-    *     var event    = result.event;
-    *     var logType  = result.error ? 'error' : 'info';
-    *     var logLabel = result.error ? 'error' : 'loaded';
+    *     // finally ...
+    *     var event = result.event;
+    *     var type  = result.error ? 'error' : 'info';
     * 
-    *     console[logType](event.request._url, '>>', logLabel, '>>', event.response);
+    *     console[type]('finally:', event);
     * });
     * ```
     * @example
     * ### Chaining requests
     * ```
     * new sh.network.Request({
-    *     url: 'index.html'
+    *     url: 'hello.html'
     * })
     * .onProgress(function(event) {
     *     // notify progression
     *     console.info(event.request._url, '>> progress >>',  event.percent, '%');
     * })
     * .then(function(event) {
-    *     // index.html is loaded
+    *     // hello.html is loaded
     *     console.info(event.request._url, '>> loaded >>', event.response);
     * 
     *     // return another request
@@ -215,14 +242,14 @@ var sh = {};
     *     return { event: event, error: false };
     * })
     * .catch(function(event) {
-    *     // error loading index.html or not_found.html
+    *     // error loading hello.html or not_found.html
     *     console.warn(event.request._url, '>> error >>', event.response);
     * 
     *     // return error for final then
     *     return { event: event, error: true };
     * })
     * .then(function(result) {
-    *     // finaly ...
+    *     // finally ...
     *     var event    = result.event;
     *     var logType  = result.error ? 'error' : 'info';
     *     var logLabel = result.error ? 'error' : 'loaded';
@@ -234,9 +261,9 @@ var sh = {};
     * ### Multiple requests (all)
     * ```
     * var requests = [
-    *     new sh.network.Request({ url: 'index.html?request=1'}),
-    *     new sh.network.Request({ url: 'index.html?request=2'}),
-    *     new sh.network.Request({ url: 'index.html?request=3'})
+    *     new sh.network.Request({ url: 'hello.html?request=1'}),
+    *     new sh.network.Request({ url: 'hello.html?request=2'}),
+    *     new sh.network.Request({ url: 'hello.html?request=3'})
     * ];
     * 
     * // The Promise.all(iterable) method returns a promise that resolves
@@ -257,9 +284,9 @@ var sh = {};
     * ### Multiple requests (race)
     * ```
     * var requests = [
-    *     new sh.network.Request({ url: 'index.html?request=1'}),
-    *     new sh.network.Request({ url: 'index.html?request=2'}),
-    *     new sh.network.Request({ url: 'index.html?request=3'})
+    *     new sh.network.Request({ url: 'hello.html?request=1'}),
+    *     new sh.network.Request({ url: 'hello.html?request=2'}),
+    *     new sh.network.Request({ url: 'hello.html?request=3'})
     * ];
     * 
     * // The Promise.race(iterable) method returns a promise that resolves or rejects
@@ -276,75 +303,70 @@ var sh = {};
     * ```
     */
     sh.network.Request = function(settings) {
-        // instance factory
-        if (! (this instanceof sh.network.Request)) {
-            return new sh.network.Request(settings);
-        }
-
         // default settings
         var settings = settings || {};
 
         /**
         * @property {String} - Request url.
         * @default ''
-        * @protected
+        * @readonly
         */
-        this._url = (settings.url || '').trim();
+        this.url = (settings.url || '').trim();
 
         /**
         * @property {String} - Request method.
         * @default 'GET'
-        * @protected
+        * @readonly
         */
-        this._method = (settings.method  || 'GET').trim().toUpperCase();
+        this.method = (settings.method  || 'GET').trim().toUpperCase();
 
         /**
         * @property {Mixed} - Request data.
         * @default null
-        * @protected
+        * @readonly
         */
-        this._data = settings.data || null;
+        this.data = settings.data || null;
 
         // append data to url if not a POST method
-        if (this._method !== 'POST' && this._data) {
+        if (this.method !== 'POST' && this.data) {
             // stringify data object
-            if (typeof this._data === 'object') {
-                this._data = Object.keys(this._data).map(function(key) {
-                    return encodeURIComponent(key) + '=' + encodeURIComponent(this._data[key]);
+            if (typeof this.data === 'object') {
+                this.data = Object.keys(this.data).map(function(key) {
+                    return encodeURIComponent(key) + '=' + encodeURIComponent(this.data[key]);
                 }).join('&');
             }
 
             // trim data string
-            this._data = this._data.trim();
+            this.data = this.data.trim();
 
             // remove the first char if it is an '?'
-            if (this._data.indexOf('?') === 0) {
-                this._data = this._data.substr(1);
+            if (this.data.indexOf('?') === 0) {
+                this.data = this.data.substr(1);
             }
 
             // append '?' or '&' to the uri if not already set
-            this._url += (this._url.indexOf('?') === -1) ? '?' : '&';
+            this.url += (this.url.indexOf('?') === -1) ? '?' : '&';
 
             // append data to uri
-            this._url += this._data;
+            this.url += this.data;
 
             // reset data
-            this._data = null;
+            this.data = null;
         }
 
         /**
         * @property {Object} - Request headers.
         * @default {}
-        * @protected
+        * @readonly
         */
-        this._headers = settings.headers || {};
+        this.headers = settings.headers || {};
 
         /**
         * @property {Integer} - Request timeout in milliseconds.
         * @default 5000
-        * @protected
+        * @readonly
         */
-        this._timeout = settings.timeout === undefined ? 5000 : settings.timeout;
+        this.timeout = settings.timeout === undefined ? 5000 : settings.timeout;
 
         /**
         * @property {XMLHttpRequest} - XMLHttpRequest instance.
@@ -387,7 +409,7 @@ var sh = {};
         // create and return the Promise
         return new Promise(function(resolve, reject) {
             // open the request (async)
-            self._xhr.open(self._method, self._url, true);
+            self._xhr.open(self.method, self.url, true);
 
             // overwrite properties/methods
             for (var option in xhrOptions) {
@@ -404,33 +426,33 @@ var sh = {};
             }
 
             // force timeout
-            self._xhr.timeout = self._timeout;
+            self._xhr.timeout = self.timeout;
 
             // on load
             var LOAD_EVENT = 'load';
 
             self._xhr.onload = function () {
                 if (self._xhr.status >= 200 && self._xhr.status < 300) {
-                    resolve(sh.network.RequestEvent(LOAD_EVENT, self));
+                    resolve(new sh.network.RequestEvent(LOAD_EVENT, self));
                 }
                 else {
-                    reject(sh.network.RequestEvent(LOAD_EVENT, self));
+                    reject(new sh.network.RequestEvent(LOAD_EVENT, self));
                 }
             };
 
             // on error
             self._xhr.onerror = function () {
-                reject(sh.network.RequestEvent('error', self));
+                reject(new sh.network.RequestEvent('error', self));
             };
 
             // on timeout
             self._xhr.ontimeout = function () {
-                reject(sh.network.RequestEvent('timeout', self));
+                reject(new sh.network.RequestEvent('timeout', self));
             };
 
             // on abort
             self._xhr.onabort = function () {
-                reject(sh.network.RequestEvent('abort', self));
+                reject(new sh.network.RequestEvent('abort', self));
             };
 
             // on upload.load
@@ -440,26 +462,26 @@ var sh = {};
 
             // on upload.error
             self._xhr.upload.onerror = function () {
-                reject(sh.network.RequestEvent('upload.error', self));
+                reject(new sh.network.RequestEvent('upload.error', self));
             };
 
             // on upload.timeout
             self._xhr.upload.ontimeout = function () {
-                reject(sh.network.RequestEvent('upload.timeout', self));
+                reject(new sh.network.RequestEvent('upload.timeout', self));
             };
 
             // on upload.abort
             self._xhr.upload.onabort = function () {
-                reject(sh.network.RequestEvent('upload.abort', self));
+                reject(new sh.network.RequestEvent('upload.abort', self));
             };
 
             // set request headers
-            for (var header in self._headers) {
-                self._xhr.setRequestHeader(header, self._headers[header]);
+            for (var header in self.headers) {
+                self._xhr.setRequestHeader(header, self.headers[header]);
             }
 
             // send the request
-            self._xhr.send(self._method === 'POST' ? self._data : null);
+            self._xhr.send(self.method === 'POST' ? self.data : null);
         });
     };
 
@@ -478,7 +500,7 @@ var sh = {};
         // register progress event
         this._xhr.onprogress = function(event) {
             if (event.lengthComputable) {
-                progressHandler.call(context || this, sh.network.ProgressEvent('progress', self, event));
+                progressHandler.call(context || this, new sh.network.ProgressEvent('progress', self, event));
             }
         };
 
@@ -501,7 +523,7 @@ var sh = {};
         // register upload progress event
         this._xhr.upload.onprogress = function(event) {
             if (event.lengthComputable) {
-                progressHandler.call(context || this, sh.network.ProgressEvent('upload.progress', self, event));
+                progressHandler.call(context || this, new sh.network.ProgressEvent('upload.progress', self, event));
             }
         };
 
@@ -540,7 +562,7 @@ var sh = {};
     * @return {sh.network.request}
     */
     sh.network.request = function(settings) {
-        return sh.network.Request(settings);
+        return new sh.network.Request(settings);
     };
 
     /**
@@ -558,7 +580,7 @@ var sh = {};
         settings.method = 'GET';
 
         // create and return the request
-        return sh.network.Request(settings);
+        return new sh.network.Request(settings);
     };
 
     /**
@@ -576,7 +598,7 @@ var sh = {};
         settings.method = 'POST';
 
         // create and return the request
-        return sh.network.Request(settings);
+        return new sh.network.Request(settings);
     };
 
 })(sh);

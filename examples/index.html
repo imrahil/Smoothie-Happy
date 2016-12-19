@@ -11,53 +11,53 @@
         <link rel="stylesheet" type="text/css" href="../vendor/prism/prism.css" />
     </head>
     <body>
-        <h3>Open the console <small>[ Ctrl + Shift + I ]</small> to see all messages !</h3>
-        <select>
+        <div>
+            <select>
 	<optgroup label="sh.network.Request">
-		<option value="none" selected disabled>Select an example to run...</option>
-		<option value="example0">Single request</option>
-		<option value="example1">Chaining requests</option>
-		<option value="example2">Multiple requests (all)</option>
-		<option value="example3">Multiple requests (race)</option>
+		<option value="example0" selected>Single request</option>
+		<option value="example1" >Chaining requests</option>
+		<option value="example2" >Multiple requests (all)</option>
+		<option value="example3" >Multiple requests (race)</option>
 	</optgroup>
 </select>
- <button>Run</button>
+ <button>Run</button> <strong>Open the console <small>[ Ctrl + Shift + I ]</small> to see all messages !</strong>
+        </div>
         <pre><code id="source" class="language-javascript"></code></pre>
+        <pre><code id="result" class="language-json"></code></pre>
         <script src="../vendor/es6-promise.auto.min.js?v=4.0.3"></script>
-        <script src="../dist/sh.js?v=0.3.0-dev&amp;b=e9516897078299e99536ad82dd09cb2f"></script>
+        <script src="../dist/sh.js?v=0.3.0-dev&amp;b=b19e25cc36910806e8fd245c3f131422"></script>
         <script src="../vendor/prism/prism.js"></script>
         <script>
 	// Example n°0 - sh.network.Request : Single request
 
 	function example0() {
 		new sh.network.Request({
-		    url: 'index.html'
+		    url: 'hello.html'
 		})
 		.onProgress(function(event) {
 		    // notify progression
-		    console.info(event.request._url, '>> progress >>',  event.percent, '%');
+		    console.info('on:progress', event);
 		})
 		.then(function(event) {
-		    // index.html is loaded
-		    console.info(event.request._url, '>> loaded >>', event.response);
+		    // hello.html is loaded
+		    console.info('on:load', event);
 		
 		    // return result for final then
 		    return { event: event, error: false };
 		})
 		.catch(function(event) {
-		    // error loading index.html
-		    console.warn(event.request._url, '>> error >>', event.response);
+		    // error loading hello.html
+		    console.warn('on:error', event);
 		
 		    // return error for final then
 		    return { event: event, error: true };
 		})
 		.then(function(result) {
-		    // finaly ...
-		    var event    = result.event;
-		    var logType  = result.error ? 'error' : 'info';
-		    var logLabel = result.error ? 'error' : 'loaded';
+		    // finally ...
+		    var event = result.event;
+		    var type  = result.error ? 'error' : 'info';
 		
-		    console[logType](event.request._url, '>>', logLabel, '>>', event.response);
+		    console[type]('finally:', event);
 		});
 	}
 
@@ -65,14 +65,14 @@
 
 	function example1() {
 		new sh.network.Request({
-		    url: 'index.html'
+		    url: 'hello.html'
 		})
 		.onProgress(function(event) {
 		    // notify progression
 		    console.info(event.request._url, '>> progress >>',  event.percent, '%');
 		})
 		.then(function(event) {
-		    // index.html is loaded
+		    // hello.html is loaded
 		    console.info(event.request._url, '>> loaded >>', event.response);
 		
 		    // return another request
@@ -92,14 +92,14 @@
 		    return { event: event, error: false };
 		})
 		.catch(function(event) {
-		    // error loading index.html or not_found.html
+		    // error loading hello.html or not_found.html
 		    console.warn(event.request._url, '>> error >>', event.response);
 		
 		    // return error for final then
 		    return { event: event, error: true };
 		})
 		.then(function(result) {
-		    // finaly ...
+		    // finally ...
 		    var event    = result.event;
 		    var logType  = result.error ? 'error' : 'info';
 		    var logLabel = result.error ? 'error' : 'loaded';
@@ -112,9 +112,9 @@
 
 	function example2() {
 		var requests = [
-		    new sh.network.Request({ url: 'index.html?request=1'}),
-		    new sh.network.Request({ url: 'index.html?request=2'}),
-		    new sh.network.Request({ url: 'index.html?request=3'})
+		    new sh.network.Request({ url: 'hello.html?request=1'}),
+		    new sh.network.Request({ url: 'hello.html?request=2'}),
+		    new sh.network.Request({ url: 'hello.html?request=3'})
 		];
 		
 		// The Promise.all(iterable) method returns a promise that resolves
@@ -136,9 +136,9 @@
 
 	function example3() {
 		var requests = [
-		    new sh.network.Request({ url: 'index.html?request=1'}),
-		    new sh.network.Request({ url: 'index.html?request=2'}),
-		    new sh.network.Request({ url: 'index.html?request=3'})
+		    new sh.network.Request({ url: 'hello.html?request=1'}),
+		    new sh.network.Request({ url: 'hello.html?request=2'}),
+		    new sh.network.Request({ url: 'hello.html?request=3'})
 		];
 		
 		// The Promise.race(iterable) method returns a promise that resolves or rejects
@@ -159,6 +159,29 @@
             var select = document.querySelector('select');
             var button = document.querySelector('button');
             var source = document.querySelector('#source');
+            var result = document.querySelector('#result');
+
+            var _console = window.console;
+
+            window.console = {
+                call: function(type, args) {
+                    args = Array.prototype.slice.apply(args);
+                    _console[type].apply(_console, args);
+                    var text = JSON.stringify(args, function (k, v) {
+  if (k[0] !== '_'){
+    return v;
+  }
+}, '    ');
+                    var html = Prism.highlight(text, Prism.languages.json);
+                    result.innerHTML += '\n' + html;
+                    result.innerHTML += '\n\n -----\n';
+                },
+                debug: function() { this.call('debug', arguments); },
+                log  : function() { this.call('log'  , arguments); },
+                info : function() { this.call('info' , arguments); },
+                warn : function() { this.call('warn' , arguments); },
+                error: function() { this.call('error', arguments); }
+            };
 
             select.addEventListener('change', function() {
                 var example = window[select.value];
@@ -174,8 +197,11 @@
 
             button.addEventListener('click', function() {
                 var example = window[select.value];
+                result.innerHTML = '';
                 example && example();
             }, false);
+
+            select.dispatchEvent(new Event('change'));
         </script>
     </body>
 </html>

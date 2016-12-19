@@ -135,9 +135,9 @@ $examplesScripts = [];
 
 foreach ($examples as $section => $items) {
     $examplesOptions[] = "\t" . '<optgroup label="' . $section . '">';
-    $examplesOptions[] = "\t\t" . '<option value="none" selected disabled>Select an example to run...</option>';
+    //$examplesOptions[] = "\t\t" . '<option value="none" selected disabled>Select an example to run...</option>';
     foreach ($items as $index => $item) {
-        $examplesOptions[] = "\t\t" . '<option value="example' . $index . '">' . $item[0] . '</option>';
+        $examplesOptions[] = "\t\t" . '<option value="example' . $index . '" ' . ($index ? '' : 'selected') . '>' . $item[0] . '</option>';
         //$examplesScripts[] = 'function example' . $index . '() {' . "\n" . $item[1] . "\n" . '}';
         $buffer = '';
         $lines  = explode("\n", $item[1]);

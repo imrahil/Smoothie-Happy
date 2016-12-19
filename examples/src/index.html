@@ -11,9 +11,11 @@
         <link rel="stylesheet" type="text/css" href="../vendor/prism/prism.css" />
     </head>
     <body>
-        <h3>Open the console <small>[ Ctrl + Shift + I ]</small> to see all messages !</h3>
-        {$options} <button>Run</button>
+        <div>
+            {$options} <button>Run</button> <strong>Open the console <small>[ Ctrl + Shift + I ]</small> to see all messages !</strong>
+        </div>
         <pre><code id="source" class="language-javascript"></code></pre>
+        <pre><code id="result" class="language-json"></code></pre>
         <script src="../vendor/es6-promise.auto.min.js?v=4.0.3"></script>
         <script src="../dist/sh.js?v={$version}&amp;b={$build}"></script>
         <script src="../vendor/prism/prism.js"></script>
@@ -22,6 +24,29 @@
             var select = document.querySelector('select');
             var button = document.querySelector('button');
             var source = document.querySelector('#source');
+            var result = document.querySelector('#result');
+
+            var _console = window.console;
+
+            window.console = {
+                call: function(type, args) {
+                    args = Array.prototype.slice.apply(args);
+                    _console[type].apply(_console, args);
+                    var text = JSON.stringify(args, function (k, v) {
+  if (k[0] !== '_'){
+    return v;
+  }
+}, '    ');
+                    var html = Prism.highlight(text, Prism.languages.json);
+                    result.innerHTML += '\n' + html;
+                    result.innerHTML += '\n\n -----\n';
+                },
+                debug: function() { this.call('debug', arguments); },
+                log  : function() { this.call('log'  , arguments); },
+                info : function() { this.call('info' , arguments); },
+                warn : function() { this.call('warn' , arguments); },
+                error: function() { this.call('error', arguments); }
+            };
 
             select.addEventListener('change', function() {
                 var example = window[select.value];
@@ -37,8 +62,11 @@
 
             button.addEventListener('click', function() {
                 var example = window[select.value];
+                result.innerHTML = '';
                 example && example();
             }, false);
+
+            select.dispatchEvent(new Event('change'));
         </script>
     </body>
 </html>
